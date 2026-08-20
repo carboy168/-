@@ -1,0 +1,10 @@
+.buildenv/
+.deskenv/
+build/
+dist/
+release/
+__pycache__/
+*.pyc
+.env
+data/projects/
+data/source_docs/
