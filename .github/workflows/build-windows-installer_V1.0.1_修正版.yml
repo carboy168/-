@@ -1,0 +1,159 @@
+name: Build Engineering Norm Agent Windows Installer
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - "EngineeringNormAgent_V1.0_source.zip"
+      - ".github/workflows/build-windows-installer.yml"
+
+permissions:
+  contents: write
+
+env:
+  PYTHONUTF8: "1"
+  PYTHONIOENCODING: "utf-8"
+
+jobs:
+  build:
+    runs-on: windows-latest
+    timeout-minutes: 45
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Unpack source
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force -Path buildsrc | Out-Null
+          Expand-Archive -Path "EngineeringNormAgent_V1.0_source.zip" -DestinationPath buildsrc -Force
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install build dependencies
+        shell: pwsh
+        working-directory: buildsrc
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements-build.txt
+
+      - name: Repair V1.0.1 core catalogue
+        shell: pwsh
+        working-directory: buildsrc
+        run: |
+          $runtimeB64 = @'
+          ZnJvbSBfX2Z1dHVyZV9fIGltcG9ydCBhbm5vdGF0aW9ucwppbXBvcnQganNvbiwgbG9nZ2luZywgb3MsIHNodXRpbCwgc3lzLCB0cmFjZWJhY2ssIHppcGZpbGUKZnJvbSBkYXRldGltZSBpbXBvcnQgZGF0ZXRpbWUKZnJvbSBwYXRobGliIGltcG9ydCBQYXRoCgpBUFBfTkFNRSA9ICLlt6XnqIvop4TojIPmmbrog73kvZMiCkFQUF9JRCA9ICJFbmdpbmVlcmluZ05vcm1BZ2VudCIKQVBQX1ZFUlNJT04gPSAiMS4wLjEtZGVza3RvcCIKUFVCTElTSEVSID0gIkVuZ2luZWVyaW5nIE5vcm0gQWdlbnQiCgpkZWYgcmVzb3VyY2Vfcm9vdCgpIC0+IFBhdGg6CiAgICBpZiBnZXRhdHRyKHN5cywgImZyb3plbiIsIEZhbHNlKToKICAgICAgICAjIFB5SW5zdGFsbGVyIG9uZWRpcjogYnVuZGxlZCByZXNvdXJjZXMgc2l0IG5leHQgdG8gdGhlIGV4ZWN1dGFibGUgLyBfaW50ZXJuYWwuCiAgICAgICAgY2FuZGlkYXRlID0gUGF0aChzeXMuZXhlY3V0YWJsZSkucmVzb2x2ZSgpLnBhcmVudAogICAgICAgIGludGVybmFsID0gY2FuZGlkYXRlIC8gIl9pbnRlcm5hbCIKICAgICAgICBpZiAoaW50ZXJuYWwgLyAiZGF0YSIpLmV4aXN0cygpOgogICAgICAgICAgICByZXR1cm4gaW50ZXJuYWwKICAgICAgICByZXR1cm4gY2FuZGlkYXRlCiAgICByZXR1cm4gUGF0aChfX2ZpbGVfXykucmVzb2x2ZSgpLnBhcmVudHNbMV0KCmRlZiB1c2VyX2RhdGFfcm9vdCgpIC0+IFBhdGg6CiAgICBiYXNlID0gb3MuZW52aXJvbi5nZXQoIkxPQ0FMQVBQREFUQSIpCiAgICBpZiBiYXNlOgogICAgICAgIHJldHVybiBQYXRoKGJhc2UpIC8gQVBQX0lECiAgICByZXR1cm4gUGF0aC5ob21lKCkgLyAiLmVuZ2luZWVyaW5nX25vcm1fYWdlbnQiCgpSRVNPVVJDRV9ST09UID0gcmVzb3VyY2Vfcm9vdCgpClVTRVJfUk9PVCA9IHVzZXJfZGF0YV9yb290KCkKREJfRElSID0gVVNFUl9ST09UIC8gImRhdGFiYXNlIgpQUk9KRUNUX0RJUiA9IFVTRVJfUk9PVCAvICJwcm9qZWN0cyIKU1RBTkRBUkRfRE9DU19ESVIgPSBVU0VSX1JPT1QgLyAic3RhbmRhcmRzIgpCQUNLVVBfRElSID0gVVNFUl9ST09UIC8gImJhY2t1cHMiCkxPR19ESVIgPSBVU0VSX1JPT1QgLyAibG9ncyIKU0VUVElOR1NfRElSID0gVVNFUl9ST09UIC8gInNldHRpbmdzIgpFWFBPUlRfRElSID0gVVNFUl9ST09UIC8gImV4cG9ydHMiCkNBQ0hFX0RJUiA9IFVTRVJfUk9PVCAvICJjYWNoZSIKREJfUEFUSCA9IERCX0RJUiAvICJub3Jtcy5kYiIKU0VUVElOR1NfUEFUSCA9IFNFVFRJTkdTX0RJUiAvICJkZXNrdG9wX3NldHRpbmdzLmpzb24iCgpkZWYgZW5zdXJlX2RpcnMoKToKICAgIGZvciBkIGluIFtVU0VSX1JPT1QsIERCX0RJUiwgUFJPSkVDVF9ESVIsIFNUQU5EQVJEX0RPQ1NfRElSLCBCQUNLVVBfRElSLCBMT0dfRElSLCBTRVRUSU5HU19ESVIsIEVYUE9SVF9ESVIsIENBQ0hFX0RJUl06CiAgICAgICAgZC5ta2RpcihwYXJlbnRzPVRydWUsIGV4aXN0X29rPVRydWUpCgpjbGFzcyBTZXR0aW5nc1N0b3JlOgogICAgZGVmIF9faW5pdF9fKHNlbGYpOgogICAgICAgIGVuc3VyZV9kaXJzKCkKICAgICAgICBzZWxmLnBhdGggPSBTRVRUSU5HU19QQVRICiAgICAgICAgc2VsZi5kYXRhID0ge30KICAgICAgICBzZWxmLmxvYWQoKQoKICAgIGRlZiBsb2FkKHNlbGYpOgogICAgICAgIHRyeToKICAgICAgICAgICAgc2VsZi5kYXRhID0ganNvbi5sb2FkcyhzZWxmLnBhdGgucmVhZF90ZXh0KGVuY29kaW5nPSJ1dGYtOCIpKSBpZiBzZWxmLnBhdGguZXhpc3RzKCkgZWxzZSB7fQogICAgICAgIGV4Y2VwdCBFeGNlcHRpb246CiAgICAgICAgICAgIHNlbGYuZGF0YSA9IHt9CiAgICAgICAgcmV0dXJuIHNlbGYuZGF0YQoKICAgIGRlZiBzYXZlKHNlbGYpOgogICAgICAgIHRtcCA9IHNlbGYucGF0aC53aXRoX3N1ZmZpeCgiLnRtcCIpCiAgICAgICAgdG1wLndyaXRlX3RleHQoanNvbi5kdW1wcyhzZWxmLmRhdGEsIGVuc3VyZV9hc2NpaT1GYWxzZSwgaW5kZW50PTIpLCBlbmNvZGluZz0idXRmLTgiKQogICAgICAgIHRtcC5yZXBsYWNlKHNlbGYucGF0aCkKCiAgICBkZWYgZ2V0KHNlbGYsIGtleSwgZGVmYXVsdD1Ob25lKToKICAgICAgICByZXR1cm4gc2VsZi5kYXRhLmdldChrZXksIGRlZmF1bHQpCgogICAgZGVmIHNldChzZWxmLCBrZXksIHZhbHVlKToKICAgICAgICBzZWxmLmRhdGFba2V5XSA9IHZhbHVlCiAgICAgICAgc2VsZi5zYXZlKCkKCmRlZiBjb25maWd1cmVfZW52aXJvbm1lbnQoKToKICAgIGVuc3VyZV9kaXJzKCkKICAgIG9zLmVudmlyb25bIkRBVEFCQVNFX1BBVEgiXSA9IHN0cihEQl9QQVRIKQogICAgb3MuZW52aXJvblsiUFJPSkVDVF9EQVRBX0RJUiJdID0gc3RyKFBST0pFQ1RfRElSKQogICAgb3MuZW52aXJvblsiU1RBTkRBUkRfRE9DU19ESVIiXSA9IHN0cihTVEFOREFSRF9ET0NTX0RJUikKICAgICMgTGVnYWN5IG1vZHVsZXMgd2l0aCByZWxhdGl2ZSByZWFkcyBzaG91bGQgcmVzb2x2ZSBhZ2FpbnN0IHRoZSByZWFkLW9ubHkgYXBwbGljYXRpb24gcmVzb3VyY2UgZm9sZGVyLgogICAgb3MuY2hkaXIoUkVTT1VSQ0VfUk9PVCkKCmRlZiBjb25maWd1cmVfbG9nZ2luZygpOgogICAgZW5zdXJlX2RpcnMoKQogICAgbG9nX2ZpbGUgPSBMT0dfRElSIC8gZiJkZXNrdG9wX3tkYXRldGltZS5ub3coKTolWSVtJWR9LmxvZyIKICAgIGxvZ2dpbmcuYmFzaWNDb25maWcoCiAgICAgICAgbGV2ZWw9bG9nZ2luZy5JTkZPLAogICAgICAgIGZvcm1hdD0iJShhc2N0aW1lKXMgfCAlKGxldmVsbmFtZSlzIHwgJShuYW1lKXMgfCAlKG1lc3NhZ2UpcyIsCiAgICAgICAgaGFuZGxlcnM9W2xvZ2dpbmcuRmlsZUhhbmRsZXIobG9nX2ZpbGUsIGVuY29kaW5nPSJ1dGYtOCIpLCBsb2dnaW5nLlN0cmVhbUhhbmRsZXIoc3lzLnN0ZGVycildCiAgICApCiAgICByZXR1cm4gbG9nX2ZpbGUKCmRlZiBpbnN0YWxsX2NyYXNoX2hvb2soKToKICAgIGRlZiBob29rKGV4Y190eXBlLCBleGMsIHRiKToKICAgICAgICBsb2dnaW5nLmNyaXRpY2FsKCJVbmhhbmRsZWQgZXhjZXB0aW9uIiwgZXhjX2luZm89KGV4Y190eXBlLCBleGMsIHRiKSkKICAgICAgICB0cnk6CiAgICAgICAgICAgIGZyb20gUHlTaWRlNi5RdFdpZGdldHMgaW1wb3J0IFFNZXNzYWdlQm94CiAgICAgICAgICAgIFFNZXNzYWdlQm94LmNyaXRpY2FsKE5vbmUsICLlt6XnqIvop4TojIPmmbrog73kvZMiLCBmIueoi+W6j+WPkeeUn+mUmeivr++8jOW3suWGmeWFpeaXpeW/l++8mlxue0xPR19ESVJ9XG5cbntleGN9IikKICAgICAgICBleGNlcHQgRXhjZXB0aW9uOgogICAgICAgICAgICBwYXNzCiAgICBzeXMuZXhjZXB0aG9vayA9IGhvb2sKCmRlZiBfY29weV9zZWVkX2RiX2lmX25lZWRlZCgpOgogICAgaWYgREJfUEFUSC5leGlzdHMoKToKICAgICAgICByZXR1cm4gRmFsc2UKICAgIHNlZWQgPSBSRVNPVVJDRV9ST09UIC8gImRhdGEiIC8gIm5vcm1zLmRiIgogICAgaWYgc2VlZC5leGlzdHMoKToKICAgICAgICBzaHV0aWwuY29weTIoc2VlZCwgREJfUEFUSCkKICAgICAgICByZXR1cm4gVHJ1ZQogICAgcmV0dXJuIEZhbHNlCgpkZWYgYmFja3VwX2RhdGFiYXNlKHJlYXNvbj0idXBncmFkZSIpOgogICAgaWYgbm90IERCX1BBVEguZXhpc3RzKCk6CiAgICAgICAgcmV0dXJuIE5vbmUKICAgIGVuc3VyZV9kaXJzKCkKICAgIHN0YW1wID0gZGF0ZXRpbWUubm93KCkuc3RyZnRpbWUoIiVZJW0lZF8lSCVNJVMiKQogICAgb3V0ID0gQkFDS1VQX0RJUiAvIGYibm9ybXNfe3JlYXNvbn1fe3N0YW1wfS5kYiIKICAgIHNodXRpbC5jb3B5MihEQl9QQVRILCBvdXQpCiAgICByZXR1cm4gb3V0CgpkZWYgYmFja3VwX3VzZXJfZGF0YSgpOgogICAgZW5zdXJlX2RpcnMoKQogICAgc3RhbXAgPSBkYXRldGltZS5ub3coKS5zdHJmdGltZSgiJVklbSVkXyVIJU0lUyIpCiAgICBvdXQgPSBCQUNLVVBfRElSIC8gZiLlt6XnqIvop4TojIPmmbrog73kvZPlpIfku71fe3N0YW1wfS56aXAiCiAgICB3aXRoIHppcGZpbGUuWmlwRmlsZShvdXQsICJ3IiwgemlwZmlsZS5aSVBfREVGTEFURUQpIGFzIHo6CiAgICAgICAgZm9yIGJhc2UgaW4gW0RCX0RJUiwgUFJPSkVDVF9ESVIsIFNFVFRJTkdTX0RJUl06CiAgICAgICAgICAgIGlmIG5vdCBiYXNlLmV4aXN0cygpOgogICAgICAgICAgICAgICAgY29udGludWUKICAgICAgICAgICAgZm9yIGYgaW4gYmFzZS5yZ2xvYigiKiIpOgogICAgICAgICAgICAgICAgaWYgZi5pc19maWxlKCk6CiAgICAgICAgICAgICAgICAgICAgei53cml0ZShmLCBmLnJlbGF0aXZlX3RvKFVTRVJfUk9PVCkpCiAgICByZXR1cm4gb3V0CgpkZWYgaW5pdGlhbGl6ZV9iYWNrZW5kKCk6CiAgICAiIiJQcmVwYXJlIHdyaXRhYmxlIERCICsgbWlncmF0aW9ucy4gTXVzdCBydW4gYmVmb3JlIGltcG9ydGluZyB0aGUgVUkgcGFnZXMuIiIiCiAgICBjb25maWd1cmVfZW52aXJvbm1lbnQoKQogICAgc2V0dGluZ3MgPSBTZXR0aW5nc1N0b3JlKCkKICAgIGlzX25ldyA9IG5vdCBEQl9QQVRILmV4aXN0cygpCiAgICBfY29weV9zZWVkX2RiX2lmX25lZWRlZCgpCiAgICBwcmV2aW91cyA9IHNldHRpbmdzLmdldCgiZGJfc2NoZW1hX2FwcF92ZXJzaW9uIiwgIiIpCiAgICBpZiBEQl9QQVRILmV4aXN0cygpIGFuZCBwcmV2aW91cyBhbmQgcHJldmlvdXMgIT0gQVBQX1ZFUlNJT046CiAgICAgICAgdHJ5OgogICAgICAgICAgICBiYWNrdXBfZGF0YWJhc2UoInByZV91cGdyYWRlIikKICAgICAgICBleGNlcHQgRXhjZXB0aW9uOgogICAgICAgICAgICBsb2dnaW5nLmV4Y2VwdGlvbigiQ291bGQgbm90IGJhY2sgdXAgZGF0YWJhc2UgYmVmb3JlIG1pZ3JhdGlvbiIpCgogICAgZnJvbSBkYiBpbXBvcnQgaW5pdF9kYiwgY29ubmVjdAogICAgaW5pdF9kYigpCgogICAgIyBDb3JlIGNhdGFsb2d1ZSBpcyBpZGVtcG90ZW50bHkgdXBzZXJ0ZWQgb24gZXZlcnkgc3RhcnR1cC4KICAgICMgVGhpcyByZXBhaXJzIGluY29tcGxldGUvb2xkIGJ1bmRsZWQgc2VlZCBkYXRhYmFzZXMgd2l0aG91dCBkZWxldGluZyB1c2VyIGRhdGEuCiAgICB0cnk6CiAgICAgICAgaW1wb3J0IHNlZWRfY29yZV9zdGFuZGFyZHMKICAgICAgICBzZWVkX2NvcmVfc3RhbmRhcmRzLm1haW4oKQogICAgZXhjZXB0IEV4Y2VwdGlvbjoKICAgICAgICBsb2dnaW5nLmV4Y2VwdGlvbigiQ29yZSBzdGFuZGFyZHMgc2VlZCBmYWlsZWQiKQoKICAgIHRyeToKICAgICAgICBpbXBvcnQgbWlncmF0ZV9waGFzZTIKICAgICAgICBtaWdyYXRlX3BoYXNlMi5tYWluKCkKICAgIGV4Y2VwdCBFeGNlcHRpb246CiAgICAgICAgbG9nZ2luZy5leGNlcHRpb24oIlBoYXNlIDIgbWlncmF0aW9uIGZhaWxlZCIpCgogICAgdHJ5OgogICAgICAgIGltcG9ydCBtaWdyYXRlX3BoYXNlMwogICAgICAgIG1pZ3JhdGVfcGhhc2UzLm1haW4oKQogICAgZXhjZXB0IEV4Y2VwdGlvbjoKICAgICAgICBsb2dnaW5nLmV4Y2VwdGlvbigiUGhhc2UgMyBtaWdyYXRpb24gZmFpbGVkIikKCiAgICB0cnk6CiAgICAgICAgZnJvbSBwcm9qZWN0X21vZGUgaW1wb3J0IGVuc3VyZV9wcm9qZWN0X3NjaGVtYSwgc2VlZF9zdGFuZGFyZF9hbGlhc2VzCiAgICAgICAgZW5zdXJlX3Byb2plY3Rfc2NoZW1hKCkKICAgICAgICBzZWVkX3N0YW5kYXJkX2FsaWFzZXMoKQogICAgZXhjZXB0IEV4Y2VwdGlvbjoKICAgICAgICBsb2dnaW5nLmV4Y2VwdGlvbigiUGhhc2UgNCBtaWdyYXRpb24gZmFpbGVkIikKCiAgICB0cnk6CiAgICAgICAgZnJvbSBwcm9qZWN0X2tiIGltcG9ydCBlbnN1cmVfcHJvamVjdF9rYl9zY2hlbWEKICAgICAgICBlbnN1cmVfcHJvamVjdF9rYl9zY2hlbWEoKQogICAgZXhjZXB0IEV4Y2VwdGlvbjoKICAgICAgICBsb2dnaW5nLmV4Y2VwdGlvbigiUGhhc2UgNSBtaWdyYXRpb24gZmFpbGVkIikKCiAgICBzZXR0aW5ncy5zZXQoImRiX3NjaGVtYV9hcHBfdmVyc2lvbiIsIEFQUF9WRVJTSU9OKQogICAgaWYgaXNfbmV3OgogICAgICAgIHNldHRpbmdzLnNldCgiZmlyc3RfcnVuX2NvbXBsZXRlZCIsIFRydWUpCiAgICByZXR1cm4gc2V0dGluZ3MK
+          '@
+          [IO.File]::WriteAllBytes(
+            (Join-Path (Get-Location) "desktop\runtime.py"),
+            [Convert]::FromBase64String($runtimeB64.Trim())
+          )
+
+          $iss = "installer\EngineeringNormAgent.iss"
+          $issText = Get-Content $iss -Raw -Encoding UTF8
+          $issText = $issText.Replace('#define MyAppVersion "1.0.0"', '#define MyAppVersion "1.0.1"')
+          Set-Content $iss $issText -Encoding UTF8
+
+          if (Test-Path "data\norms.db") {
+            Remove-Item "data\norms.db" -Force
+          }
+
+          $env:DATABASE_PATH = (Join-Path (Get-Location) "data\norms.db")
+          python seed_core_standards.py
+          python migrate_phase2.py
+          python migrate_phase3.py
+
+          $verify = @'
+          import sqlite3
+          db = sqlite3.connect(r"data\norms.db")
+          total = db.execute("SELECT COUNT(*) FROM standards").fetchone()[0]
+          active = db.execute("SELECT COUNT(*) FROM standards WHERE status IN ('现行','即将实施')").fetchone()[0]
+          pending = db.execute("SELECT COUNT(*) FROM standards WHERE status='待核验'").fetchone()[0]
+          overrides = db.execute("SELECT COUNT(*) FROM standard_clause_overrides").fetchone()[0]
+          db.close()
+          print("Core catalogue:", total, active, pending, overrides)
+          assert total == 77
+          assert active == 41
+          assert pending == 36
+          assert overrides >= 24
+          '@
+          $verify | python -
+
+      - name: Preflight
+        shell: pwsh
+        working-directory: buildsrc
+        run: python desktop_tools/preflight.py
+
+      - name: Backend smoke test
+        shell: pwsh
+        working-directory: buildsrc
+        run: python desktop_tools/backend_smoke_test.py
+
+      - name: Build application
+        shell: pwsh
+        working-directory: buildsrc
+        run: pyinstaller --noconfirm --clean installer/EngineeringNormAgent.spec
+
+      - name: Install Inno Setup
+        shell: pwsh
+        run: choco install innosetup -y --no-progress
+
+      - name: Build Setup.exe
+        shell: pwsh
+        working-directory: buildsrc
+        run: |
+          $iss = "installer\EngineeringNormAgent.iss"
+          $content = Get-Content $iss -Encoding UTF8
+          $content | Where-Object { $_ -notmatch 'ChineseSimplified\.isl' } | Set-Content $iss -Encoding UTF8
+
+          $candidates = @(
+            "${env:ProgramFiles}\Inno Setup 7\ISCC.exe",
+            "${env:ProgramFiles}\Inno Setup 6\ISCC.exe",
+            "${env:ProgramFiles(x86)}\Inno Setup 6\ISCC.exe"
+          )
+          $iscc = $candidates | Where-Object { Test-Path $_ } | Select-Object -First 1
+          if (-not $iscc) { throw "ISCC.exe not found" }
+
+          & $iscc $iss
+          if ($LASTEXITCODE -ne 0) { throw "Inno Setup failed: $LASTEXITCODE" }
+
+      - name: Verify and hash
+        shell: pwsh
+        working-directory: buildsrc
+        run: |
+          $setup = "release\工程规范智能体_V1.0_Setup.exe"
+          if (-not (Test-Path $setup)) { throw "Setup.exe not generated" }
+          $hash = (Get-FileHash $setup -Algorithm SHA256).Hash
+          "SHA256  $hash  工程规范智能体_V1.0_Setup.exe" | Out-File `
+            "release\工程规范智能体_V1.0_Setup_SHA256.txt" -Encoding utf8
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: EngineeringNormAgent-Windows-Installer-V1.0.1
+          path: |
+            buildsrc/release/工程规范智能体_V1.0_Setup.exe
+            buildsrc/release/工程规范智能体_V1.0_Setup_SHA256.txt
+          retention-days: 30
+
+      - name: Publish Release
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          $tag = "desktop-v1.0.1-latest"
+          gh release view $tag *> $null
+          if ($LASTEXITCODE -eq 0) {
+            gh release delete $tag --yes --cleanup-tag
+          }
+          gh release create $tag `
+            "buildsrc\release\工程规范智能体_V1.0_Setup.exe" `
+            "buildsrc\release\工程规范智能体_V1.0_Setup_SHA256.txt" `
+            --target "${{ github.sha }}" `
+            --title "工程规范智能体 V1.0.1 Desktop Windows版" `
+            --notes "V1.0.1 修复核心规范库初始化。内置77本核心规范，其中现行/即将实施41本、待核验36本。可直接覆盖安装V1.0。"
