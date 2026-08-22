@@ -1,0 +1,338 @@
+{
+  "as_of": "2026-08-20",
+  "cases": [
+    {
+      "id": "R01",
+      "question": "吊顶吊杆间距一般怎么控制？",
+      "expected_codes": [
+        "GB 50210-2018",
+        "GB 55032-2022"
+      ],
+      "expected_theme": "吊顶工程验收"
+    },
+    {
+      "id": "R02",
+      "question": "天花龙骨封板前要验收哪些内容？",
+      "expected_codes": [
+        "GB 50210-2018",
+        "GB 55032-2022"
+      ],
+      "expected_theme": "吊顶工程验收"
+    },
+    {
+      "id": "R03",
+      "question": "硅酸钙板隔墙板缝开裂怎么查规范？",
+      "expected_codes": [
+        "GB 50210-2018"
+      ],
+      "expected_theme": "轻质隔墙/板缝"
+    },
+    {
+      "id": "R04",
+      "question": "墙砖空鼓怎么验收？",
+      "expected_codes": [
+        "GB 50210-2018"
+      ],
+      "expected_theme": "饰面砖/瓷砖铺贴"
+    },
+    {
+      "id": "R05",
+      "question": "卫生间地砖有积水倒坡怎么判？",
+      "expected_codes": [
+        "GB 50209-2010"
+      ],
+      "expected_theme": "有排水要求地面坡度"
+    },
+    {
+      "id": "R06",
+      "question": "卫生间闭水试验规范怎么规定？",
+      "expected_codes": [
+        "GB 55030-2022"
+      ],
+      "expected_theme": "闭水/蓄水试验"
+    },
+    {
+      "id": "R07",
+      "question": "管根和地漏周边防水要注意什么？",
+      "expected_codes": [
+        "GB 55030-2022"
+      ],
+      "expected_theme": "管根/地漏/阴阳角节点防水"
+    },
+    {
+      "id": "R08",
+      "question": "装修材料B1级是什么意思，哪些地方要A级？",
+      "expected_codes": [
+        "GB 55037-2022"
+      ],
+      "expected_theme": "装修材料燃烧性能"
+    },
+    {
+      "id": "R09",
+      "question": "走道被柜子占了以后疏散宽度够不够？",
+      "expected_codes": [
+        "GB 55037-2022"
+      ],
+      "expected_theme": "安全疏散/疏散宽度"
+    },
+    {
+      "id": "R10",
+      "question": "防火门能不能改成普通玻璃门？",
+      "expected_codes": [
+        "GB 55037-2022"
+      ],
+      "expected_theme": "防火分隔/防火墙/防火门"
+    },
+    {
+      "id": "R11",
+      "question": "吊顶后喷头被灯槽挡住了怎么办？",
+      "expected_codes": [
+        "GB 55036-2022"
+      ],
+      "expected_theme": "自动喷水/喷头"
+    },
+    {
+      "id": "R12",
+      "question": "烟感离风口太近要不要调整？",
+      "expected_codes": [
+        "GB 55036-2022"
+      ],
+      "expected_theme": "火灾自动报警/探测器"
+    },
+    {
+      "id": "R13",
+      "question": "疏散指示灯安装有什么要求？",
+      "expected_codes": [
+        "GB 55036-2022",
+        "GB 55037-2022"
+      ],
+      "expected_theme": "应急照明/疏散指示"
+    },
+    {
+      "id": "R14",
+      "question": "楼板边临边怎么防护？",
+      "expected_codes": [
+        "GB 55034-2022",
+        "JGJ 80-2016"
+      ],
+      "expected_theme": "临边防护"
+    },
+    {
+      "id": "R15",
+      "question": "预留洞口要盖板还是做栏杆？",
+      "expected_codes": [
+        "GB 55034-2022",
+        "JGJ 80-2016"
+      ],
+      "expected_theme": "洞口防护"
+    },
+    {
+      "id": "R16",
+      "question": "移动操作平台3米高怎么搭才安全？",
+      "expected_codes": [
+        "JGJ 80-2016",
+        "GB 55034-2022"
+      ],
+      "expected_theme": "操作平台/移动平台"
+    },
+    {
+      "id": "R17",
+      "question": "脚手架立杆间距2米可以吗？",
+      "expected_codes": [
+        "GB 55023-2022"
+      ],
+      "expected_theme": "脚手架立杆/纵横距"
+    },
+    {
+      "id": "R18",
+      "question": "脚手架上面能堆多少瓷砖？",
+      "expected_codes": [
+        "GB 55023-2022"
+      ],
+      "expected_theme": "脚手架荷载/材料堆载"
+    },
+    {
+      "id": "R19",
+      "question": "施工电缆直接拖在地上有没有问题？",
+      "expected_codes": [
+        "JGJ/T 46-2024"
+      ],
+      "expected_theme": "电缆拖地/敷设保护"
+    },
+    {
+      "id": "R20",
+      "question": "配电箱是不是必须三级配电？",
+      "expected_codes": [
+        "JGJ/T 46-2024"
+      ],
+      "expected_theme": "三级配电/配电箱"
+    },
+    {
+      "id": "R21",
+      "question": "现场漏保怎么配置？",
+      "expected_codes": [
+        "JGJ/T 46-2024"
+      ],
+      "expected_theme": "漏电保护/二级保护"
+    },
+    {
+      "id": "R22",
+      "question": "TN-S系统PE线能和零线混接吗？",
+      "expected_codes": [
+        "JGJ/T 46-2024"
+      ],
+      "expected_theme": "TN-S/接零保护/PE线"
+    },
+    {
+      "id": "R23",
+      "question": "地下室潮湿环境用手持电动工具怎么供电？",
+      "expected_codes": [
+        "JGJ/T 46-2024"
+      ],
+      "expected_theme": "潮湿场所/手持工具/安全电压"
+    },
+    {
+      "id": "R24",
+      "question": "强电线管在吊顶里面怎么固定？",
+      "expected_codes": [
+        "GB 55024-2022",
+        "GB 50303-2015"
+      ],
+      "expected_theme": "线管/导管敷设"
+    },
+    {
+      "id": "R25",
+      "question": "配电箱安装完成后怎么验收？",
+      "expected_codes": [
+        "GB 55024-2022",
+        "GB 50303-2015"
+      ],
+      "expected_theme": "配电箱/柜安装"
+    },
+    {
+      "id": "R26",
+      "question": "卫生间地漏总是返臭，是不是水封问题？",
+      "expected_codes": [
+        "GB 55020-2021"
+      ],
+      "expected_theme": "地漏/水封/排水卫生"
+    },
+    {
+      "id": "R27",
+      "question": "给水管打压试验怎么做？",
+      "expected_codes": [
+        "GB 50242-2002"
+      ],
+      "expected_theme": "给水管试压"
+    },
+    {
+      "id": "R28",
+      "question": "沉箱卫生间要不要做二次排水？",
+      "expected_codes": [
+        "GB 55020-2021",
+        "GB 55030-2022"
+      ],
+      "expected_theme": "二次排水/沉箱排水"
+    },
+    {
+      "id": "R29",
+      "question": "装修想拆一面墙，怎么判断能不能拆？",
+      "expected_codes": [
+        "GB 55022-2021",
+        "GB 55021-2021"
+      ],
+      "expected_theme": "拆墙/开洞/拆改承重构件"
+    },
+    {
+      "id": "R30",
+      "question": "办公室改成档案室，楼板荷载会不会有问题？",
+      "expected_codes": [
+        "GB 55021-2021",
+        "GB 55022-2021"
+      ],
+      "expected_theme": "新增设备/荷载"
+    },
+    {
+      "id": "R31",
+      "question": "梁上有贯通裂缝，要不要做结构鉴定？",
+      "expected_codes": [
+        "GB 55021-2021"
+      ],
+      "expected_theme": "裂缝/变形/损伤鉴定"
+    },
+    {
+      "id": "R32",
+      "question": "装修完甲醛什么时候验收？",
+      "expected_codes": [
+        "GB 50325-2020"
+      ],
+      "expected_theme": "甲醛/VOC/苯检测"
+    },
+    {
+      "id": "R33",
+      "question": "楼梯踏步和平台净高怎么查？",
+      "expected_codes": [
+        "GB 55031-2022"
+      ],
+      "expected_theme": "楼梯尺寸/净高/踏步"
+    },
+    {
+      "id": "R34",
+      "question": "临空栏杆高度不够怎么办？",
+      "expected_codes": [
+        "GB 55031-2022"
+      ],
+      "expected_theme": "栏杆/临空防护"
+    },
+    {
+      "id": "R35",
+      "question": "无障碍卫生间扶手怎么布置？",
+      "expected_codes": [
+        "GB 55019-2021"
+      ],
+      "expected_theme": "无障碍卫生间"
+    },
+    {
+      "id": "R36",
+      "question": "轮椅坡道坡度应该多少？",
+      "expected_codes": [
+        "GB 55019-2021"
+      ],
+      "expected_theme": "无障碍坡道"
+    },
+    {
+      "id": "R37",
+      "question": "卫生间施工完成要做哪些综合验收？",
+      "expected_codes": [
+        "GB 55030-2022",
+        "GB 55020-2021"
+      ],
+      "expected_theme": "卫生间综合验收"
+    },
+    {
+      "id": "R38",
+      "question": "吊顶内桥架、喷淋、烟感封板前要查什么？",
+      "expected_codes": [
+        "GB 55024-2022",
+        "GB 55036-2022"
+      ],
+      "expected_theme": "吊顶内机电与消防综合"
+    },
+    {
+      "id": "R39",
+      "question": "GB 50303-2015第3.1.5条现在还能用吗？",
+      "expected_codes": [
+        "GB 50303-2015"
+      ],
+      "expected_theme": "规范现行/废止/替代关系"
+    },
+    {
+      "id": "R40",
+      "question": "JGJ 46-2005现在是不是旧规范？",
+      "expected_codes": [
+        "JGJ 46-2005"
+      ],
+      "expected_theme": "规范现行/废止/替代关系"
+    }
+  ]
+}

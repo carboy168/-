@@ -1,0 +1,406 @@
+{
+  "meta": {
+    "name": "广东地方规范项目叠加规则",
+    "as_of": "2026-08-20",
+    "policy": "A级且在项目基准日已实施的地方标准可以进入项目检索候选；即将实施只提示；B级只进入待核验提示。路由候选仍不是正式证据。"
+  },
+  "standards": [
+    {
+      "code": "DB44/T 2773-2025",
+      "title": "建筑施工悬挑式脚手架安全技术标准",
+      "grade": "A",
+      "status": "现行",
+      "effective_from": "2026-02-25",
+      "effective_to": "",
+      "question_terms": [
+        "悬挑脚手架",
+        "悬挑架",
+        "悬挑式脚手架",
+        "工字钢悬挑"
+      ],
+      "theme_terms": [
+        "脚手架"
+      ],
+      "categories": [
+        "脚手架"
+      ],
+      "scopes": [
+        "脚手架/高处作业"
+      ],
+      "flags_any": [
+        "suspended_scaffold"
+      ],
+      "require_strong_trigger": true,
+      "min_score": 6,
+      "source_url": "https://std.samr.gov.cn/",
+      "note": "仅在悬挑式脚手架场景叠加，不因一般落地式脚手架问题自动套用。",
+      "aliases": []
+    },
+    {
+      "code": "DBJ/T 15-97-2025",
+      "title": "房屋建筑和市政基础设施工程绿色施工评价标准",
+      "grade": "A",
+      "status": "现行",
+      "effective_from": "2025-11-01",
+      "effective_to": "",
+      "question_terms": [
+        "绿色施工",
+        "绿色施工评价",
+        "节材",
+        "节水",
+        "节能施工",
+        "环境保护评价"
+      ],
+      "theme_terms": [
+        "绿色施工"
+      ],
+      "categories": [],
+      "scopes": [
+        "绿色施工"
+      ],
+      "flags_any": [
+        "green_construction_eval"
+      ],
+      "require_strong_trigger": true,
+      "min_score": 6,
+      "source_url": "https://zfcxjst.gd.gov.cn/",
+      "note": "绿色施工评价或明确绿色施工问题时叠加。",
+      "aliases": []
+    },
+    {
+      "code": "DBJ/T 15-83-2017",
+      "title": "广东省绿色建筑评价标准",
+      "grade": "A",
+      "status": "现行至2026-11-30",
+      "effective_from": "",
+      "effective_to": "2026-11-30",
+      "question_terms": [
+        "绿色建筑",
+        "绿色建筑评价",
+        "绿建"
+      ],
+      "theme_terms": [
+        "绿色建筑"
+      ],
+      "categories": [],
+      "scopes": [
+        "绿色建筑"
+      ],
+      "flags_any": [
+        "green_building_eval"
+      ],
+      "require_strong_trigger": true,
+      "min_score": 6,
+      "source_url": "https://zfcxjst.gd.gov.cn/",
+      "note": "按项目基准日控制；2026-12-01后不再作为当前版本候选。",
+      "aliases": []
+    },
+    {
+      "code": "DBJ/T 15-83-2026",
+      "title": "广东省绿色建筑评价标准",
+      "grade": "A",
+      "status": "即将实施",
+      "effective_from": "2026-12-01",
+      "effective_to": "",
+      "question_terms": [
+        "绿色建筑",
+        "绿色建筑评价",
+        "绿建"
+      ],
+      "theme_terms": [
+        "绿色建筑"
+      ],
+      "categories": [],
+      "scopes": [
+        "绿色建筑"
+      ],
+      "flags_any": [
+        "green_building_eval"
+      ],
+      "require_strong_trigger": true,
+      "min_score": 6,
+      "source_url": "https://zfcxjst.gd.gov.cn/",
+      "note": "项目基准日在2026-12-01之前时只做即将实施提醒。",
+      "aliases": []
+    },
+    {
+      "code": "DBJ/T 15-35-2023",
+      "title": "混凝土后锚固件抗拔和抗剪性能检测技术标准",
+      "grade": "A",
+      "status": "现行",
+      "effective_from": "2024-03-01",
+      "effective_to": "",
+      "question_terms": [
+        "植筋拉拔",
+        "植筋检测",
+        "锚栓拉拔",
+        "后锚固",
+        "抗拔检测",
+        "抗剪检测",
+        "化学锚栓",
+        "拉拔试验"
+      ],
+      "theme_terms": [
+        "植筋",
+        "后锚固",
+        "锚栓"
+      ],
+      "categories": [
+        "既有建筑/加固"
+      ],
+      "scopes": [
+        "结构改造/加固"
+      ],
+      "flags_any": [
+        "post_anchor"
+      ],
+      "require_strong_trigger": true,
+      "min_score": 6,
+      "source_url": "https://zfcxjst.gd.gov.cn/",
+      "note": "广东项目涉及后置锚固抗拔/抗剪检测时重点叠加。",
+      "aliases": []
+    },
+    {
+      "code": "DBJ/T 15-81-2022",
+      "title": "建筑混凝土结构耐火设计技术规程",
+      "grade": "A",
+      "status": "现行",
+      "effective_from": "2023-02-01",
+      "effective_to": "",
+      "question_terms": [
+        "混凝土结构耐火",
+        "结构耐火",
+        "混凝土防火保护",
+        "结构防火"
+      ],
+      "theme_terms": [
+        "防火",
+        "耐火"
+      ],
+      "categories": [
+        "消防"
+      ],
+      "scopes": [
+        "消防",
+        "结构改造/加固"
+      ],
+      "flags_any": [
+        "fire_change",
+        "structural_change"
+      ],
+      "require_strong_trigger": true,
+      "min_score": 8,
+      "source_url": "https://zfcxjst.gd.gov.cn/",
+      "note": "只有结构耐火/混凝土防火问题才叠加，不因普通消防问题泛化。",
+      "aliases": []
+    },
+    {
+      "code": "DBJ/T 15-92-2025",
+      "title": "建筑工程混凝土结构设计标准",
+      "grade": "A",
+      "status": "现行",
+      "effective_from": "2025-09-26",
+      "effective_to": "",
+      "question_terms": [
+        "混凝土结构设计",
+        "混凝土梁",
+        "混凝土柱",
+        "楼板结构",
+        "结构设计"
+      ],
+      "theme_terms": [
+        "结构拆改",
+        "结构安全",
+        "加固"
+      ],
+      "categories": [
+        "既有建筑/加固"
+      ],
+      "scopes": [
+        "结构改造/加固"
+      ],
+      "flags_any": [
+        "structural_change"
+      ],
+      "require_strong_trigger": true,
+      "min_score": 8,
+      "source_url": "https://zfcxjst.gd.gov.cn/",
+      "note": "涉及混凝土结构设计/改造时叠加；不能用来替代结构鉴定和加固上位通用规范。",
+      "aliases": []
+    },
+    {
+      "code": "DBJ/T 15-291-2026",
+      "title": "既有建筑结构安全监测技术标准",
+      "grade": "A",
+      "status": "现行",
+      "effective_from": "2026-05-13",
+      "effective_to": "",
+      "question_terms": [
+        "结构监测",
+        "沉降监测",
+        "裂缝监测",
+        "变形监测",
+        "安全监测"
+      ],
+      "theme_terms": [
+        "既有建筑",
+        "结构安全"
+      ],
+      "categories": [
+        "既有建筑/加固"
+      ],
+      "scopes": [
+        "结构改造/加固"
+      ],
+      "flags_any": [
+        "existing_building",
+        "structural_change"
+      ],
+      "require_strong_trigger": true,
+      "min_score": 8,
+      "source_url": "https://zfcxjst.gd.gov.cn/",
+      "note": "既有建筑结构安全监测场景叠加。",
+      "aliases": [
+        "DB44/T 2827-2026"
+      ]
+    },
+    {
+      "code": "DBJ/T 15-292-2026",
+      "title": "城镇燃气安全检查与评估标准",
+      "grade": "A",
+      "status": "现行",
+      "effective_from": "2026-05-13",
+      "effective_to": "",
+      "question_terms": [
+        "燃气安全检查",
+        "燃气评估",
+        "燃气泄漏",
+        "燃气管道安全"
+      ],
+      "theme_terms": [
+        "燃气"
+      ],
+      "categories": [],
+      "scopes": [
+        "燃气"
+      ],
+      "flags_any": [
+        "gas_system"
+      ],
+      "require_strong_trigger": true,
+      "min_score": 6,
+      "source_url": "https://zfcxjst.gd.gov.cn/",
+      "note": "仅燃气安全检查与评估问题叠加。",
+      "aliases": [
+        "DB44/T 2828-2026"
+      ]
+    },
+    {
+      "code": "DBJ/T 15-295-2026",
+      "title": "高处作业吊篮安装检验评定标准",
+      "grade": "A",
+      "status": "现行",
+      "effective_from": "2026-05-13",
+      "effective_to": "",
+      "question_terms": [
+        "吊篮",
+        "高处作业吊篮",
+        "吊篮安装",
+        "吊篮验收",
+        "吊篮检测"
+      ],
+      "theme_terms": [
+        "高处作业"
+      ],
+      "categories": [
+        "高处作业"
+      ],
+      "scopes": [
+        "脚手架/高处作业"
+      ],
+      "flags_any": [
+        "basket"
+      ],
+      "require_strong_trigger": true,
+      "min_score": 6,
+      "source_url": "https://zfcxjst.gd.gov.cn/",
+      "note": "广东房屋市政工程高处作业吊篮安装检验评定场景叠加。",
+      "aliases": [
+        "DB44/T 2829-2026"
+      ]
+    },
+    {
+      "code": "DBJ/T 15-178-2020",
+      "title": "既有建筑改造技术管理规范",
+      "grade": "B",
+      "status": "待二次核验",
+      "effective_from": "",
+      "effective_to": "",
+      "question_terms": [
+        "既有建筑改造",
+        "旧楼改造",
+        "改造管理",
+        "既有建筑装修",
+        "装修改造"
+      ],
+      "theme_terms": [
+        "既有建筑"
+      ],
+      "categories": [
+        "既有建筑/改造"
+      ],
+      "scopes": [
+        "结构改造/加固",
+        "装饰装修"
+      ],
+      "project_natures": [
+        "既有建筑改造",
+        "改扩建"
+      ],
+      "flags_any": [
+        "existing_building"
+      ],
+      "require_strong_trigger": true,
+      "min_score": 6,
+      "source_url": "https://zfcxjst.gd.gov.cn/",
+      "note": "当前仅作为待核验提示，不进入正式可引用候选。",
+      "aliases": []
+    },
+    {
+      "code": "DBJ/T 15-182-2020",
+      "title": "既有建筑混凝土结构改造设计规范",
+      "grade": "B",
+      "status": "待二次核验",
+      "effective_from": "",
+      "effective_to": "",
+      "question_terms": [
+        "既有混凝土结构改造",
+        "混凝土结构改造",
+        "旧楼结构改造"
+      ],
+      "theme_terms": [
+        "结构拆改",
+        "加固"
+      ],
+      "categories": [
+        "既有建筑/加固"
+      ],
+      "scopes": [
+        "结构改造/加固"
+      ],
+      "project_natures": [
+        "既有建筑改造",
+        "结构加固",
+        "改扩建"
+      ],
+      "flags_any": [
+        "structural_change"
+      ],
+      "require_strong_trigger": true,
+      "min_score": 8,
+      "source_url": "https://zfcxjst.gd.gov.cn/",
+      "note": "当前仅作为待核验提示，不进入正式可引用候选。",
+      "aliases": []
+    }
+  ]
+}

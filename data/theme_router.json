@@ -1,0 +1,2758 @@
+{
+  "meta": {
+    "name": "V1.0第三阶段—20本规范高频条文主题索引",
+    "as_of": "2026-08-20",
+    "theme_count": 84,
+    "principle": "主题路由只用于选择候选规范和扩展检索词，不可单独作为规范证据。正式引用必须来自已入库全文条文。"
+  },
+  "risk_order": [
+    "低",
+    "中",
+    "高",
+    "极高"
+  ],
+  "synonyms": {
+    "天花": "吊顶",
+    "天花板": "吊顶",
+    "烟感": "火灾探测器",
+    "温感": "火灾探测器",
+    "喷淋头": "喷头",
+    "漏保": "漏电保护器",
+    "电箱": "配电箱",
+    "强电箱": "配电箱",
+    "洁具": "卫生器具",
+    "马桶": "坐便器",
+    "厕所": "卫生间",
+    "闭水": "蓄水试验",
+    "打压": "水压试验",
+    "砸墙": "拆墙",
+    "脚手板铺设": "脚手板",
+    "玻璃胶": "密封胶",
+    "返臭": "水封",
+    "找坡": "坡度"
+  },
+  "themes": [
+    {
+      "id": "Q01",
+      "category": "质量验收",
+      "theme": "检验批/分项/分部验收",
+      "primary_codes": [
+        "GB 55032-2022"
+      ],
+      "secondary_codes": [],
+      "triggers": [
+        "检验批",
+        "分项工程",
+        "分部工程",
+        "单位工程",
+        "质量验收"
+      ],
+      "phrases": [
+        "怎么验收",
+        "验收程序"
+      ],
+      "exclude": [],
+      "risk": "中",
+      "required_context": [],
+      "query_expansion": [
+        "施工质量控制",
+        "验收"
+      ],
+      "priority": 5,
+      "notes": ""
+    },
+    {
+      "id": "Q02",
+      "category": "质量验收",
+      "theme": "材料进场与复验",
+      "primary_codes": [
+        "GB 55032-2022"
+      ],
+      "secondary_codes": [
+        "GB 50210-2018"
+      ],
+      "triggers": [
+        "材料进场",
+        "进场验收",
+        "复验",
+        "见证取样",
+        "抽样"
+      ],
+      "phrases": [
+        "需要复检",
+        "需要复验"
+      ],
+      "exclude": [],
+      "risk": "中",
+      "required_context": [
+        "材料类型",
+        "产品标准/设计要求"
+      ],
+      "query_expansion": [
+        "材料",
+        "进场检验",
+        "复验"
+      ],
+      "priority": 5,
+      "notes": ""
+    },
+    {
+      "id": "Q03",
+      "category": "质量验收",
+      "theme": "隐蔽工程验收",
+      "primary_codes": [
+        "GB 55032-2022"
+      ],
+      "secondary_codes": [
+        "GB 50210-2018"
+      ],
+      "triggers": [
+        "隐蔽工程",
+        "隐蔽验收",
+        "封板前",
+        "封闭前"
+      ],
+      "phrases": [],
+      "exclude": [],
+      "risk": "中",
+      "required_context": [],
+      "query_expansion": [
+        "隐蔽工程验收",
+        "记录"
+      ],
+      "priority": 5,
+      "notes": ""
+    },
+    {
+      "id": "Q04",
+      "category": "装饰装修",
+      "theme": "吊顶工程验收",
+      "primary_codes": [
+        "GB 50210-2018",
+        "GB 55032-2022"
+      ],
+      "secondary_codes": [],
+      "triggers": [
+        "吊顶",
+        "吊杆",
+        "主龙骨",
+        "副龙骨",
+        "龙骨",
+        "饰面板"
+      ],
+      "phrases": [
+        "吊顶验收",
+        "吊杆间距",
+        "龙骨间距"
+      ],
+      "exclude": [
+        "脚手架",
+        "吊篮"
+      ],
+      "risk": "中",
+      "required_context": [
+        "吊顶类型",
+        "材料",
+        "设计构造"
+      ],
+      "query_expansion": [
+        "吊顶工程",
+        "龙骨",
+        "吊杆",
+        "安装"
+      ],
+      "priority": 5,
+      "notes": ""
+    },
+    {
+      "id": "Q05",
+      "category": "装饰装修",
+      "theme": "轻质隔墙/板缝",
+      "primary_codes": [
+        "GB 50210-2018",
+        "GB 55032-2022"
+      ],
+      "secondary_codes": [],
+      "triggers": [
+        "轻钢龙骨隔墙",
+        "轻质隔墙",
+        "石膏板隔墙",
+        "硅酸钙板",
+        "板缝",
+        "隔墙龙骨"
+      ],
+      "phrases": [],
+      "exclude": [],
+      "risk": "中",
+      "required_context": [
+        "板材类型",
+        "龙骨体系",
+        "防火/隔声要求"
+      ],
+      "query_expansion": [
+        "轻质隔墙",
+        "板缝",
+        "接缝"
+      ],
+      "priority": 5,
+      "notes": ""
+    },
+    {
+      "id": "Q06",
+      "category": "装饰装修",
+      "theme": "抹灰工程",
+      "primary_codes": [
+        "GB 50210-2018",
+        "GB 55032-2022"
+      ],
+      "secondary_codes": [],
+      "triggers": [
+        "抹灰",
+        "空鼓",
+        "开裂",
+        "基层拉毛",
+        "挂网",
+        "灰饼"
+      ],
+      "phrases": [
+        "抹灰验收"
+      ],
+      "exclude": [],
+      "risk": "中",
+      "required_context": [
+        "基层类型",
+        "抹灰材料"
+      ],
+      "query_expansion": [
+        "抹灰工程",
+        "基层",
+        "空鼓",
+        "裂缝"
+      ],
+      "priority": 5,
+      "notes": ""
+    },
+    {
+      "id": "Q07",
+      "category": "装饰装修",
+      "theme": "饰面砖/瓷砖铺贴",
+      "primary_codes": [
+        "GB 50210-2018",
+        "GB 50209-2010"
+      ],
+      "secondary_codes": [
+        "GB 55032-2022"
+      ],
+      "triggers": [
+        "墙砖",
+        "瓷砖",
+        "饰面砖",
+        "铺贴",
+        "空鼓率",
+        "勾缝",
+        "美缝"
+      ],
+      "phrases": [
+        "墙砖空鼓",
+        "瓷砖空鼓"
+      ],
+      "exclude": [],
+      "risk": "中",
+      "required_context": [
+        "墙面或地面",
+        "室内或室外",
+        "材料类型"
+      ],
+      "query_expansion": [
+        "饰面砖",
+        "粘贴",
+        "空鼓",
+        "接缝"
+      ],
+      "priority": 5,
+      "notes": ""
+    },
+    {
+      "id": "Q08",
+      "category": "装饰装修",
+      "theme": "饰面板/石材",
+      "primary_codes": [
+        "GB 50210-2018"
+      ],
+      "secondary_codes": [
+        "GB 55032-2022"
+      ],
+      "triggers": [
+        "饰面板",
+        "干挂石材",
+        "石材干挂",
+        "木饰面",
+        "护墙板"
+      ],
+      "phrases": [],
+      "exclude": [],
+      "risk": "中",
+      "required_context": [
+        "固定方式",
+        "基层/骨架",
+        "材料类型"
+      ],
+      "query_expansion": [
+        "饰面板工程",
+        "安装"
+      ],
+      "priority": 5,
+      "notes": ""
+    },
+    {
+      "id": "Q09",
+      "category": "装饰装修",
+      "theme": "涂饰/腻子",
+      "primary_codes": [
+        "GB 50210-2018"
+      ],
+      "secondary_codes": [
+        "GB 55032-2022"
+      ],
+      "triggers": [
+        "腻子",
+        "乳胶漆",
+        "涂料",
+        "涂饰",
+        "底漆",
+        "面漆",
+        "起皮",
+        "掉粉"
+      ],
+      "phrases": [],
+      "exclude": [],
+      "risk": "低",
+      "required_context": [
+        "基层类型",
+        "涂料体系"
+      ],
+      "query_expansion": [
+        "涂饰工程",
+        "基层",
+        "涂层"
+      ],
+      "priority": 5,
+      "notes": ""
+    },
+    {
+      "id": "Q10",
+      "category": "装饰装修",
+      "theme": "门窗工程",
+      "primary_codes": [
+        "GB 50210-2018",
+        "GB 55031-2022"
+      ],
+      "secondary_codes": [
+        "GB 55032-2022"
+      ],
+      "triggers": [
+        "门窗",
+        "门框",
+        "窗框",
+        "玻璃门",
+        "木门",
+        "铝合金窗",
+        "门缝"
+      ],
+      "phrases": [],
+      "exclude": [],
+      "risk": "中",
+      "required_context": [
+        "门窗类型",
+        "是否防火门/无障碍门"
+      ],
+      "query_expansion": [
+        "门窗工程",
+        "安装",
+        "开启"
+      ],
+      "priority": 5,
+      "notes": ""
+    },
+    {
+      "id": "Q11",
+      "category": "装饰装修",
+      "theme": "细部工程/护栏扶手",
+      "primary_codes": [
+        "GB 50210-2018",
+        "GB 55031-2022"
+      ],
+      "secondary_codes": [
+        "GB 55019-2021"
+      ],
+      "triggers": [
+        "护栏",
+        "栏杆",
+        "扶手",
+        "窗台护栏",
+        "细部工程"
+      ],
+      "phrases": [],
+      "exclude": [],
+      "risk": "高",
+      "required_context": [
+        "使用部位",
+        "临空高度",
+        "建筑类型"
+      ],
+      "query_expansion": [
+        "护栏",
+        "栏杆",
+        "扶手",
+        "安全"
+      ],
+      "priority": 5,
+      "notes": ""
+    },
+    {
+      "id": "Q12",
+      "category": "建筑地面",
+      "theme": "找平层/地面基层",
+      "primary_codes": [
+        "GB 50209-2010",
+        "GB 55032-2022"
+      ],
+      "secondary_codes": [],
+      "triggers": [
+        "找平层",
+        "地面基层",
+        "水泥砂浆地面",
+        "找坡层",
+        "垫层"
+      ],
+      "phrases": [],
+      "exclude": [],
+      "risk": "中",
+      "required_context": [
+        "地面构造",
+        "材料",
+        "设计厚度"
+      ],
+      "query_expansion": [
+        "建筑地面",
+        "找平层",
+        "基层"
+      ],
+      "priority": 5,
+      "notes": ""
+    },
+    {
+      "id": "Q13",
+      "category": "建筑地面",
+      "theme": "地砖/石材地面空鼓平整度",
+      "primary_codes": [
+        "GB 50209-2010"
+      ],
+      "secondary_codes": [
+        "GB 55032-2022"
+      ],
+      "triggers": [
+        "地砖",
+        "地面砖",
+        "石材地面",
+        "空鼓",
+        "平整度",
+        "接缝高低"
+      ],
+      "phrases": [
+        "地砖空鼓",
+        "地面平整度"
+      ],
+      "exclude": [],
+      "risk": "中",
+      "required_context": [],
+      "query_expansion": [
+        "板块面层",
+        "空鼓",
+        "平整度"
+      ],
+      "priority": 5,
+      "notes": ""
+    },
+    {
+      "id": "Q14",
+      "category": "建筑地面",
+      "theme": "有排水要求地面坡度",
+      "primary_codes": [
+        "GB 50209-2010"
+      ],
+      "secondary_codes": [
+        "GB 55020-2021",
+        "GB 55030-2022"
+      ],
+      "triggers": [
+        "地面坡度",
+        "排水坡度",
+        "倒坡",
+        "积水",
+        "找坡",
+        "坡向地漏"
+      ],
+      "phrases": [],
+      "exclude": [],
+      "risk": "中",
+      "required_context": [
+        "部位",
+        "地漏位置",
+        "设计坡度"
+      ],
+      "query_expansion": [
+        "坡度",
+        "排水",
+        "地漏",
+        "不得倒坡"
+      ],
+      "priority": 5,
+      "notes": ""
+    },
+    {
+      "id": "W01",
+      "category": "防水",
+      "theme": "卫生间/浴室防水",
+      "primary_codes": [
+        "GB 55030-2022"
+      ],
+      "secondary_codes": [
+        "GB 50209-2010"
+      ],
+      "triggers": [
+        "卫生间防水",
+        "厕所防水",
+        "浴室防水",
+        "淋浴防水",
+        "防水层",
+        "防水涂料"
+      ],
+      "phrases": [],
+      "exclude": [],
+      "risk": "高",
+      "required_context": [
+        "防水部位",
+        "材料体系",
+        "设计做法"
+      ],
+      "query_expansion": [
+        "室内防水",
+        "防水层",
+        "节点"
+      ],
+      "priority": 5,
+      "notes": ""
+    },
+    {
+      "id": "W02",
+      "category": "防水",
+      "theme": "闭水/蓄水试验",
+      "primary_codes": [
+        "GB 55030-2022"
+      ],
+      "secondary_codes": [
+        "GB 50209-2010"
+      ],
+      "triggers": [
+        "闭水试验",
+        "蓄水试验",
+        "试水",
+        "防水验收"
+      ],
+      "phrases": [],
+      "exclude": [],
+      "risk": "高",
+      "required_context": [
+        "部位",
+        "试验条件",
+        "完成工序"
+      ],
+      "query_expansion": [
+        "蓄水试验",
+        "防水验收",
+        "渗漏"
+      ],
+      "priority": 5,
+      "notes": ""
+    },
+    {
+      "id": "W03",
+      "category": "防水",
+      "theme": "管根/地漏/阴阳角节点防水",
+      "primary_codes": [
+        "GB 55030-2022"
+      ],
+      "secondary_codes": [
+        "GB 55020-2021"
+      ],
+      "triggers": [
+        "管根",
+        "地漏周边",
+        "阴阳角",
+        "防水附加层",
+        "穿楼板管",
+        "套管防水"
+      ],
+      "phrases": [],
+      "exclude": [],
+      "risk": "高",
+      "required_context": [
+        "节点类型",
+        "材料体系"
+      ],
+      "query_expansion": [
+        "细部构造",
+        "节点防水",
+        "穿透构件"
+      ],
+      "priority": 5,
+      "notes": ""
+    },
+    {
+      "id": "W04",
+      "category": "防水",
+      "theme": "屋面防水",
+      "primary_codes": [
+        "GB 55030-2022"
+      ],
+      "secondary_codes": [],
+      "triggers": [
+        "屋面防水",
+        "屋面渗漏",
+        "女儿墙",
+        "泛水",
+        "落水口"
+      ],
+      "phrases": [],
+      "exclude": [],
+      "risk": "高",
+      "required_context": [
+        "屋面类型",
+        "防水等级/设计做法"
+      ],
+      "query_expansion": [
+        "屋面防水",
+        "防水层",
+        "节点"
+      ],
+      "priority": 5,
+      "notes": ""
+    },
+    {
+      "id": "W05",
+      "category": "防水",
+      "theme": "地下室/地下工程防水",
+      "primary_codes": [
+        "GB 55030-2022"
+      ],
+      "secondary_codes": [],
+      "triggers": [
+        "地下室防水",
+        "地下工程防水",
+        "底板防水",
+        "侧墙防水",
+        "施工缝渗漏"
+      ],
+      "phrases": [],
+      "exclude": [],
+      "risk": "高",
+      "required_context": [
+        "地下工程类型",
+        "防水设计"
+      ],
+      "query_expansion": [
+        "地下工程防水",
+        "渗漏"
+      ],
+      "priority": 5,
+      "notes": ""
+    },
+    {
+      "id": "W06",
+      "category": "防水",
+      "theme": "外墙/门窗渗漏",
+      "primary_codes": [
+        "GB 55030-2022"
+      ],
+      "secondary_codes": [
+        "GB 50210-2018"
+      ],
+      "triggers": [
+        "外墙渗漏",
+        "窗边渗漏",
+        "窗框渗水",
+        "外墙防水",
+        "密封胶渗漏"
+      ],
+      "phrases": [],
+      "exclude": [],
+      "risk": "中",
+      "required_context": [
+        "渗漏部位",
+        "构造节点"
+      ],
+      "query_expansion": [
+        "外墙防水",
+        "门窗接缝",
+        "密封"
+      ],
+      "priority": 5,
+      "notes": ""
+    },
+    {
+      "id": "F01",
+      "category": "消防",
+      "theme": "装修材料燃烧性能",
+      "primary_codes": [
+        "GB 55037-2022"
+      ],
+      "secondary_codes": [],
+      "triggers": [
+        "燃烧性能",
+        "A级材料",
+        "B1级",
+        "B2级",
+        "装修防火",
+        "阻燃等级",
+        "防火等级"
+      ],
+      "phrases": [],
+      "exclude": [],
+      "risk": "高",
+      "required_context": [
+        "建筑使用功能",
+        "装修部位",
+        "材料类型"
+      ],
+      "query_expansion": [
+        "建筑内部装修",
+        "燃烧性能",
+        "防火"
+      ],
+      "priority": 5,
+      "notes": ""
+    },
+    {
+      "id": "F02",
+      "category": "消防",
+      "theme": "安全疏散/疏散宽度",
+      "primary_codes": [
+        "GB 55037-2022",
+        "GB 55031-2022"
+      ],
+      "secondary_codes": [],
+      "triggers": [
+        "安全疏散",
+        "疏散宽度",
+        "疏散距离",
+        "疏散出口",
+        "安全出口",
+        "走道宽度"
+      ],
+      "phrases": [],
+      "exclude": [],
+      "risk": "高",
+      "required_context": [
+        "建筑用途",
+        "人数",
+        "楼层/高度"
+      ],
+      "query_expansion": [
+        "疏散",
+        "安全出口",
+        "疏散走道"
+      ],
+      "priority": 5,
+      "notes": ""
+    },
+    {
+      "id": "F03",
+      "category": "消防",
+      "theme": "防火分隔/防火墙/防火门",
+      "primary_codes": [
+        "GB 55037-2022"
+      ],
+      "secondary_codes": [],
+      "triggers": [
+        "防火分隔",
+        "防火墙",
+        "防火门",
+        "防火卷帘",
+        "防火玻璃",
+        "防火封堵"
+      ],
+      "phrases": [],
+      "exclude": [],
+      "risk": "高",
+      "required_context": [
+        "建筑用途",
+        "防火分区",
+        "构件位置"
+      ],
+      "query_expansion": [
+        "防火分隔",
+        "耐火",
+        "防火门"
+      ],
+      "priority": 5,
+      "notes": ""
+    },
+    {
+      "id": "F04",
+      "category": "消防",
+      "theme": "消防设施装修影响",
+      "primary_codes": [
+        "GB 55036-2022",
+        "GB 55037-2022"
+      ],
+      "secondary_codes": [],
+      "triggers": [
+        "消防设施",
+        "装修影响消防",
+        "遮挡喷头",
+        "遮挡探测器",
+        "消防改造"
+      ],
+      "phrases": [],
+      "exclude": [],
+      "risk": "高",
+      "required_context": [
+        "设施类型",
+        "装修做法",
+        "消防设计/审验要求"
+      ],
+      "query_expansion": [
+        "消防设施",
+        "设置",
+        "保护"
+      ],
+      "priority": 5,
+      "notes": ""
+    },
+    {
+      "id": "F05",
+      "category": "消防",
+      "theme": "自动喷水/喷头",
+      "primary_codes": [
+        "GB 55036-2022"
+      ],
+      "secondary_codes": [],
+      "triggers": [
+        "喷淋",
+        "喷头",
+        "自动喷水",
+        "喷头间距",
+        "喷头遮挡",
+        "喷淋管"
+      ],
+      "phrases": [],
+      "exclude": [],
+      "risk": "高",
+      "required_context": [
+        "场所危险等级",
+        "吊顶形式",
+        "喷头类型"
+      ],
+      "query_expansion": [
+        "自动喷水灭火系统",
+        "喷头"
+      ],
+      "priority": 5,
+      "notes": ""
+    },
+    {
+      "id": "F06",
+      "category": "消防",
+      "theme": "火灾自动报警/探测器",
+      "primary_codes": [
+        "GB 55036-2022"
+      ],
+      "secondary_codes": [],
+      "triggers": [
+        "火灾报警",
+        "烟感",
+        "温感",
+        "探测器",
+        "报警按钮",
+        "消防联动"
+      ],
+      "phrases": [],
+      "exclude": [],
+      "risk": "高",
+      "required_context": [
+        "系统类型",
+        "吊顶/空间条件"
+      ],
+      "query_expansion": [
+        "火灾自动报警",
+        "探测器",
+        "联动"
+      ],
+      "priority": 5,
+      "notes": ""
+    },
+    {
+      "id": "F07",
+      "category": "消防",
+      "theme": "应急照明/疏散指示",
+      "primary_codes": [
+        "GB 55036-2022",
+        "GB 55037-2022"
+      ],
+      "secondary_codes": [
+        "GB 55024-2022"
+      ],
+      "triggers": [
+        "应急照明",
+        "疏散指示",
+        "安全出口灯",
+        "应急灯"
+      ],
+      "phrases": [],
+      "exclude": [],
+      "risk": "高",
+      "required_context": [
+        "建筑用途",
+        "系统形式",
+        "疏散路径"
+      ],
+      "query_expansion": [
+        "消防应急照明",
+        "疏散指示"
+      ],
+      "priority": 5,
+      "notes": ""
+    },
+    {
+      "id": "F08",
+      "category": "消防",
+      "theme": "消火栓/消防给水",
+      "primary_codes": [
+        "GB 55036-2022"
+      ],
+      "secondary_codes": [],
+      "triggers": [
+        "消火栓",
+        "消防给水",
+        "消防水压",
+        "消防水池",
+        "消防泵"
+      ],
+      "phrases": [],
+      "exclude": [],
+      "risk": "高",
+      "required_context": [
+        "系统类型",
+        "建筑用途/高度"
+      ],
+      "query_expansion": [
+        "消火栓系统",
+        "消防给水"
+      ],
+      "priority": 5,
+      "notes": ""
+    },
+    {
+      "id": "F09",
+      "category": "消防",
+      "theme": "灭火器配置",
+      "primary_codes": [
+        "GB 55036-2022"
+      ],
+      "secondary_codes": [],
+      "triggers": [
+        "灭火器",
+        "灭火器配置",
+        "灭火器距离"
+      ],
+      "phrases": [],
+      "exclude": [],
+      "risk": "高",
+      "required_context": [
+        "场所用途",
+        "火灾种类/危险等级"
+      ],
+      "query_expansion": [
+        "灭火器",
+        "配置"
+      ],
+      "priority": 5,
+      "notes": ""
+    },
+    {
+      "id": "S01",
+      "category": "施工安全",
+      "theme": "临边防护",
+      "primary_codes": [
+        "GB 55034-2022",
+        "JGJ 80-2016"
+      ],
+      "secondary_codes": [],
+      "triggers": [
+        "临边",
+        "临边防护",
+        "护栏",
+        "临空",
+        "楼层边"
+      ],
+      "phrases": [],
+      "exclude": [],
+      "risk": "高",
+      "required_context": [
+        "作业高度",
+        "部位"
+      ],
+      "query_expansion": [
+        "高处作业",
+        "临边防护"
+      ],
+      "priority": 5,
+      "notes": ""
+    },
+    {
+      "id": "S02",
+      "category": "施工安全",
+      "theme": "洞口防护",
+      "primary_codes": [
+        "GB 55034-2022",
+        "JGJ 80-2016"
+      ],
+      "secondary_codes": [],
+      "triggers": [
+        "洞口",
+        "预留洞",
+        "电梯井口",
+        "楼梯口",
+        "孔洞防护"
+      ],
+      "phrases": [],
+      "exclude": [],
+      "risk": "高",
+      "required_context": [
+        "洞口尺寸",
+        "位置"
+      ],
+      "query_expansion": [
+        "洞口作业",
+        "防护"
+      ],
+      "priority": 5,
+      "notes": ""
+    },
+    {
+      "id": "S03",
+      "category": "高处作业",
+      "theme": "操作平台/移动平台",
+      "primary_codes": [
+        "JGJ 80-2016",
+        "GB 55034-2022"
+      ],
+      "secondary_codes": [
+        "GB 55023-2022"
+      ],
+      "triggers": [
+        "操作平台",
+        "移动平台",
+        "移动脚手架",
+        "登高平台",
+        "作业平台"
+      ],
+      "phrases": [],
+      "exclude": [],
+      "risk": "高",
+      "required_context": [
+        "高度",
+        "尺寸",
+        "荷载",
+        "是否移动式"
+      ],
+      "query_expansion": [
+        "操作平台",
+        "高处作业",
+        "稳定"
+      ],
+      "priority": 5,
+      "notes": ""
+    },
+    {
+      "id": "S04",
+      "category": "施工安全",
+      "theme": "安全带/个人防护",
+      "primary_codes": [
+        "GB 55034-2022",
+        "JGJ 80-2016"
+      ],
+      "secondary_codes": [],
+      "triggers": [
+        "安全带",
+        "安全帽",
+        "安全绳",
+        "个人防护",
+        "PPE"
+      ],
+      "phrases": [],
+      "exclude": [],
+      "risk": "高",
+      "required_context": [
+        "作业类型",
+        "高度"
+      ],
+      "query_expansion": [
+        "个体防护",
+        "高处作业"
+      ],
+      "priority": 5,
+      "notes": ""
+    },
+    {
+      "id": "S05",
+      "category": "安全检查",
+      "theme": "现场安全检查与整改",
+      "primary_codes": [
+        "JGJ 59-2011",
+        "GB 55034-2022"
+      ],
+      "secondary_codes": [],
+      "triggers": [
+        "安全检查",
+        "安全隐患",
+        "整改通知",
+        "检查评分",
+        "安全文明施工"
+      ],
+      "phrases": [],
+      "exclude": [],
+      "risk": "高",
+      "required_context": [],
+      "query_expansion": [
+        "安全检查",
+        "隐患",
+        "整改"
+      ],
+      "priority": 5,
+      "notes": ""
+    },
+    {
+      "id": "S06",
+      "category": "施工安全",
+      "theme": "施工机械/机具安全",
+      "primary_codes": [
+        "GB 55034-2022"
+      ],
+      "secondary_codes": [],
+      "triggers": [
+        "施工机械",
+        "切割机",
+        "电焊机",
+        "手持电动工具",
+        "机械安全"
+      ],
+      "phrases": [],
+      "exclude": [],
+      "risk": "高",
+      "required_context": [
+        "设备类型",
+        "使用环境"
+      ],
+      "query_expansion": [
+        "施工机械",
+        "安全"
+      ],
+      "priority": 5,
+      "notes": ""
+    },
+    {
+      "id": "S07",
+      "category": "施工安全",
+      "theme": "现场通道/材料堆放/文明施工",
+      "primary_codes": [
+        "GB 55034-2022"
+      ],
+      "secondary_codes": [
+        "JGJ 59-2011"
+      ],
+      "triggers": [
+        "材料堆放",
+        "施工通道",
+        "消防通道堵塞",
+        "文明施工",
+        "现场卫生"
+      ],
+      "phrases": [],
+      "exclude": [],
+      "risk": "中",
+      "required_context": [],
+      "query_expansion": [
+        "施工现场",
+        "通道",
+        "堆放"
+      ],
+      "priority": 5,
+      "notes": ""
+    },
+    {
+      "id": "SC01",
+      "category": "脚手架",
+      "theme": "脚手架立杆/纵横距",
+      "primary_codes": [
+        "GB 55023-2022"
+      ],
+      "secondary_codes": [],
+      "triggers": [
+        "脚手架立杆",
+        "立杆间距",
+        "纵距",
+        "横距",
+        "步距"
+      ],
+      "phrases": [],
+      "exclude": [],
+      "risk": "高",
+      "required_context": [
+        "脚手架类型",
+        "高度",
+        "荷载",
+        "搭设尺寸"
+      ],
+      "query_expansion": [
+        "脚手架",
+        "立杆",
+        "间距",
+        "荷载"
+      ],
+      "priority": 5,
+      "notes": ""
+    },
+    {
+      "id": "SC02",
+      "category": "脚手架",
+      "theme": "脚手架基础/垫板/底座",
+      "primary_codes": [
+        "GB 55023-2022"
+      ],
+      "secondary_codes": [],
+      "triggers": [
+        "脚手架基础",
+        "垫板",
+        "底座",
+        "地基承载",
+        "立杆基础"
+      ],
+      "phrases": [],
+      "exclude": [],
+      "risk": "高",
+      "required_context": [
+        "地面条件",
+        "架体高度/荷载"
+      ],
+      "query_expansion": [
+        "脚手架基础",
+        "底座"
+      ],
+      "priority": 5,
+      "notes": ""
+    },
+    {
+      "id": "SC03",
+      "category": "脚手架",
+      "theme": "连墙件/剪刀撑/稳定",
+      "primary_codes": [
+        "GB 55023-2022"
+      ],
+      "secondary_codes": [],
+      "triggers": [
+        "连墙件",
+        "剪刀撑",
+        "斜撑",
+        "整体稳定",
+        "架体稳定"
+      ],
+      "phrases": [],
+      "exclude": [],
+      "risk": "高",
+      "required_context": [
+        "架体类型",
+        "高度",
+        "结构条件"
+      ],
+      "query_expansion": [
+        "连墙件",
+        "剪刀撑",
+        "稳定"
+      ],
+      "priority": 5,
+      "notes": ""
+    },
+    {
+      "id": "SC04",
+      "category": "脚手架",
+      "theme": "脚手板/作业层防护",
+      "primary_codes": [
+        "GB 55023-2022",
+        "GB 55034-2022"
+      ],
+      "secondary_codes": [],
+      "triggers": [
+        "脚手板",
+        "作业层",
+        "挡脚板",
+        "脚手架护栏",
+        "铺板"
+      ],
+      "phrases": [],
+      "exclude": [],
+      "risk": "高",
+      "required_context": [
+        "架体类型",
+        "作业层高度"
+      ],
+      "query_expansion": [
+        "脚手板",
+        "作业层",
+        "防护"
+      ],
+      "priority": 5,
+      "notes": ""
+    },
+    {
+      "id": "SC05",
+      "category": "脚手架",
+      "theme": "脚手架荷载/材料堆载",
+      "primary_codes": [
+        "GB 55023-2022"
+      ],
+      "secondary_codes": [],
+      "triggers": [
+        "脚手架荷载",
+        "堆载",
+        "施工荷载",
+        "超载",
+        "架上堆料",
+        "脚手架上面",
+        "脚手架上",
+        "能堆多少",
+        "堆多少"
+      ],
+      "phrases": [],
+      "exclude": [],
+      "risk": "高",
+      "required_context": [
+        "脚手架类型",
+        "设计荷载",
+        "实际材料重量"
+      ],
+      "query_expansion": [
+        "施工荷载",
+        "脚手架"
+      ],
+      "priority": 5,
+      "notes": ""
+    },
+    {
+      "id": "SC06",
+      "category": "脚手架",
+      "theme": "脚手架搭设验收/拆除",
+      "primary_codes": [
+        "GB 55023-2022"
+      ],
+      "secondary_codes": [
+        "JGJ 59-2011"
+      ],
+      "triggers": [
+        "脚手架验收",
+        "架体验收",
+        "脚手架拆除",
+        "搭设验收"
+      ],
+      "phrases": [],
+      "exclude": [],
+      "risk": "高",
+      "required_context": [
+        "架体类型",
+        "高度"
+      ],
+      "query_expansion": [
+        "脚手架",
+        "验收",
+        "拆除"
+      ],
+      "priority": 5,
+      "notes": ""
+    },
+    {
+      "id": "E01",
+      "category": "临时用电",
+      "theme": "电缆拖地/敷设保护",
+      "primary_codes": [
+        "JGJ/T 46-2024",
+        "GB 55034-2022"
+      ],
+      "secondary_codes": [],
+      "triggers": [
+        "电缆拖地",
+        "电线拖地",
+        "电缆落地",
+        "电缆敷设",
+        "电缆过路",
+        "临时电缆",
+        "施工电缆",
+        "拖在地上",
+        "拖在地面"
+      ],
+      "phrases": [
+        "施工电缆直接拖在地上",
+        "电缆直接拖在地上",
+        "拖在地上"
+      ],
+      "exclude": [],
+      "risk": "高",
+      "required_context": [
+        "电缆类型",
+        "敷设位置",
+        "车辆/积水环境"
+      ],
+      "query_expansion": [
+        "临时用电",
+        "电缆线路",
+        "敷设"
+      ],
+      "priority": 5,
+      "notes": ""
+    },
+    {
+      "id": "E02",
+      "category": "临时用电",
+      "theme": "三级配电/配电箱",
+      "primary_codes": [
+        "JGJ/T 46-2024"
+      ],
+      "secondary_codes": [
+        "JGJ 59-2011",
+        "GB 55034-2022"
+      ],
+      "triggers": [
+        "三级配电",
+        "总配电箱",
+        "分配电箱",
+        "开关箱",
+        "一机一闸",
+        "配电箱"
+      ],
+      "phrases": [],
+      "exclude": [],
+      "risk": "高",
+      "required_context": [
+        "配电系统层级",
+        "设备"
+      ],
+      "query_expansion": [
+        "配电系统",
+        "配电箱",
+        "开关箱"
+      ],
+      "priority": 5,
+      "notes": ""
+    },
+    {
+      "id": "E03",
+      "category": "临时用电",
+      "theme": "漏电保护/二级保护",
+      "primary_codes": [
+        "JGJ/T 46-2024"
+      ],
+      "secondary_codes": [
+        "JGJ 59-2011"
+      ],
+      "triggers": [
+        "漏电保护",
+        "漏保",
+        "漏电开关",
+        "二级漏保",
+        "剩余电流"
+      ],
+      "phrases": [],
+      "exclude": [],
+      "risk": "高",
+      "required_context": [
+        "回路/设备",
+        "漏保参数"
+      ],
+      "query_expansion": [
+        "漏电保护器",
+        "剩余电流保护"
+      ],
+      "priority": 5,
+      "notes": ""
+    },
+    {
+      "id": "E04",
+      "category": "临时用电",
+      "theme": "TN-S/接零保护/PE线",
+      "primary_codes": [
+        "JGJ/T 46-2024"
+      ],
+      "secondary_codes": [
+        "GB 55034-2022"
+      ],
+      "triggers": [
+        "TN-S",
+        "保护接零",
+        "PE线",
+        "零地混接",
+        "接地保护",
+        "接零"
+      ],
+      "phrases": [],
+      "exclude": [],
+      "risk": "高",
+      "required_context": [
+        "供电系统",
+        "现场接地形式"
+      ],
+      "query_expansion": [
+        "TN-S",
+        "保护接零",
+        "PE"
+      ],
+      "priority": 5,
+      "notes": ""
+    },
+    {
+      "id": "E05",
+      "category": "临时用电",
+      "theme": "潮湿场所/手持工具/安全电压",
+      "primary_codes": [
+        "JGJ/T 46-2024"
+      ],
+      "secondary_codes": [
+        "GB 55034-2022"
+      ],
+      "triggers": [
+        "潮湿场所",
+        "安全电压",
+        "手持电动工具",
+        "行灯",
+        "地下室照明"
+      ],
+      "phrases": [],
+      "exclude": [],
+      "risk": "高",
+      "required_context": [
+        "环境",
+        "设备类别",
+        "供电电压"
+      ],
+      "query_expansion": [
+        "潮湿场所",
+        "安全特低电压",
+        "手持工具"
+      ],
+      "priority": 5,
+      "notes": ""
+    },
+    {
+      "id": "E06",
+      "category": "临时用电",
+      "theme": "临电检查/停送电/维护",
+      "primary_codes": [
+        "JGJ/T 46-2024",
+        "JGJ 59-2011"
+      ],
+      "secondary_codes": [],
+      "triggers": [
+        "临电检查",
+        "停电检修",
+        "送电",
+        "电工巡检",
+        "配电箱检查"
+      ],
+      "phrases": [],
+      "exclude": [],
+      "risk": "高",
+      "required_context": [
+        "作业内容"
+      ],
+      "query_expansion": [
+        "临时用电",
+        "检查",
+        "维护"
+      ],
+      "priority": 5,
+      "notes": ""
+    },
+    {
+      "id": "EL01",
+      "category": "电气",
+      "theme": "线管/导管敷设",
+      "primary_codes": [
+        "GB 55024-2022",
+        "GB 50303-2015"
+      ],
+      "secondary_codes": [],
+      "triggers": [
+        "线管",
+        "导管",
+        "电线管",
+        "金属管",
+        "PVC管",
+        "管路敷设",
+        "弯头"
+      ],
+      "phrases": [],
+      "exclude": [],
+      "risk": "中",
+      "required_context": [
+        "导管材质",
+        "明敷/暗敷",
+        "场所"
+      ],
+      "query_expansion": [
+        "导管",
+        "敷设",
+        "建筑电气"
+      ],
+      "priority": 5,
+      "notes": ""
+    },
+    {
+      "id": "EL02",
+      "category": "电气",
+      "theme": "电缆/电线敷设与连接",
+      "primary_codes": [
+        "GB 55024-2022",
+        "GB 50303-2015"
+      ],
+      "secondary_codes": [],
+      "triggers": [
+        "电缆敷设",
+        "电线穿管",
+        "电线接头",
+        "接线",
+        "电缆桥架",
+        "线槽"
+      ],
+      "phrases": [],
+      "exclude": [
+        "临时用电",
+        "拖地"
+      ],
+      "risk": "中",
+      "required_context": [
+        "电缆/导线规格",
+        "敷设方式"
+      ],
+      "query_expansion": [
+        "电缆",
+        "导线",
+        "敷设",
+        "连接"
+      ],
+      "priority": 5,
+      "notes": ""
+    },
+    {
+      "id": "EL03",
+      "category": "电气",
+      "theme": "配电箱/柜安装",
+      "primary_codes": [
+        "GB 55024-2022",
+        "GB 50303-2015"
+      ],
+      "secondary_codes": [],
+      "triggers": [
+        "配电箱安装",
+        "配电柜",
+        "强电箱",
+        "箱内接线",
+        "配电盘"
+      ],
+      "phrases": [],
+      "exclude": [
+        "临时",
+        "三级配电"
+      ],
+      "risk": "高",
+      "required_context": [
+        "系统电压",
+        "安装位置"
+      ],
+      "query_expansion": [
+        "配电箱",
+        "安装",
+        "接线"
+      ],
+      "priority": 5,
+      "notes": ""
+    },
+    {
+      "id": "EL04",
+      "category": "电气",
+      "theme": "灯具安装/照明",
+      "primary_codes": [
+        "GB 55024-2022",
+        "GB 50303-2015"
+      ],
+      "secondary_codes": [],
+      "triggers": [
+        "灯具",
+        "灯具安装",
+        "筒灯",
+        "射灯",
+        "吊灯",
+        "照明安装"
+      ],
+      "phrases": [],
+      "exclude": [],
+      "risk": "中",
+      "required_context": [
+        "灯具类型",
+        "安装高度/方式",
+        "场所"
+      ],
+      "query_expansion": [
+        "照明",
+        "灯具",
+        "安装"
+      ],
+      "priority": 5,
+      "notes": ""
+    },
+    {
+      "id": "EL05",
+      "category": "电气",
+      "theme": "插座/开关安装",
+      "primary_codes": [
+        "GB 55024-2022",
+        "GB 50303-2015"
+      ],
+      "secondary_codes": [],
+      "triggers": [
+        "插座",
+        "开关面板",
+        "插座高度",
+        "开关高度",
+        "防水插座"
+      ],
+      "phrases": [],
+      "exclude": [],
+      "risk": "中",
+      "required_context": [
+        "场所",
+        "设计高度",
+        "是否潮湿"
+      ],
+      "query_expansion": [
+        "插座",
+        "开关",
+        "安装"
+      ],
+      "priority": 5,
+      "notes": ""
+    },
+    {
+      "id": "EL06",
+      "category": "电气",
+      "theme": "接地/等电位",
+      "primary_codes": [
+        "GB 55024-2022",
+        "GB 50303-2015"
+      ],
+      "secondary_codes": [],
+      "triggers": [
+        "接地",
+        "等电位",
+        "局部等电位",
+        "接地线",
+        "PE线"
+      ],
+      "phrases": [],
+      "exclude": [
+        "临时用电",
+        "TN-S"
+      ],
+      "risk": "高",
+      "required_context": [
+        "系统/设备",
+        "场所"
+      ],
+      "query_expansion": [
+        "接地",
+        "等电位联结"
+      ],
+      "priority": 5,
+      "notes": ""
+    },
+    {
+      "id": "EL07",
+      "category": "电气",
+      "theme": "绝缘/通电试验/验收",
+      "primary_codes": [
+        "GB 50303-2015",
+        "GB 55024-2022"
+      ],
+      "secondary_codes": [],
+      "triggers": [
+        "绝缘测试",
+        "绝缘电阻",
+        "通电试验",
+        "电气验收",
+        "试运行"
+      ],
+      "phrases": [],
+      "exclude": [],
+      "risk": "高",
+      "required_context": [
+        "回路类型",
+        "设备"
+      ],
+      "query_expansion": [
+        "绝缘电阻",
+        "试验",
+        "验收"
+      ],
+      "priority": 5,
+      "notes": ""
+    },
+    {
+      "id": "P01",
+      "category": "给排水",
+      "theme": "地漏/水封/排水卫生",
+      "primary_codes": [
+        "GB 55020-2021",
+        "GB 50242-2002"
+      ],
+      "secondary_codes": [
+        "GB 55030-2022"
+      ],
+      "triggers": [
+        "地漏",
+        "水封",
+        "存水弯",
+        "返臭",
+        "地漏高度"
+      ],
+      "phrases": [],
+      "exclude": [],
+      "risk": "中",
+      "required_context": [
+        "场所",
+        "排水系统",
+        "地漏类型"
+      ],
+      "query_expansion": [
+        "地漏",
+        "水封",
+        "排水"
+      ],
+      "priority": 5,
+      "notes": ""
+    },
+    {
+      "id": "P02",
+      "category": "给排水",
+      "theme": "排水坡度/倒坡/通水",
+      "primary_codes": [
+        "GB 55020-2021",
+        "GB 50242-2002"
+      ],
+      "secondary_codes": [],
+      "triggers": [
+        "排水管坡度",
+        "排水坡度",
+        "倒坡",
+        "通水试验",
+        "排水不畅"
+      ],
+      "phrases": [],
+      "exclude": [],
+      "risk": "中",
+      "required_context": [
+        "管径",
+        "管材",
+        "系统类型"
+      ],
+      "query_expansion": [
+        "排水管道",
+        "坡度",
+        "通水"
+      ],
+      "priority": 5,
+      "notes": ""
+    },
+    {
+      "id": "P03",
+      "category": "给排水",
+      "theme": "给水管试压",
+      "primary_codes": [
+        "GB 50242-2002",
+        "GB 55020-2021"
+      ],
+      "secondary_codes": [],
+      "triggers": [
+        "给水试压",
+        "水压试验",
+        "管道试压",
+        "打压试验"
+      ],
+      "phrases": [],
+      "exclude": [],
+      "risk": "中",
+      "required_context": [
+        "管材",
+        "工作压力/设计压力"
+      ],
+      "query_expansion": [
+        "给水管道",
+        "水压试验"
+      ],
+      "priority": 5,
+      "notes": ""
+    },
+    {
+      "id": "P04",
+      "category": "给排水",
+      "theme": "卫生器具安装",
+      "primary_codes": [
+        "GB 55020-2021",
+        "GB 50242-2002"
+      ],
+      "secondary_codes": [],
+      "triggers": [
+        "马桶",
+        "坐便器",
+        "洗手盆",
+        "小便器",
+        "卫生器具",
+        "洁具安装"
+      ],
+      "phrases": [],
+      "exclude": [],
+      "risk": "中",
+      "required_context": [
+        "器具类型",
+        "排水方式"
+      ],
+      "query_expansion": [
+        "卫生器具",
+        "安装",
+        "排水"
+      ],
+      "priority": 5,
+      "notes": ""
+    },
+    {
+      "id": "P05",
+      "category": "给排水",
+      "theme": "套管/穿楼板管道",
+      "primary_codes": [
+        "GB 55020-2021",
+        "GB 50242-2002"
+      ],
+      "secondary_codes": [
+        "GB 55030-2022"
+      ],
+      "triggers": [
+        "套管",
+        "穿楼板",
+        "穿墙管",
+        "管道套管",
+        "封堵"
+      ],
+      "phrases": [],
+      "exclude": [],
+      "risk": "中",
+      "required_context": [
+        "管道类型",
+        "穿越部位",
+        "防火/防水要求"
+      ],
+      "query_expansion": [
+        "套管",
+        "管道穿越",
+        "封堵"
+      ],
+      "priority": 5,
+      "notes": ""
+    },
+    {
+      "id": "P06",
+      "category": "给排水",
+      "theme": "管道支吊架/固定",
+      "primary_codes": [
+        "GB 50242-2002"
+      ],
+      "secondary_codes": [
+        "GB 55020-2021"
+      ],
+      "triggers": [
+        "管道支架",
+        "管道吊架",
+        "支吊架",
+        "管卡间距"
+      ],
+      "phrases": [],
+      "exclude": [],
+      "risk": "中",
+      "required_context": [
+        "管材",
+        "管径",
+        "系统"
+      ],
+      "query_expansion": [
+        "管道支架",
+        "固定"
+      ],
+      "priority": 5,
+      "notes": ""
+    },
+    {
+      "id": "P07",
+      "category": "给排水",
+      "theme": "二次排水/沉箱排水",
+      "primary_codes": [
+        "GB 55020-2021",
+        "GB 55030-2022"
+      ],
+      "secondary_codes": [
+        "GB 50242-2002"
+      ],
+      "triggers": [
+        "二次排水",
+        "沉箱排水",
+        "下沉式卫生间",
+        "二次地漏",
+        "沉箱地漏"
+      ],
+      "phrases": [
+        "沉箱",
+        "卫生间沉箱",
+        "沉箱卫生间"
+      ],
+      "exclude": [],
+      "risk": "高",
+      "required_context": [
+        "卫生间构造",
+        "设计做法",
+        "防水排水方案"
+      ],
+      "query_expansion": [
+        "排水",
+        "防水",
+        "卫生间"
+      ],
+      "priority": 5,
+      "notes": ""
+    },
+    {
+      "id": "R01",
+      "category": "既有建筑/改造",
+      "theme": "拆墙/开洞/拆改承重构件",
+      "primary_codes": [
+        "GB 55022-2021",
+        "GB 55021-2021"
+      ],
+      "secondary_codes": [],
+      "triggers": [
+        "拆墙",
+        "砸墙",
+        "开洞",
+        "拆梁",
+        "拆柱",
+        "承重墙",
+        "结构拆改",
+        "拆一面墙",
+        "拆这面墙",
+        "拆一堵墙",
+        "拆隔墙"
+      ],
+      "phrases": [
+        "拆一面墙",
+        "拆一堵墙",
+        "装修拆墙"
+      ],
+      "exclude": [],
+      "risk": "高",
+      "required_context": [
+        "墙体/构件性质",
+        "原结构图",
+        "改造用途"
+      ],
+      "query_expansion": [
+        "既有建筑改造",
+        "结构安全",
+        "鉴定"
+      ],
+      "priority": 5,
+      "notes": ""
+    },
+    {
+      "id": "R02",
+      "category": "既有建筑/改造",
+      "theme": "改变使用功能/用途",
+      "primary_codes": [
+        "GB 55022-2021",
+        "GB 55021-2021"
+      ],
+      "secondary_codes": [
+        "GB 55031-2022"
+      ],
+      "triggers": [
+        "改变使用功能",
+        "改变用途",
+        "办公改宿舍",
+        "住宅改商业",
+        "功能改造",
+        "办公室改成档案室",
+        "改成档案室"
+      ],
+      "phrases": [],
+      "exclude": [],
+      "risk": "高",
+      "required_context": [
+        "原用途",
+        "新用途",
+        "荷载变化"
+      ],
+      "query_expansion": [
+        "既有建筑",
+        "用途改变",
+        "鉴定"
+      ],
+      "priority": 5,
+      "notes": ""
+    },
+    {
+      "id": "R03",
+      "category": "既有建筑/加固",
+      "theme": "新增设备/荷载",
+      "primary_codes": [
+        "GB 55021-2021",
+        "GB 55022-2021"
+      ],
+      "secondary_codes": [],
+      "triggers": [
+        "新增荷载",
+        "设备荷载",
+        "楼板承重",
+        "屋顶设备",
+        "重型设备",
+        "加荷载",
+        "档案室",
+        "楼板荷载",
+        "改成档案室"
+      ],
+      "phrases": [],
+      "exclude": [],
+      "risk": "高",
+      "required_context": [
+        "设备重量",
+        "支承面积",
+        "原结构资料"
+      ],
+      "query_expansion": [
+        "既有建筑",
+        "荷载",
+        "鉴定",
+        "加固"
+      ],
+      "priority": 5,
+      "notes": ""
+    },
+    {
+      "id": "R04",
+      "category": "既有建筑/加固",
+      "theme": "裂缝/变形/损伤鉴定",
+      "primary_codes": [
+        "GB 55021-2021"
+      ],
+      "secondary_codes": [],
+      "triggers": [
+        "结构裂缝",
+        "梁裂缝",
+        "板裂缝",
+        "柱裂缝",
+        "变形",
+        "沉降",
+        "结构损伤",
+        "贯通裂缝",
+        "裂缝鉴定",
+        "梁上裂缝"
+      ],
+      "phrases": [],
+      "exclude": [],
+      "risk": "高",
+      "required_context": [
+        "裂缝位置/宽度",
+        "发展情况",
+        "结构形式"
+      ],
+      "query_expansion": [
+        "既有建筑鉴定",
+        "裂缝",
+        "损伤"
+      ],
+      "priority": 7,
+      "notes": ""
+    },
+    {
+      "id": "R05",
+      "category": "既有建筑/加固",
+      "theme": "加固前鉴定/设计",
+      "primary_codes": [
+        "GB 55021-2021"
+      ],
+      "secondary_codes": [
+        "GB 55022-2021"
+      ],
+      "triggers": [
+        "加固",
+        "结构加固",
+        "鉴定",
+        "可靠性鉴定",
+        "安全性鉴定"
+      ],
+      "phrases": [],
+      "exclude": [],
+      "risk": "高",
+      "required_context": [
+        "结构类型",
+        "问题原因",
+        "检测资料"
+      ],
+      "query_expansion": [
+        "鉴定",
+        "加固",
+        "既有建筑"
+      ],
+      "priority": 5,
+      "notes": ""
+    },
+    {
+      "id": "R06",
+      "category": "既有建筑/改造",
+      "theme": "维护维修与改造边界",
+      "primary_codes": [
+        "GB 55022-2021"
+      ],
+      "secondary_codes": [],
+      "triggers": [
+        "维修",
+        "维护",
+        "翻新",
+        "改造工程",
+        "既有建筑维修"
+      ],
+      "phrases": [],
+      "exclude": [],
+      "risk": "中",
+      "required_context": [
+        "改造范围",
+        "是否涉及结构/功能变化"
+      ],
+      "query_expansion": [
+        "既有建筑维护",
+        "改造"
+      ],
+      "priority": 5,
+      "notes": ""
+    },
+    {
+      "id": "I01",
+      "category": "室内环境",
+      "theme": "甲醛/VOC/苯检测",
+      "primary_codes": [
+        "GB 50325-2020"
+      ],
+      "secondary_codes": [],
+      "triggers": [
+        "甲醛",
+        "VOC",
+        "TVOC",
+        "苯",
+        "甲苯",
+        "二甲苯",
+        "室内空气检测"
+      ],
+      "phrases": [],
+      "exclude": [],
+      "risk": "中",
+      "required_context": [
+        "建筑类别",
+        "装修完成时间",
+        "检测条件"
+      ],
+      "query_expansion": [
+        "室内环境污染",
+        "检测"
+      ],
+      "priority": 5,
+      "notes": ""
+    },
+    {
+      "id": "I02",
+      "category": "室内环境",
+      "theme": "装修材料有害物质/进场控制",
+      "primary_codes": [
+        "GB 50325-2020"
+      ],
+      "secondary_codes": [],
+      "triggers": [
+        "环保材料",
+        "有害物质",
+        "人造板",
+        "胶粘剂",
+        "涂料环保",
+        "材料污染"
+      ],
+      "phrases": [],
+      "exclude": [],
+      "risk": "中",
+      "required_context": [
+        "材料类型",
+        "使用部位"
+      ],
+      "query_expansion": [
+        "室内环境污染",
+        "材料"
+      ],
+      "priority": 5,
+      "notes": ""
+    },
+    {
+      "id": "I03",
+      "category": "室内环境",
+      "theme": "竣工室内环境验收",
+      "primary_codes": [
+        "GB 50325-2020"
+      ],
+      "secondary_codes": [],
+      "triggers": [
+        "环境验收",
+        "室内环境验收",
+        "空气质量验收",
+        "竣工检测"
+      ],
+      "phrases": [],
+      "exclude": [],
+      "risk": "中",
+      "required_context": [
+        "建筑类别",
+        "检测点数量/面积"
+      ],
+      "query_expansion": [
+        "室内环境",
+        "验收"
+      ],
+      "priority": 5,
+      "notes": ""
+    },
+    {
+      "id": "B01",
+      "category": "建筑通用",
+      "theme": "楼梯尺寸/净高/踏步",
+      "primary_codes": [
+        "GB 55031-2022"
+      ],
+      "secondary_codes": [
+        "GB 55019-2021"
+      ],
+      "triggers": [
+        "楼梯",
+        "踏步",
+        "楼梯净高",
+        "梯段宽度",
+        "休息平台"
+      ],
+      "phrases": [],
+      "exclude": [],
+      "risk": "高",
+      "required_context": [
+        "建筑用途",
+        "楼层",
+        "是否无障碍相关"
+      ],
+      "query_expansion": [
+        "楼梯",
+        "安全",
+        "净高"
+      ],
+      "priority": 5,
+      "notes": ""
+    },
+    {
+      "id": "B02",
+      "category": "建筑通用",
+      "theme": "栏杆/临空防护",
+      "primary_codes": [
+        "GB 55031-2022"
+      ],
+      "secondary_codes": [
+        "GB 50210-2018"
+      ],
+      "triggers": [
+        "栏杆高度",
+        "临空栏杆",
+        "护栏高度",
+        "栏杆间距"
+      ],
+      "phrases": [],
+      "exclude": [],
+      "risk": "高",
+      "required_context": [
+        "部位",
+        "临空高度",
+        "使用人群"
+      ],
+      "query_expansion": [
+        "栏杆",
+        "防护",
+        "临空"
+      ],
+      "priority": 5,
+      "notes": ""
+    },
+    {
+      "id": "B03",
+      "category": "建筑通用",
+      "theme": "走道/门/净宽",
+      "primary_codes": [
+        "GB 55031-2022"
+      ],
+      "secondary_codes": [
+        "GB 55037-2022",
+        "GB 55019-2021"
+      ],
+      "triggers": [
+        "走道净宽",
+        "门宽",
+        "通道宽度",
+        "净宽",
+        "门洞宽度"
+      ],
+      "phrases": [],
+      "exclude": [],
+      "risk": "高",
+      "required_context": [
+        "建筑用途",
+        "是否疏散/无障碍通道"
+      ],
+      "query_expansion": [
+        "通道",
+        "门",
+        "净宽"
+      ],
+      "priority": 5,
+      "notes": ""
+    },
+    {
+      "id": "B04",
+      "category": "建筑通用",
+      "theme": "室内净高/空间基本要求",
+      "primary_codes": [
+        "GB 55031-2022"
+      ],
+      "secondary_codes": [],
+      "triggers": [
+        "室内净高",
+        "层高",
+        "净空高度",
+        "房间高度"
+      ],
+      "phrases": [],
+      "exclude": [],
+      "risk": "中",
+      "required_context": [
+        "建筑用途",
+        "房间功能"
+      ],
+      "query_expansion": [
+        "净高",
+        "空间"
+      ],
+      "priority": 5,
+      "notes": ""
+    },
+    {
+      "id": "A01",
+      "category": "无障碍",
+      "theme": "无障碍卫生间",
+      "primary_codes": [
+        "GB 55019-2021"
+      ],
+      "secondary_codes": [
+        "GB 55031-2022"
+      ],
+      "triggers": [
+        "无障碍卫生间",
+        "无障碍厕所",
+        "无障碍坐便器",
+        "无障碍洗手盆"
+      ],
+      "phrases": [],
+      "exclude": [],
+      "risk": "高",
+      "required_context": [
+        "公共/住宅",
+        "空间尺寸"
+      ],
+      "query_expansion": [
+        "无障碍卫生间",
+        "设施"
+      ],
+      "priority": 5,
+      "notes": ""
+    },
+    {
+      "id": "A02",
+      "category": "无障碍",
+      "theme": "无障碍坡道",
+      "primary_codes": [
+        "GB 55019-2021"
+      ],
+      "secondary_codes": [],
+      "triggers": [
+        "无障碍坡道",
+        "坡道坡度",
+        "轮椅坡道"
+      ],
+      "phrases": [],
+      "exclude": [],
+      "risk": "高",
+      "required_context": [
+        "高差",
+        "坡道长度",
+        "场地条件"
+      ],
+      "query_expansion": [
+        "无障碍坡道",
+        "坡度"
+      ],
+      "priority": 5,
+      "notes": ""
+    },
+    {
+      "id": "A03",
+      "category": "无障碍",
+      "theme": "无障碍通道/门",
+      "primary_codes": [
+        "GB 55019-2021"
+      ],
+      "secondary_codes": [
+        "GB 55031-2022"
+      ],
+      "triggers": [
+        "无障碍通道",
+        "轮椅通道",
+        "无障碍门",
+        "门净宽"
+      ],
+      "phrases": [],
+      "exclude": [],
+      "risk": "高",
+      "required_context": [
+        "通道用途",
+        "门类型"
+      ],
+      "query_expansion": [
+        "无障碍通行",
+        "门",
+        "净宽"
+      ],
+      "priority": 5,
+      "notes": ""
+    },
+    {
+      "id": "A04",
+      "category": "无障碍",
+      "theme": "无障碍扶手/设施",
+      "primary_codes": [
+        "GB 55019-2021"
+      ],
+      "secondary_codes": [],
+      "triggers": [
+        "无障碍扶手",
+        "抓杆",
+        "安全抓杆",
+        "无障碍标识"
+      ],
+      "phrases": [],
+      "exclude": [],
+      "risk": "中",
+      "required_context": [
+        "设施位置",
+        "使用场所"
+      ],
+      "query_expansion": [
+        "无障碍设施",
+        "扶手"
+      ],
+      "priority": 5,
+      "notes": ""
+    },
+    {
+      "id": "X01",
+      "category": "综合",
+      "theme": "卫生间综合验收",
+      "primary_codes": [
+        "GB 55030-2022",
+        "GB 55020-2021"
+      ],
+      "secondary_codes": [
+        "GB 50209-2010",
+        "GB 50242-2002",
+        "GB 55019-2021"
+      ],
+      "triggers": [
+        "卫生间验收",
+        "厕所验收",
+        "卫生间施工"
+      ],
+      "phrases": [],
+      "exclude": [],
+      "risk": "高",
+      "required_context": [
+        "是否无障碍",
+        "地面/防水/给排水范围"
+      ],
+      "query_expansion": [
+        "卫生间",
+        "防水",
+        "排水",
+        "地面"
+      ],
+      "priority": 5,
+      "notes": ""
+    },
+    {
+      "id": "X02",
+      "category": "综合",
+      "theme": "吊顶内机电与消防综合",
+      "primary_codes": [
+        "GB 55024-2022",
+        "GB 55036-2022"
+      ],
+      "secondary_codes": [
+        "GB 50210-2018",
+        "GB 55032-2022"
+      ],
+      "triggers": [
+        "吊顶内",
+        "天花内",
+        "吊顶里面",
+        "天花里面"
+      ],
+      "phrases": [
+        "消防管",
+        "电线管",
+        "桥架",
+        "喷头",
+        "烟感"
+      ],
+      "exclude": [],
+      "risk": "高",
+      "required_context": [
+        "吊顶形式",
+        "机电系统",
+        "检修要求"
+      ],
+      "query_expansion": [
+        "吊顶",
+        "机电",
+        "消防",
+        "隐蔽"
+      ],
+      "priority": 5,
+      "notes": ""
+    },
+    {
+      "id": "X03",
+      "category": "综合",
+      "theme": "装修施工成品保护/工序交接",
+      "primary_codes": [
+        "GB 55032-2022"
+      ],
+      "secondary_codes": [
+        "GB 50210-2018",
+        "GB 50209-2010"
+      ],
+      "triggers": [
+        "成品保护",
+        "工序交接",
+        "交接验收",
+        "移交施工面"
+      ],
+      "phrases": [],
+      "exclude": [],
+      "risk": "中",
+      "required_context": [
+        "工序",
+        "责任界面"
+      ],
+      "query_expansion": [
+        "施工质量控制",
+        "成品保护",
+        "交接"
+      ],
+      "priority": 5,
+      "notes": ""
+    },
+    {
+      "id": "X04",
+      "category": "综合",
+      "theme": "现场照片安全质量检查",
+      "primary_codes": [
+        "GB 55032-2022",
+        "GB 55034-2022"
+      ],
+      "secondary_codes": [],
+      "triggers": [
+        "现场照片",
+        "检查现场",
+        "照片检查",
+        "有什么问题",
+        "检查问题"
+      ],
+      "phrases": [],
+      "exclude": [],
+      "risk": "中",
+      "required_context": [
+        "照片可见部位",
+        "施工阶段"
+      ],
+      "query_expansion": [
+        "施工质量",
+        "安全检查"
+      ],
+      "priority": 5,
+      "notes": ""
+    },
+    {
+      "id": "M01",
+      "category": "规范管理",
+      "theme": "规范现行/废止/替代关系",
+      "primary_codes": [],
+      "secondary_codes": [],
+      "triggers": [
+        "现行吗",
+        "废止了吗",
+        "替代",
+        "最新版",
+        "还能用吗",
+        "是不是废止",
+        "旧规范",
+        "新规范"
+      ],
+      "phrases": [],
+      "exclude": [],
+      "risk": "中",
+      "required_context": [],
+      "query_expansion": [
+        "规范状态",
+        "替代关系"
+      ],
+      "priority": 9,
+      "notes": "由规范状态数据库与旧规范黑名单优先处理，不直接作为条文证据。"
+    }
+  ]
+}

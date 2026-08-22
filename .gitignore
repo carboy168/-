@@ -5,6 +5,7 @@ dist/
 release/
 __pycache__/
 *.pyc
+.test-tmp/
 .env
 data/projects/
 data/source_docs/

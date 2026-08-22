@@ -1,0 +1,255 @@
+{
+  "as_of": "2026-08-20",
+  "questions": [
+    {
+      "id": "Q01",
+      "category": "装饰装修",
+      "question": "吊顶工程的施工质量验收主要应查哪些规范？",
+      "expected_codes": [
+        "GB 55032-2022",
+        "GB 50210-2018"
+      ]
+    },
+    {
+      "id": "Q02",
+      "category": "装饰装修",
+      "question": "饰面砖空鼓和粘结质量验收应如何查规范？",
+      "expected_codes": [
+        "GB 50210-2018"
+      ]
+    },
+    {
+      "id": "Q03",
+      "category": "建筑地面",
+      "question": "地砖铺贴的坡度、空鼓和表面质量验收查什么？",
+      "expected_codes": [
+        "GB 50209-2010"
+      ]
+    },
+    {
+      "id": "Q04",
+      "category": "防水",
+      "question": "卫生间防水和闭水试验应查哪些现行规范？",
+      "expected_codes": [
+        "GB 55030-2022"
+      ]
+    },
+    {
+      "id": "Q05",
+      "category": "消防",
+      "question": "室内装修材料燃烧性能等级应优先查什么规范？",
+      "expected_codes": [
+        "GB 55037-2022"
+      ]
+    },
+    {
+      "id": "Q06",
+      "category": "消防",
+      "question": "喷淋系统施工和验收发生冲突时，上位规范是什么？",
+      "expected_codes": [
+        "GB 55036-2022"
+      ]
+    },
+    {
+      "id": "Q07",
+      "category": "脚手架",
+      "question": "装修操作平台和脚手架的安全要求优先查什么？",
+      "expected_codes": [
+        "GB 55023-2022"
+      ]
+    },
+    {
+      "id": "Q08",
+      "category": "临时用电",
+      "question": "施工现场电缆能不能直接拖地？",
+      "expected_codes": [
+        "JGJ/T 46-2024",
+        "GB 55034-2022"
+      ]
+    },
+    {
+      "id": "Q09",
+      "category": "临时用电",
+      "question": "JGJ 46-2005现在还能作为临时用电现行依据吗？",
+      "expected_codes": [
+        "JGJ/T 46-2024"
+      ]
+    },
+    {
+      "id": "Q10",
+      "category": "安全检查",
+      "question": "现场三级配电和漏保检查应查哪些安全标准？",
+      "expected_codes": [
+        "JGJ/T 46-2024",
+        "JGJ 59-2011"
+      ]
+    },
+    {
+      "id": "Q11",
+      "category": "高处作业",
+      "question": "临边洞口防护和操作平台应查什么规范？",
+      "expected_codes": [
+        "JGJ 80-2016",
+        "GB 55034-2022"
+      ]
+    },
+    {
+      "id": "Q12",
+      "category": "电气",
+      "question": "建筑电气工程验收时GB50303和GB55024是什么关系？",
+      "expected_codes": [
+        "GB 55024-2022",
+        "GB 50303-2015"
+      ]
+    },
+    {
+      "id": "Q13",
+      "category": "电气",
+      "question": "配电箱安装、导管和电缆施工质量验收应查什么？",
+      "expected_codes": [
+        "GB 50303-2015",
+        "GB 55024-2022"
+      ]
+    },
+    {
+      "id": "Q14",
+      "category": "给排水",
+      "question": "卫生间地漏和排水系统应优先查什么规范？",
+      "expected_codes": [
+        "GB 55020-2021",
+        "GB 50242-2002"
+      ]
+    },
+    {
+      "id": "Q15",
+      "category": "给排水",
+      "question": "给水管道试压和排水通水试验应查什么？",
+      "expected_codes": [
+        "GB 50242-2002",
+        "GB 55020-2021"
+      ]
+    },
+    {
+      "id": "Q16",
+      "category": "既有建筑",
+      "question": "装修拆除墙体前是否需要结构鉴定，应查什么？",
+      "expected_codes": [
+        "GB 55021-2021",
+        "GB 55022-2021"
+      ]
+    },
+    {
+      "id": "Q17",
+      "category": "既有建筑",
+      "question": "既有建筑功能改变和装修改造应优先查什么？",
+      "expected_codes": [
+        "GB 55022-2021"
+      ]
+    },
+    {
+      "id": "Q18",
+      "category": "室内环境",
+      "question": "装修完成后甲醛和VOC验收应查什么标准？",
+      "expected_codes": [
+        "GB 50325-2020"
+      ]
+    },
+    {
+      "id": "Q19",
+      "category": "建筑通用",
+      "question": "公共建筑走道、楼梯、栏杆等基本要求应优先查什么？",
+      "expected_codes": [
+        "GB 55031-2022"
+      ]
+    },
+    {
+      "id": "Q20",
+      "category": "无障碍",
+      "question": "无障碍卫生间、坡道和通道尺寸应查什么？",
+      "expected_codes": [
+        "GB 55019-2021"
+      ]
+    },
+    {
+      "id": "Q21",
+      "category": "质量验收",
+      "question": "检验批、分项工程和分部工程质量验收总体规则查什么？",
+      "expected_codes": [
+        "GB 55032-2022"
+      ]
+    },
+    {
+      "id": "Q22",
+      "category": "消防",
+      "question": "防火门、疏散和防火分隔应先查哪本强制性通用规范？",
+      "expected_codes": [
+        "GB 55037-2022"
+      ]
+    },
+    {
+      "id": "Q23",
+      "category": "消防",
+      "question": "消防应急照明和疏散指示系统的上位强制规范是什么？",
+      "expected_codes": [
+        "GB 55036-2022",
+        "GB 55037-2022"
+      ]
+    },
+    {
+      "id": "Q24",
+      "category": "脚手架",
+      "question": "JGJ130中的强制性条文还能不加判断直接引用吗？",
+      "expected_codes": [
+        "GB 55023-2022"
+      ]
+    },
+    {
+      "id": "Q25",
+      "category": "电气",
+      "question": "GB50303-2015第3.1.5条还能作为现行强制条文吗？",
+      "expected_codes": [
+        "GB 55024-2022"
+      ]
+    },
+    {
+      "id": "Q26",
+      "category": "装饰装修",
+      "question": "GB50210-2018第6.1.11条是否仍是现行强制条文？",
+      "expected_codes": [
+        "GB 55032-2022"
+      ]
+    },
+    {
+      "id": "Q27",
+      "category": "防水",
+      "question": "屋面和卫生间防水设计施工发生旧标准冲突时优先依据什么？",
+      "expected_codes": [
+        "GB 55030-2022"
+      ]
+    },
+    {
+      "id": "Q28",
+      "category": "安全",
+      "question": "施工现场安全卫生和职业健康的上位强制规范是什么？",
+      "expected_codes": [
+        "GB 55034-2022"
+      ]
+    },
+    {
+      "id": "Q29",
+      "category": "改造",
+      "question": "既有建筑装修时改变使用功能，应先核对哪两本通用规范？",
+      "expected_codes": [
+        "GB 55022-2021",
+        "GB 55021-2021"
+      ]
+    },
+    {
+      "id": "Q30",
+      "category": "综合",
+      "question": "没有检索到规范原文时，智能体能不能自己补一个条文号？",
+      "expected_codes": [],
+      "expected_behavior": "拒绝编造，提示证据不足"
+    }
+  ]
+}

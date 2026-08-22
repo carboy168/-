@@ -1,0 +1,366 @@
+{
+  "meta": {
+    "name": "工程规范智能体 V1.0 第二阶段—20本高频规范全文来源清单",
+    "as_of": "2026-08-20",
+    "policy": "只自动获取政府/主管部门公开附件；无法确认全文来源的规范必须由用户合法上传；自动下载失败不得回退到非官方站点。"
+  },
+  "standards": [
+    {
+      "rank": 1,
+      "code": "GB 55032-2022",
+      "title": "建筑与市政工程施工质量控制通用规范",
+      "category": "质量验收",
+      "status": "现行",
+      "effective_date": "2023-03-01",
+      "fulltext_status": "官方公开全文/附件已确认",
+      "import_mode": "official_fetch",
+      "source_page": "https://zjj.sm.gov.cn/xxgk/fgwj/jsbz/202209/t20220909_1827392.htm",
+      "source_domain": "zjj.sm.gov.cn",
+      "expected_keywords": [
+        "建筑与市政工程施工质量控制通用规范",
+        "55032",
+        "pdf"
+      ],
+      "notes": "优先级最高；需同时加载GB50210/GB50300等部分强条废止关系。"
+    },
+    {
+      "rank": 2,
+      "code": "GB 50210-2018",
+      "title": "建筑装饰装修工程质量验收标准",
+      "category": "装饰装修",
+      "status": "现行（部分原强条已废止）",
+      "effective_date": "2018-09-01",
+      "fulltext_status": "政府网站公开标准附件入口已确认",
+      "import_mode": "official_fetch",
+      "source_page": "https://jncc.jinan.gov.cn/col45066/art/2021/art_45066_3462264.html",
+      "source_domain": "jncc.jinan.gov.cn",
+      "expected_keywords": [
+        "建筑装饰装修工程质量验收标准",
+        "50210",
+        "pdf"
+      ],
+      "notes": "3.1.4、6.1.11、6.1.12、7.1.12、11.1.12原强条已废止。"
+    },
+    {
+      "rank": 3,
+      "code": "GB 55037-2022",
+      "title": "建筑防火通用规范",
+      "category": "消防",
+      "status": "现行",
+      "effective_date": "2023-06-01",
+      "fulltext_status": "官方公开全文/附件已确认",
+      "import_mode": "official_fetch",
+      "source_page": "https://zjj.sm.gov.cn/ztzl/xfzt/202401/t20240111_1993450.htm",
+      "source_domain": "zjj.sm.gov.cn",
+      "expected_keywords": [
+        "建筑防火通用规范",
+        "55037",
+        "pdf"
+      ],
+      "notes": "防火强制性上位规范；必须先于GB50016等配套标准判断。"
+    },
+    {
+      "rank": 4,
+      "code": "GB 55036-2022",
+      "title": "消防设施通用规范",
+      "category": "消防",
+      "status": "现行",
+      "effective_date": "2023-03-01",
+      "fulltext_status": "官方公开全文/附件已确认",
+      "import_mode": "official_fetch",
+      "source_page": "https://zjj.sm.gov.cn/xxgk/fgwj/jsbz/202209/t20220909_1827380.htm",
+      "source_domain": "zjj.sm.gov.cn",
+      "expected_keywords": [
+        "消防设施通用规范",
+        "55036",
+        "pdf"
+      ],
+      "notes": "消防设施强制性上位规范；需加载喷淋、报警、消火栓等旧强条废止关系。"
+    },
+    {
+      "rank": 5,
+      "code": "GB 55030-2022",
+      "title": "建筑与市政工程防水通用规范",
+      "category": "防水",
+      "status": "现行",
+      "effective_date": "2023-04-01",
+      "fulltext_status": "官方公开全文/附件已确认",
+      "import_mode": "official_fetch",
+      "source_page": "https://szwb.sz.gov.cn/gwszwfw/zsk/hybz/content/post_10187002.html",
+      "source_domain": "szwb.sz.gov.cn",
+      "expected_keywords": [
+        "建筑与市政工程防水通用规范",
+        "55030",
+        "pdf"
+      ],
+      "notes": "卫生间、屋面、地下室等防水问题的上位强制规范。"
+    },
+    {
+      "rank": 6,
+      "code": "GB 55034-2022",
+      "title": "建筑与市政施工现场安全卫生与职业健康通用规范",
+      "category": "施工安全",
+      "status": "现行",
+      "effective_date": "2023-06-01",
+      "fulltext_status": "官方公开全文/附件已确认",
+      "import_mode": "official_fetch",
+      "source_page": "https://szwb.sz.gov.cn/gwszwfw/zsk/hybz/content/post_10358827.html",
+      "source_domain": "szwb.sz.gov.cn",
+      "expected_keywords": [
+        "建筑与市政施工现场安全卫生与职业健康通用规范",
+        "55034",
+        "pdf"
+      ],
+      "notes": "施工现场安全上位强制规范；与JGJ/T46、JGJ59、JGJ80联动。"
+    },
+    {
+      "rank": 7,
+      "code": "GB 55023-2022",
+      "title": "施工脚手架通用规范",
+      "category": "脚手架",
+      "status": "现行",
+      "effective_date": "2022-10-01",
+      "fulltext_status": "官方公开全文/附件已确认",
+      "import_mode": "official_fetch",
+      "source_page": "https://szwb.sz.gov.cn/gwszwfw/zsk/hybz/content/post_9725091.html",
+      "source_domain": "szwb.sz.gov.cn",
+      "expected_keywords": [
+        "施工脚手架通用规范",
+        "55023",
+        "pdf"
+      ],
+      "notes": "脚手架/操作架问题优先；需识别JGJ130、GB51210部分强条废止。"
+    },
+    {
+      "rank": 8,
+      "code": "JGJ/T 46-2024",
+      "title": "建筑与市政工程施工现场临时用电安全技术标准",
+      "category": "临时用电",
+      "status": "现行",
+      "effective_date": "2025-01-01",
+      "fulltext_status": "官方发布页面/附件入口已确认",
+      "import_mode": "official_fetch",
+      "source_page": "https://zjt.ln.gov.cn/zjt/xybz/2024101615070626126/index.shtml",
+      "source_domain": "zjt.ln.gov.cn",
+      "expected_keywords": [
+        "建筑与市政工程施工现场临时用电安全技术标准",
+        "JGJ/T 46",
+        "46-2024",
+        "附件"
+      ],
+      "notes": "替代JGJ46-2005；所有临电问答需拦截旧版。"
+    },
+    {
+      "rank": 9,
+      "code": "JGJ 80-2016",
+      "title": "建筑施工高处作业安全技术规范",
+      "category": "高处作业",
+      "status": "现行（需结合GB55034）",
+      "effective_date": "",
+      "fulltext_status": "官方公开PDF附件已确认",
+      "import_mode": "official_fetch",
+      "source_page": "https://zjw.sh.gov.cn/xcsc2020-jsbz/20200430/f141c8d12a494a1c8a9eb155a6e420ce.html",
+      "source_domain": "zjw.sh.gov.cn",
+      "expected_keywords": [
+        "建筑施工高处作业安全技术规范",
+        "JGJ 80",
+        "pdf"
+      ],
+      "notes": "临边、洞口、操作平台等；部分原强条已受GB55034调整。"
+    },
+    {
+      "rank": 10,
+      "code": "JGJ 59-2011",
+      "title": "建筑施工安全检查标准",
+      "category": "安全检查",
+      "status": "现行（需结合GB55034）",
+      "effective_date": "",
+      "fulltext_status": "政府网站公开PDF已确认",
+      "import_mode": "direct_or_page_fetch",
+      "source_page": "https://zfcxjst.hlj.gov.cn/zfcxjst/c114972/202511/31887280/files/%E5%BB%BA%E7%AD%91%E6%96%BD%E5%B7%A5%E5%AE%89%E5%85%A8%E6%A3%80%E6%9F%A5%E7%9B%B8%E5%85%B3%E6%A0%87%E5%87%86.pdf",
+      "source_domain": "zfcxjst.hlj.gov.cn",
+      "expected_keywords": [
+        "建筑施工安全检查",
+        "JGJ 59"
+      ],
+      "notes": "现场检查评分和常见安全问题；部分要求需以上位GB55034为准。"
+    },
+    {
+      "rank": 11,
+      "code": "GB 55024-2022",
+      "title": "建筑电气与智能化通用规范",
+      "category": "电气/智能化",
+      "status": "现行",
+      "effective_date": "2022-10-01",
+      "fulltext_status": "官方公开全文/附件已确认",
+      "import_mode": "official_fetch",
+      "source_page": "https://szwb.sz.gov.cn/gwszwfw/zsk/hybz/content/post_9913357.html",
+      "source_domain": "szwb.sz.gov.cn",
+      "expected_keywords": [
+        "建筑电气与智能化通用规范",
+        "55024",
+        "pdf"
+      ],
+      "notes": "上位强制规范；需拦截GB50303-2015已废止的原强制条文。"
+    },
+    {
+      "rank": 12,
+      "code": "GB 50303-2015",
+      "title": "建筑电气工程施工质量验收规范",
+      "category": "电气",
+      "status": "现行配套（部分原强条已废止）",
+      "effective_date": "",
+      "fulltext_status": "官方现行使用证据已确认，标准全文待合法导入",
+      "import_mode": "manual_upload",
+      "source_page": "https://szwb.sz.gov.cn/gwszwfw/zsk/hybz/content/post_9913357.html",
+      "source_domain": "szwb.sz.gov.cn",
+      "expected_keywords": [
+        "建筑电气工程施工质量验收规范",
+        "50303"
+      ],
+      "notes": "不自动抓未知PDF；17条原强制条文已由GB55024公告废止。"
+    },
+    {
+      "rank": 13,
+      "code": "GB 55020-2021",
+      "title": "建筑给水排水与节水通用规范",
+      "category": "给排水",
+      "status": "现行",
+      "effective_date": "2022-04-01",
+      "fulltext_status": "官方公开全文/附件已确认",
+      "import_mode": "official_fetch",
+      "source_page": "https://szwb.sz.gov.cn/gwszwfw/zsk/hybz/content/post_9619601.html",
+      "source_domain": "szwb.sz.gov.cn",
+      "expected_keywords": [
+        "建筑给水排水与节水通用规范",
+        "55020",
+        "pdf"
+      ],
+      "notes": "给排水、地漏、卫生器具、节水等优先上位规范。"
+    },
+    {
+      "rank": 14,
+      "code": "GB 50242-2002",
+      "title": "建筑给水排水及采暖工程施工质量验收规范",
+      "category": "给排水",
+      "status": "现行配套（需结合GB55020）",
+      "effective_date": "2002-04-01",
+      "fulltext_status": "官方现行目录/项目使用证据已确认，全文待合法导入",
+      "import_mode": "manual_upload",
+      "source_page": "https://jncc.jinan.gov.cn/",
+      "source_domain": "jncc.jinan.gov.cn",
+      "expected_keywords": [
+        "建筑给水排水及采暖工程施工质量验收规范",
+        "50242"
+      ],
+      "notes": "老标准但仍作为配套验收规范使用；正式引用前应核对具体条文是否受上位通用规范调整。"
+    },
+    {
+      "rank": 15,
+      "code": "GB 50209-2010",
+      "title": "建筑地面工程施工质量验收规范",
+      "category": "建筑地面",
+      "status": "现行",
+      "effective_date": "2010-12-01",
+      "fulltext_status": "政府网站公开标准附件入口已确认",
+      "import_mode": "official_fetch",
+      "source_page": "https://jncc.jinan.gov.cn/col45066/art/2021/art_45066_3462264.html",
+      "source_domain": "jncc.jinan.gov.cn",
+      "expected_keywords": [
+        "建筑地面工程施工质量验收规范",
+        "50209",
+        "pdf"
+      ],
+      "notes": "找平、地砖、石材、坡度、空鼓等高频问题。"
+    },
+    {
+      "rank": 16,
+      "code": "GB 55021-2021",
+      "title": "既有建筑鉴定与加固通用规范",
+      "category": "既有建筑/加固",
+      "status": "现行",
+      "effective_date": "2022-04-01",
+      "fulltext_status": "官方现行使用证据已确认，全文待补官方入口或合法导入",
+      "import_mode": "manual_upload",
+      "source_page": "https://zjt.xinjiang.gov.cn/",
+      "source_domain": "zjt.xinjiang.gov.cn",
+      "expected_keywords": [
+        "既有建筑鉴定与加固通用规范",
+        "55021"
+      ],
+      "notes": "改造加固必须优先检索；目前不使用非官方来源全文。"
+    },
+    {
+      "rank": 17,
+      "code": "GB 55022-2021",
+      "title": "既有建筑维护与改造通用规范",
+      "category": "既有建筑/改造",
+      "status": "现行",
+      "effective_date": "2022-04-01",
+      "fulltext_status": "政府网站公开PDF下载入口已确认",
+      "import_mode": "official_fetch",
+      "source_page": "https://snamr.shaanxi.gov.cn/sy/ztzl/sbgxhxfpyjhx/bzcx/gjbz/202410/t20241024_3439032.html",
+      "source_domain": "snamr.shaanxi.gov.cn",
+      "expected_keywords": [
+        "既有建筑维护与改造通用规范",
+        "55022",
+        "下载"
+      ],
+      "notes": "装修拆改、功能改变、维修维护等优先入口。"
+    },
+    {
+      "rank": 18,
+      "code": "GB 50325-2020",
+      "title": "民用建筑工程室内环境污染控制标准",
+      "category": "室内环境",
+      "status": "现行（需结合GB55016）",
+      "effective_date": "2020-08-01",
+      "fulltext_status": "官方公开PDF附件已确认",
+      "import_mode": "official_fetch",
+      "source_page": "https://zjj.sm.gov.cn/xxgk/fgwj/jsbz/202011/t20201114_1589871.htm",
+      "source_domain": "zjj.sm.gov.cn",
+      "expected_keywords": [
+        "民用建筑工程室内环境污染控制标准",
+        "50325",
+        "pdf"
+      ],
+      "notes": "甲醛、VOC、氡、材料环保和竣工环境验收。"
+    },
+    {
+      "rank": 19,
+      "code": "GB 55031-2022",
+      "title": "民用建筑通用规范",
+      "category": "建筑通用",
+      "status": "现行",
+      "effective_date": "2023-03-01",
+      "fulltext_status": "官方公开全文/附件已确认",
+      "import_mode": "official_fetch",
+      "source_page": "https://zjj.sm.gov.cn/xxgk/fgwj/jsbz/202209/t20220909_1827378.htm",
+      "source_domain": "zjj.sm.gov.cn",
+      "expected_keywords": [
+        "民用建筑通用规范",
+        "55031",
+        "pdf"
+      ],
+      "notes": "门、楼梯、栏杆、通道、空间尺寸等高频建筑问题上位规范。"
+    },
+    {
+      "rank": 20,
+      "code": "GB 55019-2021",
+      "title": "建筑与市政工程无障碍通用规范",
+      "category": "无障碍",
+      "status": "现行",
+      "effective_date": "2022-04-01",
+      "fulltext_status": "政府网站公开PDF下载入口已确认",
+      "import_mode": "official_fetch",
+      "source_page": "https://snamr.shaanxi.gov.cn/sy/ztzl/sbgxhxfpyjhx/bzcx/gjbz/202410/t20241024_3439037.html",
+      "source_domain": "snamr.shaanxi.gov.cn",
+      "expected_keywords": [
+        "建筑与市政工程无障碍通用规范",
+        "55019",
+        "下载"
+      ],
+      "notes": "公共建筑无障碍卫生间、坡道、通道、门、扶手等。"
+    }
+  ]
+}

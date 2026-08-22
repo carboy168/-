@@ -1,7 +1,7 @@
 from __future__ import annotations
 import os, sqlite3
 from pathlib import Path
-from dotenv import load_dotenv
+from config_env import load_dotenv
 
 load_dotenv()
 DB_PATH = Path(os.getenv("DATABASE_PATH", "data/norms.db"))
@@ -74,9 +74,17 @@ CREATE TABLE IF NOT EXISTS source_checks (
 );
 """
 
+class ClosingConnection(sqlite3.Connection):
+    """Commit/rollback like sqlite3.Connection, then release the Windows file lock."""
+    def __exit__(self, exc_type, exc_value, traceback):
+        try:
+            return super().__exit__(exc_type, exc_value, traceback)
+        finally:
+            self.close()
+
 def connect():
     DB_PATH.parent.mkdir(parents=True, exist_ok=True)
-    con = sqlite3.connect(DB_PATH)
+    con = sqlite3.connect(DB_PATH, factory=ClosingConnection)
     con.row_factory = sqlite3.Row
     con.execute("PRAGMA foreign_keys = ON")
     return con

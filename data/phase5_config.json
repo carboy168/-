@@ -1,0 +1,103 @@
+{
+  "meta": {
+    "name": "工程规范智能体 V1.0 第五阶段—项目文件知识库+图纸/施工方案审查",
+    "as_of": "2026-08-20",
+    "principle": "规范证据、项目文件证据、工程判断三层分离；AI审查只做辅助，不能替代法定审查/验收。"
+  },
+  "file_support": [
+    {
+      "ext": "PDF",
+      "local_index": "文字层",
+      "ai_review": "文字+页面图像",
+      "recommended_for": "施工图、扫描设计文件、含图表方案",
+      "note": "图纸审查首选，detail=high"
+    },
+    {
+      "ext": "DOCX",
+      "local_index": "正文文字",
+      "ai_review": "文本",
+      "recommended_for": "施工方案、会审、联系单",
+      "note": "嵌入图片/图表不作为可靠视觉依据，必要时转PDF"
+    },
+    {
+      "ext": "PPTX",
+      "local_index": "每页文字",
+      "ai_review": "文本",
+      "recommended_for": "汇报/方案说明",
+      "note": "嵌入图片/图表需转PDF后视觉审查"
+    },
+    {
+      "ext": "XLSX",
+      "local_index": "前1000行/表的文本单元格",
+      "ai_review": "表格增强输入",
+      "recommended_for": "材料表、问题清单、计划表",
+      "note": "复杂图表/图片另转PDF"
+    },
+    {
+      "ext": "TXT/MD/CSV/JSON/XML/HTML",
+      "local_index": "文本",
+      "ai_review": "文本",
+      "recommended_for": "纪要、清单、导出数据",
+      "note": ""
+    },
+    {
+      "ext": "PNG/JPG/JPEG/WEBP",
+      "local_index": "无本地文字索引",
+      "ai_review": "视觉",
+      "recommended_for": "现场照片、图纸截图、节点图",
+      "note": "可直接视觉审查"
+    },
+    {
+      "ext": "DWG/DXF/DGN",
+      "local_index": "不支持",
+      "ai_review": "不直接支持",
+      "recommended_for": "CAD原文件",
+      "note": "V1.0要求导出为带文字层PDF"
+    }
+  ],
+  "document_types": [
+    "施工图/设计图纸",
+    "设计说明",
+    "图纸会审/设计回复",
+    "施工图审查意见",
+    "消防设计审查/验收文件",
+    "施工组织设计",
+    "施工方案",
+    "专项施工方案",
+    "技术交底",
+    "设计变更/技术核定",
+    "材料报审/样板确认",
+    "合同技术条款",
+    "甲方技术要求",
+    "监理/主管部门要求",
+    "工程联系单/会议纪要",
+    "验收资料",
+    "其他"
+  ],
+  "review_types": [
+    "施工图审查",
+    "施工方案审查",
+    "专项施工方案审查",
+    "项目文件综合技术审查"
+  ],
+  "finding_fields": [
+    "severity",
+    "category",
+    "location",
+    "issue",
+    "norm_refs",
+    "project_refs",
+    "recommendation",
+    "evidence_grade",
+    "confidence",
+    "finding_type",
+    "status",
+    "notes"
+  ],
+  "evidence_levels": {
+    "A": "有明确现行规范条文直接支持，且问题/位置识别可靠",
+    "B": "有规范条文支持，但仍需结合图纸尺寸、项目条件或其他专业确认",
+    "C": "主要依据项目文件/明确设计要求或工程判断，缺少充分规范条文证据",
+    "D": "证据不足、图纸不清或需要设计/监理/主管单位进一步确认"
+  }
+}
