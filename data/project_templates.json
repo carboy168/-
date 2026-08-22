@@ -1,0 +1,31 @@
+{
+  "templates": [
+    {
+      "name": "广东公共建筑室内装修",
+      "province": "广东省", "city": "", "district": "", "building_type": "公共建筑",
+      "project_nature": "室内装修", "usage": "公共建筑室内空间", "phase": "施工",
+      "scopes": ["装饰装修","消防","给排水","电气","暖通空调","防水","脚手架/高处作业","临时用电","无障碍"],
+      "existing_building": false, "structural_change": false, "fire_change": true,
+      "suspended_scaffold": false, "work_platform": true, "post_anchor": false, "basket": false,
+      "green_building_eval": false, "green_construction_eval": false, "gas_system": false
+    },
+    {
+      "name": "广东既有建筑装修改造",
+      "province": "广东省", "city": "", "district": "", "building_type": "公共建筑",
+      "project_nature": "既有建筑改造", "usage": "既有公共建筑", "phase": "施工",
+      "scopes": ["装饰装修","消防","给排水","电气","防水","结构改造/加固","脚手架/高处作业","临时用电"],
+      "existing_building": true, "structural_change": true, "fire_change": true,
+      "suspended_scaffold": false, "work_platform": true, "post_anchor": true, "basket": false,
+      "green_building_eval": false, "green_construction_eval": false, "gas_system": false
+    },
+    {
+      "name": "广东厂房装修改造",
+      "province": "广东省", "city": "", "district": "", "building_type": "厂房/工业建筑",
+      "project_nature": "既有建筑改造", "usage": "工业厂房/生产辅助空间", "phase": "施工",
+      "scopes": ["装饰装修","消防","给排水","电气","暖通空调","防水","结构改造/加固","临时用电"],
+      "existing_building": true, "structural_change": false, "fire_change": true,
+      "suspended_scaffold": false, "work_platform": false, "post_anchor": false, "basket": false,
+      "green_building_eval": false, "green_construction_eval": false, "gas_system": false
+    }
+  ]
+}

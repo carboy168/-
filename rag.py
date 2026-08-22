@@ -1,12 +1,13 @@
 from __future__ import annotations
 import os
 from pathlib import Path
-from dotenv import load_dotenv
+from config_env import load_dotenv
 from db import search_clauses, search_clauses_v2, search_clauses_v3
 from core_library import build_status_warning
 from router import route_question, build_route_query, route_summary
 from project_mode import get_active_project, build_project_overlay, overlay_summary, project_context_text, log_project_query, resolve_standard_alias
 from project_kb import search_project_chunks, build_project_evidence
+from provider import get_provider
 
 load_dotenv()
 BASE_DIR = Path(__file__).resolve().parent
@@ -91,8 +92,7 @@ def answer(question: str, rows: list[dict], route: dict|None = None, project: di
             "【规范条文证据】\n" + evidence + "\n\n【项目文件证据】\n" + project_evidence
         )
 
-    from openai import OpenAI
-    client = OpenAI(api_key=api_key)
+    provider = get_provider(api_key=api_key)
     system_prompt = (BASE_DIR / "prompts" / "system_prompt.txt").read_text(encoding="utf-8")
     context = build_context(rows) if rows else "（当前未检索到可引用规范条文）"
     project_file_context = build_project_evidence(project_file_rows) if project_file_rows else "（当前未检索到相关项目文件文本证据）"
@@ -125,9 +125,8 @@ def answer(question: str, rows: list[dict], route: dict|None = None, project: di
 不得引用检索证据之外的规范编号或条文号。
 如果“规范状态前置检查”提示某标准已废止或部分条文已废止，必须在结论前明确提示。
 """
-    resp = client.responses.create(
+    return provider.generate(
         model=model,
         instructions=system_prompt,
         input=user_input,
     )
-    return resp.output_text

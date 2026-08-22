@@ -1,11 +1,12 @@
 from __future__ import annotations
 import base64, json, mimetypes, os, re
 from pathlib import Path
-from dotenv import load_dotenv
+from config_env import load_dotenv
 from db import search_clauses_v3
 from router import route_question, build_route_query
 from project_mode import build_project_overlay, project_context_text, list_project_requirements, resolve_standard_alias
 from project_kb import search_project_chunks, build_project_evidence, save_review, DIRECT_REVIEW_EXTS
+from provider import get_provider
 
 load_dotenv()
 MAX_REQUEST_BYTES = 48 * 1024 * 1024
@@ -122,9 +123,8 @@ def run_review(project:dict,file_paths:list[str],review_type:str,scope:str='',ti
             item={'type':'input_file','filename':p.name,'file_data':url}
             if ext=='.pdf':item['detail']='high' if review_type=='施工图审查' else 'auto'
             content.append(item)
-    from openai import OpenAI
-    resp=OpenAI(api_key=key).responses.create(model=model,input=[{'role':'user','content':content}])
-    result=validate_review_result(_extract_json(resp.output_text),len(norms),len(p_rows),len(reqs))
+    text=get_provider(api_key=key).generate(model=model,input=[{'role':'user','content':content}])
+    result=validate_review_result(_extract_json(text),len(norms),len(p_rows),len(reqs))
     result['meta']={'review_type':review_type,'model':model,'norm_evidence_count':len(norms),'project_evidence_count':len(p_rows),'project_requirement_count':len(reqs),'files':[p.name for p in paths]}
     result['review_id']=save_review(project['id'],review_type,title or f'{review_type}-{paths[0].stem}',scope,model,[p.name for p in paths],result)
     return result
@@ -142,6 +142,5 @@ def extract_control_candidates(project:dict,file_path:str,doc_type:str,title:str
         item={'type':'input_file','filename':p.name,'file_data':url}
         if ext=='.pdf':item['detail']='high'
         content.append(item)
-    from openai import OpenAI
-    resp=OpenAI(api_key=key).responses.create(model=model,input=[{'role':'user','content':content}])
-    return _extract_json(resp.output_text)
+    text=get_provider(api_key=key).generate(model=model,input=[{'role':'user','content':content}])
+    return _extract_json(text)

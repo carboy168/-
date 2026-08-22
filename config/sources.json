@@ -1,0 +1,26 @@
+[
+  {
+    "name": "住房和城乡建设部",
+    "url": "https://www.mohurd.gov.cn/",
+    "priority": 100,
+    "scope": "工程建设国家标准、强制性工程建设规范、公告、标准定额"
+  },
+  {
+    "name": "广东省住房和城乡建设厅",
+    "url": "https://zfcxjst.gd.gov.cn/",
+    "priority": 90,
+    "scope": "广东省工程建设地方标准、通知、公告"
+  },
+  {
+    "name": "全国标准信息公共服务平台",
+    "url": "https://std.samr.gov.cn/",
+    "priority": 70,
+    "scope": "国家/行业/地方标准元数据补充；工程建设国家标准需以主管部门来源为准"
+  },
+  {
+    "name": "国家标准全文公开系统",
+    "url": "https://openstd.samr.gov.cn/",
+    "priority": 60,
+    "scope": "公开国家标准全文和题录补充；工程建设标准覆盖有限"
+  }
+]

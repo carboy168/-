@@ -1,0 +1,25 @@
+{
+  "as_of": "2026-08-20",
+  "cases": [
+    {"id":"P01","profile":"gd_public","question":"悬挑脚手架工字钢怎么验收？","expect_applicable":["DB44/T 2773-2025"],"expect_not":[]},
+    {"id":"P02","profile":"gd_public","question":"普通落地式脚手架立杆间距怎么控制？","expect_applicable":[],"expect_not":["DB44/T 2773-2025"]},
+    {"id":"P03","profile":"gd_anchor","question":"植筋做完要不要做拉拔试验？","expect_applicable":["DBJ/T 15-35-2023"],"expect_not":[]},
+    {"id":"P04","profile":"gd_basket","question":"高处作业吊篮安装后怎么验收？","expect_applicable":["DBJ/T 15-295-2026"],"expect_not":[]},
+    {"id":"P05","profile":"gd_existing","question":"既有建筑出现裂缝要长期做结构安全监测，查什么？","expect_applicable":["DBJ/T 15-291-2026"],"expect_not":[]},
+    {"id":"P06","profile":"gd_structural","question":"改造后混凝土梁柱的结构设计要注意什么？","expect_applicable":["DBJ/T 15-92-2025"],"expect_not":[]},
+    {"id":"P07","profile":"gd_fire_struct","question":"混凝土结构耐火设计和防火保护怎么做？","expect_applicable":["DBJ/T 15-81-2022"],"expect_not":[]},
+    {"id":"P08","profile":"gd_fire_struct","question":"喷淋头离吊顶多远？","expect_applicable":[],"expect_not":["DBJ/T 15-81-2022"]},
+    {"id":"P09","profile":"gd_green_construction","question":"这个项目要做绿色施工评价，查哪个广东标准？","expect_applicable":["DBJ/T 15-97-2025"],"expect_not":[]},
+    {"id":"P10","profile":"gd_green_old","question":"项目做绿色建筑评价，广东按哪一版？","expect_applicable":["DBJ/T 15-83-2017"],"expect_upcoming":["DBJ/T 15-83-2026"],"expect_not":[]},
+    {"id":"P11","profile":"gd_green_new","question":"项目做绿色建筑评价，广东按哪一版？","expect_applicable":["DBJ/T 15-83-2026"],"expect_not":["DBJ/T 15-83-2017"]},
+    {"id":"P12","profile":"gd_gas","question":"燃气管道安全检查和评估怎么做？","expect_applicable":["DBJ/T 15-292-2026"],"expect_not":[]},
+    {"id":"P13","profile":"not_gd","question":"高处作业吊篮安装后怎么验收？","expect_applicable":[],"expect_not":["DBJ/T 15-295-2026"]},
+    {"id":"P14","profile":"gd_existing","question":"既有建筑装修改造的管理要求有哪些？","expect_pending":["DBJ/T 15-178-2020"],"expect_not":[]},
+    {"id":"P15","profile":"gd_structural","question":"旧楼混凝土结构改造设计怎么控制？","expect_pending":["DBJ/T 15-182-2020"],"expect_not":[]},
+    {"id":"P16","profile":"gd_anchor","question":"墙砖空鼓怎么验收？","expect_applicable":[],"expect_not":["DBJ/T 15-35-2023"]},
+    {"id":"P17","profile":"gd_public","question":"电缆直接拖地有没有问题？","expect_applicable":[],"expect_not":["DB44/T 2773-2025"]},
+    {"id":"P18","profile":"gd_existing","question":"装修要拆一面承重墙怎么办？","expect_national":["GB 55022-2021","GB 55021-2021"],"expect_not":[]},
+    {"id":"P19","profile":"gd_fire_struct","question":"消防改造涉及防火分隔，先查什么？","expect_national":["GB 55036-2022","GB 55037-2022"],"expect_not":[]},
+    {"id":"P20","profile":"gd_public","question":"卫生间二次排水怎么做？","expect_applicable":[],"expect_not":["DB44/T 2773-2025","DBJ/T 15-35-2023","DBJ/T 15-81-2022"]}
+  ]
+}
