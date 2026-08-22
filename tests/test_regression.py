@@ -4,6 +4,7 @@ import json
 import os
 import tempfile
 import unittest
+from types import SimpleNamespace
 from pathlib import Path
 from unittest.mock import patch
 
@@ -16,6 +17,7 @@ class FakeProvider:
     def __init__(self, text="模拟回答"):
         self.text = text
         self.calls = []
+        self.config = SimpleNamespace(model="fake-model")
 
     def generate(self, **kwargs):
         self.calls.append(kwargs)
@@ -94,7 +96,7 @@ class RegressionTests(unittest.TestCase):
             self.assertEqual(con.execute("SELECT COUNT(*) FROM project_requirements WHERE requirement_text='必须保留'").fetchone()[0], 1)
             self.assertEqual(con.execute("SELECT COUNT(*) FROM project_reviews WHERE summary='原审查记录'").fetchone()[0], 1)
             self.assertEqual(con.execute("SELECT COUNT(*) FROM review_findings WHERE issue='原整改问题'").fetchone()[0], 1)
-            self.assertEqual(con.execute("SELECT COUNT(*) FROM schema_migrations").fetchone()[0], 4)
+            self.assertEqual(con.execute("SELECT COUNT(*) FROM schema_migrations").fetchone()[0], 6)
 
     def test_norm_retrieval(self):
         self._seed_clause()
@@ -117,7 +119,7 @@ class RegressionTests(unittest.TestCase):
             "source_url": "local", "content": "测试条文",
         }]
         with patch.dict(os.environ, {"OPENAI_API_KEY": "fake-key", "OPENAI_MODEL": "fake-model"}, clear=False), \
-             patch("rag.get_provider", return_value=fake):
+             patch("rag.resolve_provider", return_value=fake):
             from rag import answer
 
             text = answer("测试问题", rows, project=None)

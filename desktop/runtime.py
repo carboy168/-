@@ -83,6 +83,8 @@ def configure_logging():
         format="%(asctime)s | %(levelname)s | %(name)s | %(message)s",
         handlers=[logging.FileHandler(log_file, encoding="utf-8"), logging.StreamHandler(sys.stderr)]
     )
+    from log_security import SensitiveDataFilter
+    for handler in logging.getLogger().handlers:handler.addFilter(SensitiveDataFilter())
     return log_file
 
 def install_crash_hook():
@@ -154,6 +156,9 @@ def initialize_backend():
 
     from migrations import migrate
     migrate()
+
+    from provider_config import migrate_legacy_openai_settings
+    migrate_legacy_openai_settings(settings)
 
     settings.set("db_schema_app_version", APP_VERSION)
     if is_new:

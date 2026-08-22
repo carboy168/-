@@ -6,7 +6,7 @@ from typing import Callable
 
 from db import connect, init_db
 
-LATEST_SCHEMA_VERSION = 5
+LATEST_SCHEMA_VERSION = 7
 
 
 @dataclass(frozen=True)
@@ -35,12 +35,30 @@ def _phase5():
     from migrate_phase5 import main
     main()
 
+def _phase6():
+    with connect() as con:
+        con.execute("""CREATE TABLE IF NOT EXISTS provider_configs(
+            provider_id TEXT PRIMARY KEY, model TEXT NOT NULL DEFAULT '', base_url TEXT NOT NULL DEFAULT '',
+            timeout REAL NOT NULL DEFAULT 60, enabled INTEGER NOT NULL DEFAULT 1,
+            is_default INTEGER NOT NULL DEFAULT 0, key_configured INTEGER NOT NULL DEFAULT 0,
+            secret_ref TEXT NOT NULL DEFAULT '', created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+            updated_at TEXT DEFAULT CURRENT_TIMESTAMP
+        )""")
+
+def _phase7():
+    with connect() as con:
+        columns={row[1] for row in con.execute("PRAGMA table_info(provider_configs)")}
+        if "needs_confirmation" not in columns:
+            con.execute("ALTER TABLE provider_configs ADD COLUMN needs_confirmation INTEGER NOT NULL DEFAULT 0")
+
 
 MIGRATIONS = (
     Migration(2, "中文检索、来源与条文失效覆盖", _phase2),
     Migration(3, "问题路由日志", _phase3),
     Migration(4, "项目模式与规范别名", _phase4),
     Migration(5, "项目知识库与审查记录", _phase5),
+    Migration(6, "多模型 Provider 非敏感配置", _phase6),
+    Migration(7, "Provider 归属校验状态", _phase7),
 )
 
 

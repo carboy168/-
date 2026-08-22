@@ -1,0 +1,6 @@
+{"providers":[
+{"id":"openai","display_name":"OpenAI","env_prefix":"OPENAI","default_base_url":"","compatibility":"openai-responses","model_suggestions":["gpt-5.2","gpt-4.1"],"capabilities":["text","image","file"],"notes":"模型名称可手动输入。"},
+{"id":"deepseek","display_name":"DeepSeek","env_prefix":"DEEPSEEK","default_base_url":"https://api.deepseek.com","compatibility":"openai-chat","model_suggestions":["deepseek-v4-flash","deepseek-v4-pro"],"capabilities":["text"],"notes":"使用官方 OpenAI-compatible API；模型名称可手动输入。"},
+{"id":"qwen","display_name":"通义千问 / Qwen","env_prefix":"QWEN","default_base_url":"https://dashscope.aliyuncs.com/compatible-mode/v1","compatibility":"openai-chat","model_suggestions":["qwen3.8-max","qwen3.6-plus"],"capabilities":["text","image"],"notes":"使用百炼 OpenAI-compatible API；可按地域/工作空间手动修改 Base URL。"},
+{"id":"zhipu","display_name":"智谱 GLM","env_prefix":"ZHIPU","default_base_url":"https://open.bigmodel.cn/api/paas/v4/","compatibility":"openai-chat","model_suggestions":["glm-4-plus","glm-4.5"],"capabilities":["text","image"],"notes":"使用智谱 OpenAI-compatible API。"}
+]}
