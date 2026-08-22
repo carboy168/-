@@ -1,0 +1,11 @@
+{
+  "$schema":"https://json-schema.org/draft/2020-12/schema",
+  "type":"object",
+  "required":["schema_version","router_version","site_terms","topics"],
+  "properties":{
+    "schema_version":{"type":"integer","minimum":1},
+    "router_version":{"type":"string"},
+    "site_terms":{"type":"array"},
+    "topics":{"type":"array","minItems":1,"items":{"type":"object","required":["topic_id","profession","topic","subtopics","aliases","site_terms","positive_terms","negative_terms","governing_standards","primary_standards","companion_standards","query_expansions","confidence_threshold"]}}
+  }
+}

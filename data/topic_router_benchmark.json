@@ -1,0 +1,20 @@
+{
+  "version":"1.2-a",
+  "cases":[
+    {"id":1,"question":"施工现场电缆可以直接拖地吗？","expected_topic_ids":["temporary_power"],"expected_codes":["JGJ/T 46-2024","GB 55034-2022"]},
+    {"id":2,"question":"电线可以直接放地上走吗？","expected_topic_ids":["temporary_power"],"expected_codes":["JGJ/T 46-2024"]},
+    {"id":3,"question":"临时电缆被车压有没有问题？","expected_topic_ids":["temporary_power"],"expected_codes":["JGJ/T 46-2024"]},
+    {"id":4,"question":"吊顶吊杆间距是多少？","expected_topic_ids":["ceiling_work"],"expected_codes":["GB 55032-2022","GB 50210-2018"]},
+    {"id":5,"question":"主龙骨间距一般怎么控制？","expected_topic_ids":["ceiling_work"],"expected_codes":["GB 50210-2018"]},
+    {"id":6,"question":"卫生间漏水应该先怎么排查？","expected_topic_ids":["waterproof_leakage"],"expected_codes":["GB 55030-2022"]},
+    {"id":7,"question":"防水层上面能不能直接贴砖？","expected_topic_ids":["waterproof_leakage"],"expected_codes":["GB 55030-2022"]},
+    {"id":8,"question":"脚手架立杆间距怎么控制？","expected_topic_ids":["scaffold"],"expected_codes":["GB 55023-2022"]},
+    {"id":9,"question":"室内搭架子需要连墙件吗？","expected_topic_ids":["scaffold"],"expected_codes":["GB 55023-2022"]},
+    {"id":10,"question":"原有承重墙能不能开洞？","expected_topic_ids":["existing_building_alteration"],"expected_codes":["GB 55021-2021","GB 55022-2021"]},
+    {"id":11,"question":"旧楼改造拆墙前需要做什么？","expected_topic_ids":["existing_building_alteration"],"expected_codes":["GB 55021-2021","GB 55022-2021"]},
+    {"id":12,"question":"GB 50303-2015第3.1.5条还能作为强制条文吗？","explicit_standard":true,"explicit_clause":true,"blocked_clause":true,"expected_codes":["GB 55024-2022"]},
+    {"id":13,"question":"JGJ 46-2005现在还能用吗？","explicit_standard":true,"explicit_clause":false,"expected_codes":["JGJ/T 46-2024"]},
+    {"id":14,"question":"吊顶里面电线贴着给水管走可以吗？","expected_topic_ids":["ceiling_work"],"minimum_topics":2,"expected_codes":["GB 55032-2022"]},
+    {"id":15,"question":"没查到规范原文时能不能按经验告诉我条文号？","expected_topic_ids":[],"evidence_refusal":true,"expected_codes":[]}
+  ]
+}

@@ -13,8 +13,8 @@ load_dotenv()
 BASE_DIR = Path(__file__).resolve().parent
 
 def retrieve_with_route(question: str, limit: int = 10, project: dict|None = None):
-    route = route_question(question)
     project = project if project is not None else get_active_project()
+    route = route_question(question, project_context=project)
     overlay = build_project_overlay(question, route, project)
     routed_codes = list(dict.fromkeys(
         [resolve_standard_alias(x) for x in (route.get('primary_codes', []) + overlay.get('candidate_codes', []) + route.get('secondary_codes', []))]
@@ -29,11 +29,11 @@ def retrieve_with_route(question: str, limit: int = 10, project: dict|None = Non
         except Exception:
             project_rows = []
     overlay['project_file_evidence'] = project_rows
-    rows = search_clauses_v3(expanded, standard_codes=routed_codes, limit=limit) if routed_codes else []
+    rows = [] if route.get('explicit_clause_blocked') else (search_clauses_v3(expanded, standard_codes=routed_codes, limit=limit) if routed_codes else [])
     # 项目/路由候选内无条文时，退回全库检索。候选规范不是证据。
-    if not rows:
+    if not rows and not route.get('explicit_standard'):
         rows = search_clauses_v3(expanded, standard_codes=None, limit=limit)
-    if not rows:
+    if not rows and not route.get('explicit_standard'):
         rows = search_clauses_v2(question, limit=limit)
     if project:
         log_project_query(project.get('id'), question, route, overlay)
@@ -63,8 +63,8 @@ def build_context(rows: list[dict]) -> str:
 
 def answer(question: str, rows: list[dict], route: dict|None = None, project: dict|None = None, overlay: dict|None = None) -> str:
     status_warning = build_status_warning(question)
-    route = route or route_question(question)
     project = project if project is not None else get_active_project()
+    route = route or route_question(question,project_context=project)
     overlay = overlay or build_project_overlay(question, route, project)
     project_file_rows = overlay.get('project_file_evidence', [])
     if not rows and not project_file_rows:

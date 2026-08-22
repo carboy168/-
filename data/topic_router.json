@@ -1,0 +1,82 @@
+{
+  "schema_version": 1,
+  "router_version": "1.2-a",
+  "site_terms": [
+    {"original":"拖地","normalized":["沿地面敷设","临时线路"]},
+    {"original":"飞线","normalized":["临时线路","私拉乱接"]},
+    {"original":"架子","normalized":["脚手架"]},
+    {"original":"内架","normalized":["室内作业脚手架"]},
+    {"original":"二排","normalized":["二次排水"]},
+    {"original":"漏水","normalized":["渗漏"]},
+    {"original":"拉毛","normalized":["界面处理"]},
+    {"original":"空鼓","normalized":["粘结质量"]},
+    {"original":"吊杆","normalized":["吊顶吊杆"]}
+  ],
+  "topics": [
+    {
+      "topic_id":"temporary_power","profession":"施工安全","topic":"临时用电",
+      "subtopics":["电缆敷设/线路防护","临时线路","配电系统"],
+      "aliases":["临时电","施工临电","私拉乱接"],
+      "site_terms":["电缆拖地","电线拖地","电线放地上","飞线","电缆被车压","电缆过路"],
+      "phrases":["施工现场电缆","临时电缆被车压","电线可以直接放地上"],
+      "positive_terms":[{"term":"电缆","weight":10},{"term":"电线","weight":8},{"term":"配电箱","weight":16},{"term":"施工现场","weight":8},{"term":"过路","weight":12},{"term":"车压","weight":14}],
+      "negative_terms":[{"term":"建筑永久供电","weight":25}],
+      "context_terms":["施工","现场","临时"],
+      "governing_standards":["GB 55034-2022"],"primary_standards":["JGJ/T 46-2024"],"companion_standards":["JGJ 59-2011"],
+      "query_expansions":["临时用电","电缆线路","沿地面敷设","过路保护","机械损伤"],
+      "confidence_threshold":{"high":60,"medium":32}
+    },
+    {
+      "topic_id":"ceiling_work","profession":"装饰装修","topic":"吊顶工程",
+      "subtopics":["吊杆安装","主副龙骨","吊顶隐蔽空间"],
+      "aliases":["天花","天花板","天花龙骨"],
+      "site_terms":["吊顶吊杆","主龙骨","副龙骨","吊顶间距","天花龙骨","吊顶里面"],
+      "phrases":["吊顶吊杆间距","主龙骨间距","吊顶里面"],
+      "positive_terms":[{"term":"吊顶","weight":13},{"term":"吊杆","weight":13},{"term":"龙骨","weight":12},{"term":"间距","weight":7},{"term":"天花","weight":10}],
+      "negative_terms":[{"term":"吊篮","weight":30},{"term":"脚手架","weight":18}],
+      "context_terms":["安装","间距","隐蔽","里面"],
+      "governing_standards":["GB 55032-2022"],"primary_standards":["GB 50210-2018"],"companion_standards":[],
+      "query_expansions":["吊顶工程","吊顶吊杆","主龙骨","副龙骨","安装间距","隐蔽验收"],
+      "confidence_threshold":{"high":58,"medium":30}
+    },
+    {
+      "topic_id":"waterproof_leakage","profession":"建筑防水","topic":"防水/渗漏",
+      "subtopics":["卫生间防水","渗漏排查","二次排水/地漏"],
+      "aliases":["渗水","漏水","闭水","二排"],
+      "site_terms":["卫生间漏水","防水层","二次排水","地漏","闭水"],
+      "phrases":["卫生间漏水","防水层上面","地漏二次排水"],
+      "positive_terms":[{"term":"防水","weight":15},{"term":"渗漏","weight":14},{"term":"渗水","weight":13},{"term":"漏水","weight":13},{"term":"卫生间","weight":8},{"term":"地漏","weight":10},{"term":"二次排水","weight":16},{"term":"贴砖","weight":6}],
+      "negative_terms":[{"term":"屋外给水管漏水","weight":18}],
+      "context_terms":["卫生间","防水层","管根","地漏","贴砖"],
+      "governing_standards":["GB 55030-2022"],"primary_standards":[],"companion_standards":["GB 55020-2021","GB 50209-2010"],
+      "query_expansions":["建筑防水","室内防水","渗漏排查","防水层","细部节点","二次排水"],
+      "confidence_threshold":{"high":58,"medium":30}
+    },
+    {
+      "topic_id":"scaffold","profession":"施工安全","topic":"脚手架",
+      "subtopics":["立杆/纵横距","连墙件/稳定","室内操作架"],
+      "aliases":["架子","内架","操作架"],
+      "site_terms":["脚手架","立杆","连墙件","室内搭架子","操作架"],
+      "phrases":["脚手架立杆间距","室内搭架子","需要连墙件"],
+      "positive_terms":[{"term":"脚手架","weight":18},{"term":"立杆","weight":14},{"term":"连墙件","weight":18},{"term":"操作架","weight":15},{"term":"间距","weight":6},{"term":"室内","weight":5}],
+      "negative_terms":[{"term":"货架","weight":35},{"term":"衣架","weight":35}],
+      "context_terms":["搭设","施工","作业","间距","稳定"],
+      "governing_standards":["GB 55023-2022"],"primary_standards":[],"companion_standards":["JGJ 59-2011"],
+      "query_expansions":["施工脚手架","立杆间距","连墙件","剪刀撑","稳定","作业层"],
+      "confidence_threshold":{"high":58,"medium":30}
+    },
+    {
+      "topic_id":"existing_building_alteration","profession":"既有建筑","topic":"拆除/既有建筑改造",
+      "subtopics":["承重构件拆改","改造前鉴定","结构加固"],
+      "aliases":["拆墙","砸墙","旧楼改造"],
+      "site_terms":["承重墙开洞","改造前鉴定","旧楼拆墙","加固"],
+      "phrases":["原有承重墙能不能开洞","旧楼改造拆墙前","改造前鉴定"],
+      "positive_terms":[{"term":"拆墙","weight":16},{"term":"承重墙","weight":19},{"term":"开洞","weight":13},{"term":"旧楼","weight":11},{"term":"改造","weight":10},{"term":"加固","weight":14},{"term":"鉴定","weight":15}],
+      "negative_terms":[{"term":"装饰隔墙图案","weight":20}],
+      "context_terms":["原有","既有","结构","承重","拆除"],
+      "governing_standards":["GB 55021-2021"],"primary_standards":["GB 55022-2021"],"companion_standards":[],
+      "query_expansions":["既有建筑改造","结构安全","承重构件","拆除前鉴定","结构加固"],
+      "confidence_threshold":{"high":58,"medium":30}
+    }
+  ]
+}

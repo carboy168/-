@@ -53,7 +53,7 @@ def theme_score(theme:dict, q:str):
         score += max(0,theme.get('priority',5)-5)*0.35
     return score, hits
 
-def route_question(question:str, top_themes:int=5, top_standards:int=7):
+def _legacy_route_question(question:str, top_themes:int=5, top_standards:int=7):
     pack=load_router(); q=normalize(question,pack.get('synonyms',{}))
     intent=detect_intent(q)
     explicit_codes=[re.sub(r'\s+',' ',x.upper()).strip() for x in CODE_RE.findall(question or '')]
@@ -125,6 +125,51 @@ def route_question(question:str, top_themes:int=5, top_standards:int=7):
         'router_is_evidence':False,
     }
 
+def route_question(question:str, top_themes:int=5, top_standards:int=7, project_context=None):
+    """Compatibility facade for the V1.2 data-driven Topic Router."""
+    from routing.topic_router import TopicRouter
+    modern_router=TopicRouter();modern=modern_router.route(question,project_context)
+    legacy=_legacy_route_question(question,top_themes,top_standards)
+    eligible_modern=[item for item in modern.topics if item.confidence!='low']
+    modern_themes=[]
+    for item in eligible_modern:
+        modern_themes.append({
+            'id':item.topic_id,'theme':item.topic,'category':item.profession,'subtopics':item.subtopics,
+            'score':item.numeric_score,'confidence':item.confidence,'hits':item.matched_terms,'risk':'中',
+            'normalized_terms':[{'original':x.original,'normalized':x.normalized} for x in item.normalized_terms],
+        })
+    seen={x['theme'] for x in modern_themes}
+    supplementary=[x for x in legacy.get('themes',[]) if x.get('theme') not in seen]
+    themes=(modern_themes+supplementary)[:top_themes]
+    modern_primary=list(dict.fromkeys(x for item in eligible_modern for x in (item.governing_standards+item.primary_standards)))
+    modern_companion=list(dict.fromkeys(x for item in eligible_modern for x in item.companion_standards))
+    combined_codes=modern.preferred_standard_codes+legacy.get('primary_codes',[])+legacy.get('secondary_codes',[])
+    allowed,warnings,statuses=modern_router.policy.validate(combined_codes,modern.explicit.standard_code,modern.explicit.clause_no)
+    explicit_codes=[modern.explicit.standard_code] if modern.explicit.explicit_standard else []
+    preferred_primary,_w,_s=modern_router.policy.validate(explicit_codes+modern_primary+legacy.get('primary_codes',[]),modern.explicit.standard_code,modern.explicit.clause_no)
+    primary=[x for x in preferred_primary if x in allowed][:4]
+    preferred_companion,_w,_s=modern_router.policy.validate(modern_companion+legacy.get('secondary_codes',[]),modern.explicit.standard_code,modern.explicit.clause_no)
+    secondary=[x for x in preferred_companion if x in allowed and x not in primary][:4]
+    if not primary:primary=allowed[:4]
+    standards=[]
+    for code in primary+secondary:
+        role='用户点名' if code in explicit_codes else ('主规范' if code in primary else '配套规范')
+        standards.append({'code':code,'score':100 if role=='用户点名' else 50,'role':role,'themes':[x['theme'] for x in themes[:3]]})
+    result=dict(legacy)
+    result.update({
+        'themes':themes,'standards':standards,'primary_codes':primary,'secondary_codes':secondary,
+        'query_expansion':list(dict.fromkeys(modern.expanded_query_terms+legacy.get('query_expansion',[])))[:16],
+        'explicit_codes':explicit_codes,'explicit_standard':modern.explicit.explicit_standard,
+        'explicit_clause':modern.explicit.explicit_clause,'explicit_clause_no':modern.explicit.clause_no,
+        'explicit_clause_blocked':any(x.get('status')=='条文失效' for x in statuses),
+        'warnings':list(dict.fromkeys(modern.warnings+warnings)),'standard_statuses':statuses,
+        'topic_router_version':modern_router.pack['router_version'],'router_is_evidence':False,
+    })
+    if eligible_modern:
+        result['top_score']=eligible_modern[0].numeric_score
+        result['confidence']={'high':'高','medium':'中','low':'低'}.get(eligible_modern[0].confidence,'低')
+    return result
+
 def build_route_query(question:str, route:dict):
     terms=[question]
     terms += route.get('query_expansion',[])[:8]
@@ -134,7 +179,9 @@ def route_summary(route:dict):
     themes='、'.join(x['theme'] for x in route.get('themes',[])[:4]) or '未明确识别'
     prim='、'.join(route.get('primary_codes',[])) or '暂无'
     sec='、'.join(route.get('secondary_codes',[])) or '暂无'
-    return f"意图：{route['intent']}；风险：{route['risk']}；路由置信度：{route.get('confidence','-')}；主题：{themes}；主规范候选：{prim}；配套规范候选：{sec}。"
+    sub=list(dict.fromkeys(s for x in route.get('themes',[]) for s in x.get('subtopics',[])))[:4]
+    subtext=('；子主题：'+'、'.join(sub)) if sub else ''
+    return f"意图：{route['intent']}；风险：{route['risk']}；路由置信度：{route.get('confidence','-')}；主题：{themes}{subtext}；主规范候选：{prim}；配套规范候选：{sec}。"
 
 
 def log_route(route:dict):

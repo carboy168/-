@@ -46,7 +46,7 @@ def _norm_evidence(project:dict, review_type:str, scope:str, max_rows:int=28):
     checks=DRAWING_CHECKS if review_type=='施工图审查' else PLAN_CHECKS
     rows=[];seen=set()
     for _,q in checks:
-        question=f'{scope} {q}'.strip();route=route_question(question);overlay=build_project_overlay(question,route,project)
+        question=f'{scope} {q}'.strip();route=route_question(question,project_context=project);overlay=build_project_overlay(question,route,project)
         codes=list(dict.fromkeys([resolve_standard_alias(x) for x in route.get('primary_codes',[])+overlay.get('candidate_codes',[])+route.get('secondary_codes',[])]))
         got=search_clauses_v3(build_route_query(question,route),standard_codes=codes or None,limit=4)
         for r in got:
