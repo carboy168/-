@@ -1,5 +1,4 @@
 from __future__ import annotations
-import os
 from pathlib import Path
 from config_env import load_dotenv
 from db import search_clauses, search_clauses_v2, search_clauses_v3
@@ -7,7 +6,8 @@ from core_library import build_status_warning
 from router import route_question, build_route_query, route_summary
 from project_mode import get_active_project, build_project_overlay, overlay_summary, project_context_text, log_project_query, resolve_standard_alias
 from project_kb import search_project_chunks, build_project_evidence
-from provider import get_provider
+from provider import ProviderConfigurationError
+from provider_config import resolve_provider
 
 load_dotenv()
 BASE_DIR = Path(__file__).resolve().parent
@@ -78,21 +78,19 @@ def answer(question: str, rows: list[dict], route: dict|None = None, project: di
             "建议先导入相关现行规范全文或项目文件，或用规范编号/图号/文件名称/更具体关键词重新检索。"
         )
 
-    api_key = os.getenv("OPENAI_API_KEY", "").strip()
-    model = os.getenv("OPENAI_MODEL", "").strip()
-
-    if not api_key or not model:
+    try:
+        provider = resolve_provider(purpose="chat")
+    except ProviderConfigurationError:
         evidence = build_context(rows) if rows else "（未检索到规范条文证据）"
         project_evidence = build_project_evidence(project_file_rows) if project_file_rows else "（未检索到项目文件证据）"
         return (
             "问题路由：" + route_summary(route) + "\n" +
             ("项目模式：" + overlay_summary(overlay) + "\n" if project else "") +
             "注意：规范条文证据与项目文件证据必须分开解释；项目文件不能冒充规范原文。\n\n" +
-            "当前未配置 OPENAI_API_KEY / OPENAI_MODEL，因此先返回证据，不生成AI综合结论。\n\n" +
+            "当前未完整配置 AI Provider，因此先返回证据，不生成AI综合结论。\n\n" +
             "【规范条文证据】\n" + evidence + "\n\n【项目文件证据】\n" + project_evidence
         )
 
-    provider = get_provider(api_key=api_key)
     system_prompt = (BASE_DIR / "prompts" / "system_prompt.txt").read_text(encoding="utf-8")
     context = build_context(rows) if rows else "（当前未检索到可引用规范条文）"
     project_file_context = build_project_evidence(project_file_rows) if project_file_rows else "（当前未检索到相关项目文件文本证据）"
@@ -126,7 +124,7 @@ def answer(question: str, rows: list[dict], route: dict|None = None, project: di
 如果“规范状态前置检查”提示某标准已废止或部分条文已废止，必须在结论前明确提示。
 """
     return provider.generate(
-        model=model,
+        model=provider.config.model,
         instructions=system_prompt,
         input=user_input,
     )

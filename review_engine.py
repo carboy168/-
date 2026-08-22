@@ -1,12 +1,12 @@
 from __future__ import annotations
-import base64, json, mimetypes, os, re
+import base64, json, mimetypes, re
 from pathlib import Path
 from config_env import load_dotenv
 from db import search_clauses_v3
 from router import route_question, build_route_query
 from project_mode import build_project_overlay, project_context_text, list_project_requirements, resolve_standard_alias
 from project_kb import search_project_chunks, build_project_evidence, save_review, DIRECT_REVIEW_EXTS
-from provider import get_provider
+from provider_config import resolve_provider
 
 load_dotenv()
 MAX_REQUEST_BYTES = 48 * 1024 * 1024
@@ -99,11 +99,10 @@ def run_review(project:dict,file_paths:list[str],review_type:str,scope:str='',ti
     paths=[Path(x) for x in file_paths if Path(x).exists()]
     if not paths:raise ValueError('没有可审查文件。')
     total=sum(p.stat().st_size for p in paths)
-    if total>MAX_REQUEST_BYTES:raise ValueError('本次文件合计超过48MB。OpenAI文件输入单请求总上限为50MB，V1.0预留安全余量，请拆分审查。')
+    if total>MAX_REQUEST_BYTES:raise ValueError('本次文件合计超过48MB安全上限，请拆分审查。')
     for p in paths:
         if p.suffix.lower() not in DIRECT_REVIEW_EXTS:raise ValueError(f'暂不支持直接审查：{p.suffix}。CAD请导出PDF。')
-    key=os.getenv('OPENAI_API_KEY','').strip();model=os.getenv('OPENAI_REVIEW_MODEL','').strip() or os.getenv('OPENAI_MODEL','').strip()
-    if not key or not model:raise ValueError('请先在桌面版“设置”中配置OpenAI API Key和模型。')
+    provider=resolve_provider(purpose="review");model=provider.config.model
 
     norms=_norm_evidence(project,review_type,scope)
     p_rows=search_project_chunks(project['id'],scope or ('图纸 设计 变更 审图 消防 要求' if review_type=='施工图审查' else '施工方案 技术要求 工艺 验收 安全 责任'),limit=16)
@@ -123,7 +122,7 @@ def run_review(project:dict,file_paths:list[str],review_type:str,scope:str='',ti
             item={'type':'input_file','filename':p.name,'file_data':url}
             if ext=='.pdf':item['detail']='high' if review_type=='施工图审查' else 'auto'
             content.append(item)
-    text=get_provider(api_key=key).generate(model=model,input=[{'role':'user','content':content}])
+    text=provider.generate(model=model,input=[{'role':'user','content':content}])
     result=validate_review_result(_extract_json(text),len(norms),len(p_rows),len(reqs))
     result['meta']={'review_type':review_type,'model':model,'norm_evidence_count':len(norms),'project_evidence_count':len(p_rows),'project_requirement_count':len(reqs),'files':[p.name for p in paths]}
     result['review_id']=save_review(project['id'],review_type,title or f'{review_type}-{paths[0].stem}',scope,model,[p.name for p in paths],result)
@@ -133,8 +132,7 @@ def run_review(project:dict,file_paths:list[str],review_type:str,scope:str='',ti
 def extract_control_candidates(project:dict,file_path:str,doc_type:str,title:str):
     p=Path(file_path)
     if p.stat().st_size>MAX_REQUEST_BYTES:raise ValueError('文件超过V1.0单次48MB安全上限。')
-    key=os.getenv('OPENAI_API_KEY','').strip();model=os.getenv('OPENAI_REVIEW_MODEL','').strip() or os.getenv('OPENAI_MODEL','').strip()
-    if not key or not model:raise ValueError('请先在桌面版“设置”中配置OpenAI API。')
+    provider=resolve_provider(purpose="review");model=provider.config.model
     prompt=f'''从该项目文件中提取会影响施工做法、材料选型、验收、责任界面、移交条件、工期或报审的明确控制条件。项目：{project_context_text(project)}。文件类型：{doc_type}，文件名：{title}。只返回JSON：{{"items":[{{"title":"短标题","requirement_text":"明确控制要求","source_ref":"页码/章节/图号，无法识别则待定位","priority":50}}]}}。不要把建议当成文件明确要求。'''
     content=[{'type':'input_text','text':prompt}];url=_data_url(p);ext=p.suffix.lower()
     if ext in ('.png','.jpg','.jpeg','.webp'):content.append({'type':'input_image','image_url':url,'detail':'high'})
@@ -142,5 +140,5 @@ def extract_control_candidates(project:dict,file_path:str,doc_type:str,title:str
         item={'type':'input_file','filename':p.name,'file_data':url}
         if ext=='.pdf':item['detail']='high'
         content.append(item)
-    text=get_provider(api_key=key).generate(model=model,input=[{'role':'user','content':content}])
+    text=provider.generate(model=model,input=[{'role':'user','content':content}])
     return _extract_json(text)

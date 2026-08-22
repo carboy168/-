@@ -88,8 +88,7 @@ class MainWindow(QMainWindow):
         self.refresh_context()
 
     def refresh_context(self):
-        import os
         p=get_active_project();self.current_project.setText("当前项目：" + (p["name"] if p else "未选择"))
-        key=bool(os.getenv("OPENAI_API_KEY","").strip());model=os.getenv("OPENAI_MODEL","").strip()
-        self.api_state.setText("AI已配置" if key and model else "AI未配置")
+        from provider_config import get_provider_config
+        cfg=get_provider_config();self.api_state.setText((cfg["provider_id"]+" · "+cfg["model"]) if cfg and cfg.get("key_configured") and cfg.get("model") else "AI未配置")
         if hasattr(self.pages["dashboard"],"refresh"):self.pages["dashboard"].refresh()

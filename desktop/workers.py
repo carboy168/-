@@ -1,5 +1,5 @@
 from __future__ import annotations
-import traceback
+import logging
 from PySide6.QtCore import QObject, QRunnable, Signal, Slot
 
 class WorkerSignals(QObject):
@@ -21,4 +21,7 @@ class FunctionWorker(QRunnable):
             result = self.fn(*self.args, **self.kwargs)
             self.signals.finished.emit(result)
         except Exception as e:
-            self.signals.error.emit(f"{e}\n\n{traceback.format_exc(limit=6)}")
+            logging.exception("Background task failed")
+            from provider import ProviderError
+            message=str(e) if isinstance(e,(ProviderError,ValueError)) else "操作失败，请检查配置、网络和脱敏日志。"
+            self.signals.error.emit(message)

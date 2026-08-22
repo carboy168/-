@@ -12,13 +12,13 @@
 
 ## 数据库升级
 
-运行 `python migrations.py` 可执行统一、幂等迁移。`schema_migrations` 记录已完成版本，当前最新 schema version 为 5。旧 `migrate_phase2.py` 至 `migrate_phase5.py` 保留为兼容入口。
+运行 `python migrations.py` 可执行统一、幂等迁移。`schema_migrations` 记录已完成版本，当前最新 schema version 为 6。旧 `migrate_phase2.py` 至 `migrate_phase5.py` 保留为兼容入口。
 
 迁移只创建缺失表、索引与幂等种子记录，不删除、重置或覆盖规范库、项目库、审查记录及用户数据。桌面版升级时仍会在迁移前备份用户数据库。
 
 ## Provider
 
-应用层统一通过 `provider.AIProvider` 调用模型。当前阶段仅提供 `OpenAIProvider`；RAG、审查引擎和桌面设置页不直接导入 OpenAI SDK。
+应用层统一通过 `provider.AIProvider` 调用模型。当前支持 OpenAI、DeepSeek、通义千问（Qwen）和智谱 GLM；RAG、审查引擎和桌面设置页不直接导入 OpenAI SDK。非敏感配置保存在数据库中，API Key 由环境变量或 Windows Credential Manager 提供，不写入 SQLite/JSON。
 
 ## 本地测试
 

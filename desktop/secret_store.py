@@ -1,121 +1,67 @@
 from __future__ import annotations
 import os
+from abc import ABC, abstractmethod
 
-SERVICE = "EngineeringNormAgent.OpenAI"
-TARGET = "EngineeringNormAgent/OpenAI_API_KEY"
+ENV_NAMES={"openai":"OPENAI_API_KEY","deepseek":"DEEPSEEK_API_KEY","qwen":"QWEN_API_KEY","zhipu":"ZHIPU_API_KEY"}
+TARGET_PREFIX="EngineeringNormAgent/Provider/"
+LEGACY_TARGET="EngineeringNormAgent/OpenAI_API_KEY"
 
-def _windows():
-    return os.name == "nt"
+class SecretStore(ABC):
+    @abstractmethod
+    def save(self,provider_id:str,secret:str)->str:raise NotImplementedError
+    @abstractmethod
+    def load(self,provider_id:str)->str:raise NotImplementedError
+    @abstractmethod
+    def delete(self,provider_id:str)->None:raise NotImplementedError
 
-def save_api_key(api_key: str):
-    api_key = (api_key or "").strip()
-    if not _windows():
-        os.environ["OPENAI_API_KEY"] = api_key
-        return
-    import ctypes
-    from ctypes import wintypes
+def _target(provider_id:str)->str:return TARGET_PREFIX+provider_id.lower()
+def _env(provider_id:str)->str:return ENV_NAMES.get(provider_id,provider_id.upper()+"_API_KEY")
 
-    CRED_TYPE_GENERIC = 1
-    CRED_PERSIST_LOCAL_MACHINE = 2
+class EnvironmentSecretStore(SecretStore):
+    def save(self,provider_id:str,secret:str)->str:
+        os.environ[_env(provider_id)]=secret;return "environment:"+provider_id
+    def load(self,provider_id:str)->str:return os.getenv(_env(provider_id),"").strip()
+    def delete(self,provider_id:str)->None:os.environ.pop(_env(provider_id),None)
 
-    class FILETIME(ctypes.Structure):
-        _fields_ = [("dwLowDateTime", wintypes.DWORD), ("dwHighDateTime", wintypes.DWORD)]
+class WindowsCredentialSecretStore(SecretStore):
+    def _types(self):
+        import ctypes
+        from ctypes import wintypes
+        class FILETIME(ctypes.Structure):_fields_=[("dwLowDateTime",wintypes.DWORD),("dwHighDateTime",wintypes.DWORD)]
+        class CREDENTIALW(ctypes.Structure):
+            _fields_=[("Flags",wintypes.DWORD),("Type",wintypes.DWORD),("TargetName",wintypes.LPWSTR),("Comment",wintypes.LPWSTR),("LastWritten",FILETIME),("CredentialBlobSize",wintypes.DWORD),("CredentialBlob",ctypes.POINTER(ctypes.c_ubyte)),("Persist",wintypes.DWORD),("AttributeCount",wintypes.DWORD),("Attributes",ctypes.c_void_p),("TargetAlias",wintypes.LPWSTR),("UserName",wintypes.LPWSTR)]
+        return ctypes,wintypes,CREDENTIALW
+    def save(self,provider_id:str,secret:str)->str:
+        ctypes,wintypes,CREDENTIALW=self._types();raw=secret.encode("utf-16-le");blob=(ctypes.c_ubyte*len(raw)).from_buffer_copy(raw)
+        cred=CREDENTIALW();cred.Type=1;cred.TargetName=_target(provider_id);cred.Comment="工程规范智能体 Provider API Key";cred.CredentialBlobSize=len(raw);cred.CredentialBlob=ctypes.cast(blob,ctypes.POINTER(ctypes.c_ubyte));cred.Persist=2;cred.UserName=provider_id
+        fn=ctypes.WinDLL("Advapi32.dll").CredWriteW;fn.argtypes=[ctypes.POINTER(CREDENTIALW),wintypes.DWORD];fn.restype=wintypes.BOOL
+        if not fn(ctypes.byref(cred),0):raise ctypes.WinError()
+        os.environ[_env(provider_id)]=secret;return "windows-credential:"+provider_id
+    def _read_target(self,target:str)->str:
+        ctypes,wintypes,CREDENTIALW=self._types();advapi=ctypes.WinDLL("Advapi32.dll");read=advapi.CredReadW;read.argtypes=[wintypes.LPCWSTR,wintypes.DWORD,wintypes.DWORD,ctypes.POINTER(ctypes.POINTER(CREDENTIALW))];read.restype=wintypes.BOOL
+        free=advapi.CredFree;free.argtypes=[ctypes.c_void_p];p=ctypes.POINTER(CREDENTIALW)()
+        if not read(target,1,0,ctypes.byref(p)):return ""
+        try:
+            c=p.contents;return ctypes.string_at(c.CredentialBlob,c.CredentialBlobSize).decode("utf-16-le") if c.CredentialBlob and c.CredentialBlobSize else ""
+        finally:free(p)
+    def load(self,provider_id:str)->str:
+        env=os.getenv(_env(provider_id),"").strip()
+        if env:return env
+        value=self._read_target(_target(provider_id))
+        if not value and provider_id=="openai":value=self._read_target(LEGACY_TARGET)
+        if value:os.environ[_env(provider_id)]=value
+        return value
+    def delete(self,provider_id:str)->None:
+        import ctypes
+        from ctypes import wintypes
+        os.environ.pop(_env(provider_id),None);fn=ctypes.WinDLL("Advapi32.dll").CredDeleteW;fn.argtypes=[wintypes.LPCWSTR,wintypes.DWORD,wintypes.DWORD];fn.restype=wintypes.BOOL;fn(_target(provider_id),1,0)
 
-    class CREDENTIALW(ctypes.Structure):
-        _fields_ = [
-            ("Flags", wintypes.DWORD),
-            ("Type", wintypes.DWORD),
-            ("TargetName", wintypes.LPWSTR),
-            ("Comment", wintypes.LPWSTR),
-            ("LastWritten", FILETIME),
-            ("CredentialBlobSize", wintypes.DWORD),
-            ("CredentialBlob", ctypes.POINTER(ctypes.c_ubyte)),
-            ("Persist", wintypes.DWORD),
-            ("AttributeCount", wintypes.DWORD),
-            ("Attributes", ctypes.c_void_p),
-            ("TargetAlias", wintypes.LPWSTR),
-            ("UserName", wintypes.LPWSTR),
-        ]
+def get_secret_store()->SecretStore:return WindowsCredentialSecretStore() if os.name=="nt" else EnvironmentSecretStore()
+def save_provider_secret(provider_id:str,secret:str)->str:return get_secret_store().save(provider_id,(secret or "").strip())
+def load_provider_secret(provider_id:str)->str:return get_secret_store().load(provider_id)
+def delete_provider_secret(provider_id:str)->None:get_secret_store().delete(provider_id)
 
-    advapi = ctypes.WinDLL("Advapi32.dll")
-    CredWriteW = advapi.CredWriteW
-    CredWriteW.argtypes = [ctypes.POINTER(CREDENTIALW), wintypes.DWORD]
-    CredWriteW.restype = wintypes.BOOL
-
-    raw = api_key.encode("utf-16-le")
-    blob = (ctypes.c_ubyte * len(raw)).from_buffer_copy(raw) if raw else None
-    cred = CREDENTIALW()
-    cred.Flags = 0
-    cred.Type = CRED_TYPE_GENERIC
-    cred.TargetName = TARGET
-    cred.Comment = "工程规范智能体 OpenAI API Key"
-    cred.CredentialBlobSize = len(raw)
-    cred.CredentialBlob = ctypes.cast(blob, ctypes.POINTER(ctypes.c_ubyte)) if blob else None
-    cred.Persist = CRED_PERSIST_LOCAL_MACHINE
-    cred.UserName = "OpenAI"
-    if not CredWriteW(ctypes.byref(cred), 0):
-        raise ctypes.WinError()
-    os.environ["OPENAI_API_KEY"] = api_key
-
-def load_api_key() -> str:
-    env = os.getenv("OPENAI_API_KEY", "").strip()
-    if env:
-        return env
-    if not _windows():
-        return ""
-    import ctypes
-    from ctypes import wintypes
-
-    CRED_TYPE_GENERIC = 1
-
-    class FILETIME(ctypes.Structure):
-        _fields_ = [("dwLowDateTime", wintypes.DWORD), ("dwHighDateTime", wintypes.DWORD)]
-
-    class CREDENTIALW(ctypes.Structure):
-        _fields_ = [
-            ("Flags", wintypes.DWORD),
-            ("Type", wintypes.DWORD),
-            ("TargetName", wintypes.LPWSTR),
-            ("Comment", wintypes.LPWSTR),
-            ("LastWritten", FILETIME),
-            ("CredentialBlobSize", wintypes.DWORD),
-            ("CredentialBlob", ctypes.POINTER(ctypes.c_ubyte)),
-            ("Persist", wintypes.DWORD),
-            ("AttributeCount", wintypes.DWORD),
-            ("Attributes", ctypes.c_void_p),
-            ("TargetAlias", wintypes.LPWSTR),
-            ("UserName", wintypes.LPWSTR),
-        ]
-
-    advapi = ctypes.WinDLL("Advapi32.dll")
-    CredReadW = advapi.CredReadW
-    CredReadW.argtypes = [wintypes.LPCWSTR, wintypes.DWORD, wintypes.DWORD, ctypes.POINTER(ctypes.POINTER(CREDENTIALW))]
-    CredReadW.restype = wintypes.BOOL
-    CredFree = advapi.CredFree
-    CredFree.argtypes = [ctypes.c_void_p]
-
-    pcred = ctypes.POINTER(CREDENTIALW)()
-    if not CredReadW(TARGET, CRED_TYPE_GENERIC, 0, ctypes.byref(pcred)):
-        return ""
-    try:
-        cred = pcred.contents
-        if not cred.CredentialBlob or not cred.CredentialBlobSize:
-            return ""
-        data = ctypes.string_at(cred.CredentialBlob, cred.CredentialBlobSize)
-        key = data.decode("utf-16-le")
-        os.environ["OPENAI_API_KEY"] = key
-        return key
-    finally:
-        CredFree(pcred)
-
-def delete_api_key():
-    os.environ.pop("OPENAI_API_KEY", None)
-    if not _windows():
-        return
-    import ctypes
-    from ctypes import wintypes
-    advapi = ctypes.WinDLL("Advapi32.dll")
-    fn = advapi.CredDeleteW
-    fn.argtypes = [wintypes.LPCWSTR, wintypes.DWORD, wintypes.DWORD]
-    fn.restype = wintypes.BOOL
-    fn(TARGET, 1, 0)
+# V1.0 compatibility wrappers.
+def save_api_key(api_key:str):return save_provider_secret("openai",api_key)
+def load_api_key()->str:return load_provider_secret("openai")
+def delete_api_key():return delete_provider_secret("openai")
