@@ -12,7 +12,7 @@
 
 ## 数据库升级
 
-运行 `python migrations.py` 可执行统一、幂等迁移。`schema_migrations` 记录已完成版本，当前最新 schema version 为 6。旧 `migrate_phase2.py` 至 `migrate_phase5.py` 保留为兼容入口。
+运行 `python migrations.py` 可执行统一、幂等迁移。`schema_migrations` 记录已完成版本，当前最新 schema version 为 7。旧 `migrate_phase2.py` 至 `migrate_phase5.py` 保留为兼容入口。
 
 迁移只创建缺失表、索引与幂等种子记录，不删除、重置或覆盖规范库、项目库、审查记录及用户数据。桌面版升级时仍会在迁移前备份用户数据库。
 

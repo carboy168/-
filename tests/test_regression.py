@@ -96,7 +96,7 @@ class RegressionTests(unittest.TestCase):
             self.assertEqual(con.execute("SELECT COUNT(*) FROM project_requirements WHERE requirement_text='必须保留'").fetchone()[0], 1)
             self.assertEqual(con.execute("SELECT COUNT(*) FROM project_reviews WHERE summary='原审查记录'").fetchone()[0], 1)
             self.assertEqual(con.execute("SELECT COUNT(*) FROM review_findings WHERE issue='原整改问题'").fetchone()[0], 1)
-            self.assertEqual(con.execute("SELECT COUNT(*) FROM schema_migrations").fetchone()[0], 5)
+            self.assertEqual(con.execute("SELECT COUNT(*) FROM schema_migrations").fetchone()[0], 6)
 
     def test_norm_retrieval(self):
         self._seed_clause()

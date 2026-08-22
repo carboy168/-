@@ -74,15 +74,51 @@ class ProviderTests(unittest.TestCase):
         with db.connect() as con:con.execute("INSERT INTO app_settings(key,value) VALUES('legacy','keep')")
         self.assertEqual(migrate(),LATEST_SCHEMA_VERSION);self.assertEqual(migrate(),LATEST_SCHEMA_VERSION)
         with db.connect() as con:self.assertEqual(con.execute("SELECT value FROM app_settings WHERE key='legacy'").fetchone()[0],"keep")
-    def test_legacy_openai_settings_compatibility(self):
+    def test_legacy_provider_inference(self):
         from provider_config import get_provider_config,migrate_legacy_openai_settings
         class Settings:
-            data={"openai_model":"legacy-model","openai_review_model":"legacy-review"}
+            def __init__(self,model,base_url=""):self.data={"openai_model":model,"openai_base_url":base_url}
             def get(self,k,d=None):return self.data.get(k,d)
             def set(self,k,v):self.data[k]=v
-        s=Settings()
-        with patch("desktop.secret_store.load_provider_secret",return_value=""):migrate_legacy_openai_settings(s)
-        row=get_provider_config("openai");self.assertEqual(row["model"],"legacy-model");self.assertFalse(row["key_configured"]);self.assertEqual(s.data["review_model_override"],"legacy-review")
+        cases=(("deepseek-reasoner","","deepseek"),("qwen-plus","","qwen"),("glm-4-plus","","zhipu"),("gpt-4.1","","openai"))
+        for model,url,expected in cases:
+            with self.subTest(model=model):
+                with db.connect() as con:con.execute("DELETE FROM provider_configs")
+                with patch("desktop.secret_store.load_provider_secret",return_value=""):
+                    migrate_legacy_openai_settings(Settings(model,url))
+                row=get_provider_config();self.assertEqual(row["provider_id"],expected);self.assertEqual(row["model"],model)
+    def test_legacy_conflict_requires_confirmation(self):
+        from provider_config import get_provider_config,list_provider_configs,migrate_legacy_openai_settings,save_provider_config
+        class Settings:
+            data={"openai_model":"deepseek-reasoner","openai_base_url":"https://api.openai.com/v1"}
+            def get(self,k,d=None):return self.data.get(k,d)
+            def set(self,k,v):self.data[k]=v
+        with patch("desktop.secret_store.load_provider_secret",return_value=""):migrate_legacy_openai_settings(Settings())
+        self.assertIsNone(get_provider_config());pending=list_provider_configs()[0];self.assertEqual(pending["provider_id"],"legacy-unassigned");self.assertTrue(pending["needs_confirmation"])
+        with self.assertRaises(ValueError):save_provider_config("openai","deepseek-reasoner")
+    def test_repairs_bad_openai_row_idempotently_without_overwriting_secret(self):
+        from provider_config import get_provider_config,list_provider_configs,migrate_legacy_openai_settings
+        class Settings:
+            def get(self,k,d=None):return d
+            def set(self,k,v):pass
+        with db.connect() as con:
+            con.execute("INSERT INTO provider_configs(provider_id,model,secret_ref,key_configured,is_default) VALUES('openai','deepseek-reasoner','windows-credential:openai',1,1)")
+        loaded=[];saved=[]
+        def load(pid):loaded.append(pid);return "existing-target" if pid=="deepseek" else "legacy-key"
+        with patch("desktop.secret_store.load_provider_secret",side_effect=load),patch("desktop.secret_store.save_provider_secret",side_effect=lambda p,s:saved.append((p,s)) or "new-ref"):
+            migrate_legacy_openai_settings(Settings());migrate_legacy_openai_settings(Settings())
+        row=get_provider_config();self.assertEqual(row["provider_id"],"deepseek");self.assertEqual(row["model"],"deepseek-reasoner");self.assertEqual(saved,[])
+        raw={x["provider_id"]:x for x in list_provider_configs()};self.assertTrue(raw["openai"]["needs_confirmation"]);self.assertEqual(raw["openai"]["secret_ref"],"windows-credential:openai")
+    def test_legacy_secret_is_copied_not_deleted(self):
+        from provider_config import migrate_legacy_openai_settings
+        class Settings:
+            data={"openai_model":"qwen-plus"}
+            def get(self,k,d=None):return self.data.get(k,d)
+            def set(self,k,v):self.data[k]=v
+        saved=[]
+        with patch("desktop.secret_store.load_provider_secret",side_effect=lambda p:"legacy-key" if p=="openai" else ""),patch("desktop.secret_store.save_provider_secret",side_effect=lambda p,s:saved.append((p,s)) or "memory:qwen"),patch("desktop.secret_store.delete_provider_secret") as delete:
+            migrate_legacy_openai_settings(Settings());migrate_legacy_openai_settings(Settings())
+        self.assertEqual(saved,[("qwen","legacy-key")]);delete.assert_not_called()
     def test_rag_insufficient_evidence_never_calls_provider(self):
         import rag
         with patch("rag.resolve_provider",side_effect=AssertionError("provider must not run")):
