@@ -3,6 +3,7 @@ import os,subprocess,sys
 from PySide6.QtWidgets import QComboBox,QDoubleSpinBox,QFormLayout,QHBoxLayout,QLabel,QLineEdit,QMessageBox,QPushButton,QVBoxLayout,QWidget
 from desktop.runtime import USER_ROOT,backup_user_data
 from desktop.secret_store import delete_provider_secret,load_provider_secret,save_provider_secret
+from desktop.ui.connection_messages import connection_error_text,connection_success_text
 from provider import ProviderConfig,ProviderError,REGISTRY,load_provider_catalog
 from provider_config import get_provider_config,save_provider_config,set_key_configured
 
@@ -44,8 +45,8 @@ class SettingsPage(QWidget):
         pid=self.provider_id();key=self._key();model=self.model.text().strip()
         if not key or not model:QMessageBox.warning(self,"连接测试","请先配置 API Key 和模型。 ");return
         try:
-            p=REGISTRY.create(ProviderConfig(pid,model,key,self.base_url.text().strip(),self.timeout.value()));response=p.test_connection();QMessageBox.information(self,"连接成功",response.text[:200])
-        except ProviderError as exc:QMessageBox.critical(self,"连接失败",str(exc))
+            p=REGISTRY.create(ProviderConfig(pid,model,key,self.base_url.text().strip(),self.timeout.value()));response=p.test_connection();QMessageBox.information(self,"连接成功",connection_success_text(self.catalog[pid]["display_name"],model,response))
+        except ProviderError as exc:QMessageBox.critical(self,"连接失败",connection_error_text(exc))
         except Exception:QMessageBox.critical(self,"连接失败","配置或本机安全存储发生错误，请检查设置和日志。")
     def remove_key(self):
         pid=self.provider_id();delete_provider_secret(pid);set_key_configured(pid,False);self.api.clear();self.load_selected();self.settings_changed.emit();QMessageBox.information(self,"AI配置","该 Provider 的密钥已删除，可重新配置。")
