@@ -1,0 +1,45 @@
+{
+  "schema_version": 1,
+  "crosswalk_version": "1.2-c1",
+  "topics": {
+    "building_electrical": {"profession":"建筑电气","system":"建筑电气系统"},
+    "building_plumbing": {"profession":"建筑给排水","system":"给排水系统"},
+    "ceiling": {"profession":"装饰装修","system":"吊顶/隐蔽空间"},
+    "mep_coordination": {"profession":"机电综合","system":"机电综合协调"},
+    "hvac": {"profession":"暖通空调","system":"通风空调系统"},
+    "fire_protection_system": {"profession":"消防","system":"消防设施系统"},
+    "fire_protection": {"profession":"消防","system":"消防设施系统（兼容 Topic ID）"},
+    "fire_compartment": {"profession":"消防","system":"防火分隔"},
+    "penetration_firestopping": {"profession":"消防","system":"贯穿孔口防火封堵"},
+    "structural_safety": {"profession":"结构","system":"结构安全"},
+    "waterproof_leakage": {"profession":"建筑防水","system":"防水系统"},
+    "decoration_quality": {"profession":"装饰装修","system":"装饰装修质量验收"},
+    "support_and_hanger": {"profession":"机电综合","system":"支吊架系统"},
+    "existing_building_alteration": {"profession":"既有建筑","system":"既有建筑改造"},
+    "requires_coordination": {"profession":"机电综合","system":"专业协调"}
+  },
+  "object_mappings": [
+    {"object_types":["electrical_line","cable","conduit","cable_tray","distribution_box"],"topic_ids":["building_electrical"],"query_terms":["建筑电气","线路敷设"]},
+    {"object_types":["water_supply_pipe","drainage_pipe","floor_drain"],"topic_ids":["building_plumbing"],"query_terms":["建筑给排水","管道布置"]},
+    {"object_types":["sprinkler_pipe","fire_pipe"],"topic_ids":["fire_protection_system","fire_protection"],"query_terms":["消防设施","消防管道"]},
+    {"object_types":["duct"],"topic_ids":["hvac"],"query_terms":["通风管道","风管安装"]},
+    {"object_types":["ceiling","ceiling_concealed_space","ceiling_keel","hanger"],"topic_ids":["ceiling"],"query_terms":["吊顶隐蔽空间","吊顶工程"]},
+    {"object_types":["fire_wall","fire_door"],"topic_ids":["fire_compartment"],"query_terms":["防火分隔"]},
+    {"object_types":["support"],"topic_ids":["support_and_hanger"],"query_terms":["支吊架"]},
+    {"object_types":["load_bearing_wall","beam","slab"],"topic_ids":["structural_safety","existing_building_alteration"],"query_terms":["结构安全","既有建筑改造"]},
+    {"object_types":["waterproof_layer"],"topic_ids":["waterproof_leakage"],"query_terms":["防水层","渗漏"]},
+    {"object_types":["wall_finish","floor"],"topic_ids":["decoration_quality"],"query_terms":["装饰装修质量验收"]}
+  ],
+  "relation_mappings": [
+    {"subject_types":["electrical_line","cable","conduit","cable_tray"],"relation_types":["adjacent_to","crosses","located_above","located_below"],"object_types":["water_supply_pipe","drainage_pipe"],"topic_ids":["building_electrical","building_plumbing","mep_coordination"],"graph_edges":[{"source":"building_electrical","edge_type":"requires_coordination_with","target":"building_plumbing"}],"query_terms":["与其他管线关系","机电管线综合协调"],"reason_template":"{subject_type} {relation_type} {object_type}"},
+    {"subject_types":["conduit","cable_tray","electrical_line","cable"],"relation_types":["shares_support_with"],"object_types":["sprinkler_pipe","fire_pipe"],"topic_ids":["building_electrical","fire_protection_system","mep_coordination"],"graph_edges":[{"source":"building_electrical","edge_type":"requires_coordination_with","target":"fire_protection_system"}],"query_terms":["共用支吊架","机电支吊架协调"],"reason_template":"{subject_type} {relation_type} {object_type}"},
+    {"subject_types":["duct"],"relation_types":["penetrates"],"object_types":["fire_wall"],"topic_ids":["hvac","fire_compartment","penetration_firestopping"],"graph_edges":[{"source":"hvac","edge_type":"intersects_with","target":"fire_compartment"},{"source":"penetration_firestopping","edge_type":"affects","target":"fire_compartment"}],"query_terms":["风管穿越防火分隔","贯穿孔口防火封堵"],"reason_template":"{subject_type} {relation_type} {object_type}"},
+    {"subject_types":["electrical_line","cable","conduit","cable_tray"],"relation_types":["penetrates"],"object_types":["slab","fire_wall","partition_wall"],"topic_ids":["building_electrical","penetration_firestopping"],"graph_edges":[{"source":"building_electrical","edge_type":"intersects_with","target":"penetration_firestopping"}],"query_terms":["电气贯穿孔口","防火封堵"],"reason_template":"{subject_type} {relation_type} {object_type}"},
+    {"subject_types":["electrical_line","cable","conduit","cable_tray"],"relation_types":["located_in"],"object_types":["ceiling_concealed_space"],"topic_ids":["building_electrical","ceiling","mep_coordination"],"graph_edges":[{"source":"building_electrical","edge_type":"located_in","target":"ceiling"}],"query_terms":["吊顶内电气线路","隐蔽敷设"],"reason_template":"{subject_type} {relation_type} {object_type}"},
+    {"subject_types":["water_supply_pipe","drainage_pipe"],"relation_types":["located_in"],"object_types":["ceiling_concealed_space"],"topic_ids":["building_plumbing","ceiling","mep_coordination"],"graph_edges":[{"source":"building_plumbing","edge_type":"located_in","target":"ceiling"}],"query_terms":["吊顶内给排水管线","隐蔽空间"],"reason_template":"{subject_type} {relation_type} {object_type}"},
+    {"subject_types":["duct"],"relation_types":["located_in"],"object_types":["ceiling_concealed_space"],"topic_ids":["hvac","ceiling","mep_coordination"],"graph_edges":[{"source":"hvac","edge_type":"located_in","target":"ceiling"}],"query_terms":["吊顶内风管","净高协调"],"reason_template":"{subject_type} {relation_type} {object_type}"},
+    {"subject_types":["sprinkler_pipe","fire_pipe"],"relation_types":["located_in"],"object_types":["ceiling_concealed_space"],"topic_ids":["fire_protection_system","ceiling","mep_coordination"],"graph_edges":[{"source":"fire_protection_system","edge_type":"located_in","target":"ceiling"}],"query_terms":["吊顶内消防管线","净高协调"],"reason_template":"{subject_type} {relation_type} {object_type}"},
+    {"subject_types":["cable_tray"],"relation_types":["located_in"],"object_types":["ceiling_concealed_space"],"topic_ids":["building_electrical","ceiling","mep_coordination"],"graph_edges":[{"source":"building_electrical","edge_type":"located_in","target":"ceiling"}],"query_terms":["吊顶内桥架","净高协调"],"reason_template":"{subject_type} {relation_type} {object_type}"},
+    {"subject_types":["fire_pipe","sprinkler_pipe"],"relation_types":["affects"],"object_types":["ceiling_keel","ceiling"],"topic_ids":["fire_protection_system","fire_protection","ceiling","requires_coordination"],"graph_edges":[{"source":"fire_protection_system","edge_type":"affects","target":"ceiling"}],"query_terms":["消防管线与吊顶协调"],"reason_template":"{subject_type} {relation_type} {object_type}"}
+  ]
+}

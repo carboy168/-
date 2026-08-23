@@ -1,6 +1,6 @@
 {
   "schema_version":1,
-  "catalog_version":"1.2-c0",
+  "catalog_version":"1.2-c1",
   "object_types":[
     {"object_type":"electrical_line","canonical_name":"电气线路","aliases":["电气线路","电线","临时线"],"profession":"建筑电气","system":"配电线路","topic_hints":["building_electrical"]},
     {"object_type":"cable","canonical_name":"电缆","aliases":["电缆线","电缆"],"profession":"建筑电气","system":"电缆线路","topic_hints":["building_electrical"]},
@@ -9,7 +9,7 @@
     {"object_type":"distribution_box","canonical_name":"配电箱","aliases":["配电柜","配电箱"],"profession":"建筑电气","system":"低压配电","topic_hints":["building_electrical"]},
     {"object_type":"water_supply_pipe","canonical_name":"给水管道","aliases":["给水管道","给水管","水管"],"profession":"建筑给排水","system":"给水系统","topic_hints":["building_plumbing"]},
     {"object_type":"drainage_pipe","canonical_name":"排水管道","aliases":["排水管道","排水管","下水管"],"profession":"建筑给排水","system":"排水系统","topic_hints":["building_plumbing"]},
-    {"object_type":"sprinkler_pipe","canonical_name":"消防喷淋管","aliases":["消防喷淋管","喷淋管道","喷淋管"],"profession":"消防","system":"自动喷水灭火系统","topic_hints":["fire_protection"]},
+    {"object_type":"sprinkler_pipe","canonical_name":"消防喷淋管","aliases":["消防喷淋管","喷淋管道","喷淋管","喷淋"],"profession":"消防","system":"自动喷水灭火系统","topic_hints":["fire_protection"]},
     {"object_type":"fire_pipe","canonical_name":"消防管道","aliases":["消防管道","消防管"],"profession":"消防","system":"消防给水系统","topic_hints":["fire_protection"]},
     {"object_type":"duct","canonical_name":"风管","aliases":["通风管道","空调风管","风管"],"profession":"暖通空调","system":"通风空调系统","topic_hints":["hvac"]},
     {"object_type":"ceiling_concealed_space","canonical_name":"吊顶隐蔽空间","aliases":["吊顶隐蔽空间","吊顶里面","天花里面","吊顶内","天花内"],"profession":"装饰装修","system":"吊顶工程","topic_hints":["ceiling"]},

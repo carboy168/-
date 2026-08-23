@@ -1,0 +1,20 @@
+{
+  "$schema":"https://json-schema.org/draft/2020-12/schema",
+  "$id":"https://engineering-norm-agent.local/schema/topic-crosswalk-1.2-c1.json",
+  "type":"object",
+  "additionalProperties":false,
+  "required":["schema_version","crosswalk_version","topics","object_mappings","relation_mappings"],
+  "properties":{
+    "schema_version":{"const":1},
+    "crosswalk_version":{"const":"1.2-c1"},
+    "topics":{"type":"object","additionalProperties":{"type":"object","additionalProperties":false,"required":["profession","system"],"properties":{"profession":{"type":"string","minLength":1},"system":{"type":"string","minLength":1}}}},
+    "object_mappings":{"type":"array","items":{"$ref":"#/$defs/objectMapping"}},
+    "relation_mappings":{"type":"array","items":{"$ref":"#/$defs/relationMapping"}}
+  },
+  "$defs":{
+    "stringList":{"type":"array","minItems":1,"uniqueItems":true,"items":{"type":"string","minLength":1}},
+    "objectMapping":{"type":"object","additionalProperties":false,"required":["object_types","topic_ids","query_terms"],"properties":{"object_types":{"$ref":"#/$defs/stringList"},"topic_ids":{"$ref":"#/$defs/stringList"},"query_terms":{"$ref":"#/$defs/stringList"},"intent":{"type":"string"},"project_stage":{"type":"string"}}},
+    "graphEdge":{"type":"object","additionalProperties":false,"required":["source","edge_type","target"],"properties":{"source":{"type":"string"},"edge_type":{"enum":["intersects_with","located_in","requires_coordination_with","affects"]},"target":{"type":"string"}}},
+    "relationMapping":{"type":"object","additionalProperties":false,"required":["subject_types","relation_types","object_types","topic_ids","graph_edges","query_terms","reason_template"],"properties":{"subject_types":{"$ref":"#/$defs/stringList"},"relation_types":{"$ref":"#/$defs/stringList"},"object_types":{"$ref":"#/$defs/stringList"},"topic_ids":{"$ref":"#/$defs/stringList"},"graph_edges":{"type":"array","items":{"$ref":"#/$defs/graphEdge"}},"query_terms":{"$ref":"#/$defs/stringList"},"reason_template":{"type":"string","minLength":1},"intent":{"type":"string"},"project_stage":{"type":"string"}}}
+  }
+}

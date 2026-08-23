@@ -11,6 +11,15 @@ def _confidence(score:float)->str:
     return "high" if score>=85 else ("medium" if score>=65 else "low")
 
 
+def _assertion_status(text:str,expression_start:int)->str:
+    prefix=(text or "")[max(0,expression_start-16):expression_start]
+    context=(text or "")[max(0,expression_start-16):expression_start+10]
+    if re.search(r"(?:没有|没|并未|未曾|不是|不再).{0,8}$",prefix):return "negated"
+    if re.search(r"(?:怀疑|疑似|可能|也许|或许|似乎)",context):return "uncertain"
+    if re.search(r"(?:如果|假如|要是|一旦|能不能|是否|可不可以|可以.{0,10}吗|能.{0,10}吗)",text or ""):return "conditional"
+    return "affirmed"
+
+
 class EngineeringObjectExtractor:
     def __init__(self,catalog:dict|None=None):self.catalog=catalog or load_object_catalog()
 
@@ -81,6 +90,7 @@ class EngineeringRelationExtractor:
                             relation_id="",subject_object_id=subject.object_id,relation_type=rule["relation_type"],object_object_id=target.object_id,
                             original_text=value[left:right],attributes={"expression":match.group(0)},source_span=SourceSpan(source_id,left,right),
                             confidence=_confidence(score),numeric_score=score,rule_id=rule["rule_id"],topic_hints=list(rule.get("topic_hints",[])),
+                            assertion_status=_assertion_status(value,match.start()),relation_relevant_for_retrieval=True,
                         ))
         relations.sort(key=lambda x:(x.source_span.start,x.relation_type,x.subject_object_id,x.object_object_id))
         for index,item in enumerate(relations,start=1):item.relation_id=f"rel-{index:03d}"

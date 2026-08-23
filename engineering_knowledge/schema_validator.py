@@ -1,14 +1,22 @@
 from __future__ import annotations
 
-import hashlib
+import hashlib,json
+from pathlib import Path
 
 from engineering_knowledge.catalog import load_object_catalog,load_relation_catalog
 from engineering_knowledge.models import CLAIM_TYPES,KnowledgePackage
+from engineering_knowledge.models import ASSERTION_STATUSES,EVIDENCE_ROLES,EVIDENCE_STATUSES
+from engineering_knowledge.evidence_trust import EvidenceTrustPolicy,FORBIDDEN_NORMATIVE_SOURCE_TYPES
+from engineering_knowledge.json_schema import validate_instance,validate_json_file
 
 FORBIDDEN_EVIDENCE_TYPES={"router_candidate"}
+ROOT=Path(__file__).resolve().parents[1]
 
 
 def validate_catalogs()->None:
+    validate_json_file(ROOT/"data"/"engineering_objects.json",ROOT/"data"/"engineering_objects.schema.json")
+    validate_json_file(ROOT/"data"/"engineering_relations.json",ROOT/"data"/"engineering_relations.schema.json")
+    validate_json_file(ROOT/"data"/"topic_crosswalk.json",ROOT/"data"/"topic_crosswalk.schema.json")
     objects=load_object_catalog();relations=load_relation_catalog(object_pack=objects)
     required_objects={"electrical_line","cable","conduit","cable_tray","distribution_box","water_supply_pipe","drainage_pipe","sprinkler_pipe","fire_pipe","duct","ceiling","ceiling_concealed_space","hanger","support","partition_wall","load_bearing_wall","beam","slab","floor","waterproof_layer","floor_drain","door","fire_door"}
     actual={x["object_type"] for x in objects["object_types"]}
@@ -16,11 +24,22 @@ def validate_catalogs()->None:
     required_relations={"adjacent_to","intersects_with","crosses","penetrates","located_in","located_above","located_below","supported_by","shares_support_with","connected_to","conflicts_with","affects","requires_coordination_with"}
     actual_relations=set(relations["relation_types"])
     if not required_relations.issubset(actual_relations):raise ValueError(f"EngineeringRelation 类型不完整：{sorted(required_relations-actual_relations)}")
+    crosswalk=json.loads((ROOT/"data"/"topic_crosswalk.json").read_text(encoding="utf-8"));topic_ids=set(crosswalk["topics"])
+    for mapping in crosswalk["object_mappings"]:
+        unknown_objects=set(mapping["object_types"])-actual
+        unknown_topics=set(mapping["topic_ids"])-topic_ids
+        if unknown_objects or unknown_topics:raise ValueError(f"Topic Crosswalk 对象映射引用无效：{sorted(unknown_objects|unknown_topics)}")
+    for mapping in crosswalk["relation_mappings"]:
+        unknown_objects=(set(mapping["subject_types"])|set(mapping["object_types"]))-actual
+        unknown_relations=set(mapping["relation_types"])-actual_relations
+        unknown_topics=set(mapping["topic_ids"])-topic_ids
+        edge_topics={x[key] for x in mapping["graph_edges"] for key in ("source","target")}-topic_ids
+        if unknown_objects or unknown_relations or unknown_topics or edge_topics:raise ValueError(f"Topic Crosswalk 关系映射引用无效：{sorted(unknown_objects|unknown_relations|unknown_topics|edge_topics)}")
 
 
 def validate_knowledge_package(package:KnowledgePackage)->None:
     errors=[]
-    if package.schema_version!="1.2-c0":errors.append("schema_version 无效")
+    if package.schema_version!="1.2-c1":errors.append("schema_version 无效")
     object_catalog=load_object_catalog();relation_catalog=load_relation_catalog(object_pack=object_catalog)
     allowed_object_types={x["object_type"] for x in object_catalog["object_types"]};allowed_relation_types=set(relation_catalog["relation_types"])
     object_ids=[x.object_id for x in package.objects];relation_ids=[x.relation_id for x in package.relations];claim_ids=[x.claim_id for x in package.requirement_claims];evidence_ids=[x.evidence_id for x in package.evidence_links]
@@ -29,21 +48,35 @@ def validate_knowledge_package(package:KnowledgePackage)->None:
     object_set=set(object_ids);relation_set=set(relation_ids);claim_set=set(claim_ids);evidence_set=set(evidence_ids)
     for item in package.objects:
         if item.object_type not in allowed_object_types:errors.append(f"Object {item.object_id} 类型无效")
+        if item.id_scope!="package":errors.append(f"Object {item.object_id} ID 作用域必须为 package")
         if item.confidence not in {"high","medium","low"}:errors.append(f"Object {item.object_id} 置信度无效")
+        if item.source_span.start<0 or item.source_span.end<item.source_span.start:errors.append(f"Object {item.object_id} source_span 无效")
         if item.source_span.source_id=="question" and package.question[item.source_span.start:item.source_span.end]!=item.original_text:errors.append(f"Object {item.object_id} 来源位置不可回溯")
     for relation in package.relations:
         if relation.subject_object_id not in object_set or relation.object_object_id not in object_set:errors.append(f"Relation {relation.relation_id} 引用未知对象")
         if relation.relation_type not in allowed_relation_types:errors.append(f"Relation {relation.relation_id} 类型无效")
+        if relation.id_scope!="package":errors.append(f"Relation {relation.relation_id} ID 作用域必须为 package")
+        if relation.assertion_status not in ASSERTION_STATUSES:errors.append(f"Relation {relation.relation_id} assertion_status 无效")
         if not relation.rule_id:errors.append(f"Relation {relation.relation_id} 缺少可解释规则")
         if any(x not in evidence_set for x in relation.evidence_links):errors.append(f"Relation {relation.relation_id} 引用未知证据")
     for claim in package.requirement_claims:
         if claim.claim_type not in CLAIM_TYPES:errors.append(f"Claim {claim.claim_id} 类型无效")
+        if claim.id_scope!="package":errors.append(f"Claim {claim.claim_id} ID 作用域必须为 package")
         if any(x not in object_set for x in claim.subject):errors.append(f"Claim {claim.claim_id} 引用未知对象")
         if not claim.evidence_links:errors.append(f"Claim {claim.claim_id} 无 EvidenceLink")
         if any(x not in evidence_set for x in claim.evidence_links):errors.append(f"Claim {claim.claim_id} 引用未知证据")
-        if claim.verification_status=="supported" and not any(x.verified and x.evidence_id in claim.evidence_links for x in package.evidence_links):errors.append(f"Claim {claim.claim_id} 无已验证证据却标记 supported")
+        if claim.verification_status=="supported":
+            linked=[x for x in package.evidence_links if x.evidence_id in claim.evidence_links];trust=EvidenceTrustPolicy()
+            if claim.project_binding!="none":decisions=[trust.can_support_project_claim(x) for x in linked]
+            else:decisions=[trust.can_support_normative_claim(x) for x in linked]
+            if not any(x.allowed for x in decisions):errors.append(f"Claim {claim.claim_id} 无合格信任证据却标记 supported")
     for evidence in package.evidence_links:
         if evidence.source_type in FORBIDDEN_EVIDENCE_TYPES:errors.append("Router candidate 不能成为 EvidenceLink")
+        if evidence.evidence_role not in EVIDENCE_ROLES or evidence.verification_status not in EVIDENCE_STATUSES:errors.append(f"Evidence {evidence.evidence_id} 信任字段无效")
+        if evidence.id_scope!="package":errors.append(f"Evidence {evidence.evidence_id} ID 作用域必须为 package")
+        if evidence.source_type in FORBIDDEN_NORMATIVE_SOURCE_TYPES and evidence.evidence_role=="normative_evidence":errors.append(f"Evidence {evidence.evidence_id} 禁止成为规范证据")
+        if evidence.source_type=="user_statement" and evidence.evidence_role!="user_statement":errors.append(f"Evidence {evidence.evidence_id} 用户陈述角色错误")
+        if evidence.verified!=(evidence.verification_status=="verified"):errors.append(f"Evidence {evidence.evidence_id} verified 与 verification_status 不一致")
         if not evidence.source_id or not evidence.source_locator or not evidence.original_text:errors.append(f"Evidence {evidence.evidence_id} 无法回溯原始来源")
         if any(x not in object_set for x in evidence.linked_object_ids):errors.append(f"Evidence {evidence.evidence_id} 引用未知对象")
         if any(x not in relation_set for x in evidence.linked_relation_ids):errors.append(f"Evidence {evidence.evidence_id} 引用未知关系")
@@ -52,5 +85,8 @@ def validate_knowledge_package(package:KnowledgePackage)->None:
         if evidence.content_hash!=expected:errors.append(f"Evidence {evidence.evidence_id} content_hash 不匹配")
     for plan in package.retrieval_plans:
         if any(x not in object_set for x in plan.object_ids) or any(x not in relation_set for x in plan.relation_ids):errors.append(f"RetrievalPlan {plan.topic_id} 引用未知知识对象")
+        if plan.id_scope!="package" or plan.required_evidence_role!="normative_evidence":errors.append(f"RetrievalPlan {plan.topic_id} 信任边界无效")
     if package.route_metadata.get("router_is_evidence") is not False:errors.append("Router 不能标记为 Evidence")
     if errors:raise ValueError("；".join(errors))
+    schema=json.loads((ROOT/"data"/"engineering_knowledge.schema.json").read_text(encoding="utf-8"))
+    validate_instance(package.to_dict(),schema)

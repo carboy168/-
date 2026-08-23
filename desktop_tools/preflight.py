@@ -3,6 +3,7 @@ import ast, os, sys
 from pathlib import Path
 
 ROOT=Path(__file__).resolve().parents[1]
+if str(ROOT) not in sys.path:sys.path.insert(0,str(ROOT))
 files=[
     ROOT/"desktop_main.py",
     *sorted((ROOT/"desktop").rglob("*.py")),
@@ -26,6 +27,8 @@ for required in [
     ROOT/"data"/"engineering_objects.json",ROOT/"data"/"engineering_objects.schema.json",
     ROOT/"data"/"engineering_relations.json",ROOT/"data"/"engineering_relations.schema.json",
     ROOT/"data"/"engineering_knowledge.schema.json",ROOT/"data"/"engineering_knowledge_benchmark.json",
+    ROOT/"data"/"topic_crosswalk.json",ROOT/"data"/"topic_crosswalk.schema.json",
+    ROOT/"data"/"engineering_knowledge_c1_benchmark.json",
     ROOT/"prompts"/"system_prompt.txt",ROOT/"assets"/"app.ico",ROOT/"installer"/"EngineeringNormAgent.spec",
     ROOT/"installer"/"EngineeringNormAgent.iss",
 ]:
@@ -61,3 +64,7 @@ for forbidden in ["Expand-Archive", "EngineeringNormAgent_V1.0_source.zip\" -Des
     if forbidden in workflow:
         print("WORKFLOW CHECK FAIL: forbidden legacy build/release command", forbidden);raise SystemExit(4)
 print("Official source/workflow paths PASS")
+
+from engineering_knowledge.schema_validator import validate_catalogs
+validate_catalogs()
+print("Engineering Knowledge JSON Schema validation PASS")

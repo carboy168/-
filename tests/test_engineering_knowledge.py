@@ -31,8 +31,8 @@ class EngineeringKnowledgeTests(unittest.TestCase):
     def test_catalogs_and_json_schemas_load(self):
         validate_catalogs()
         objects=load_object_catalog();relations=load_relation_catalog(object_pack=objects)
-        self.assertEqual(objects["catalog_version"],"1.2-c0")
-        self.assertEqual(relations["catalog_version"],"1.2-c0")
+        self.assertEqual(objects["catalog_version"],"1.2-c1")
+        self.assertEqual(relations["catalog_version"],"1.2-c1")
         for name in ("engineering_objects.schema.json","engineering_relations.schema.json","engineering_knowledge.schema.json"):
             schema=json.loads((ROOT/"data"/name).read_text(encoding="utf-8"))
             self.assertEqual(schema["$schema"],"https://json-schema.org/draft/2020-12/schema")

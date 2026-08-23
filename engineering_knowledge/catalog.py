@@ -7,6 +7,8 @@ from typing import Any
 ROOT=Path(__file__).resolve().parents[1]
 OBJECTS_FILE=ROOT/"data"/"engineering_objects.json"
 RELATIONS_FILE=ROOT/"data"/"engineering_relations.json"
+OBJECTS_SCHEMA=ROOT/"data"/"engineering_objects.schema.json"
+RELATIONS_SCHEMA=ROOT/"data"/"engineering_relations.schema.json"
 
 
 def _load(path:Path)->dict[str,Any]:
@@ -14,7 +16,11 @@ def _load(path:Path)->dict[str,Any]:
 
 
 def load_object_catalog(path:Path|None=None)->dict[str,Any]:
-    pack=_load(path or OBJECTS_FILE)
+    selected=path or OBJECTS_FILE
+    if selected==OBJECTS_FILE:
+        from engineering_knowledge.json_schema import validate_json_file
+        pack=validate_json_file(selected,OBJECTS_SCHEMA)
+    else:pack=_load(selected)
     if not isinstance(pack.get("schema_version"),int) or not isinstance(pack.get("object_types"),list):raise ValueError("EngineeringObject 配置结构无效。")
     required={"object_type","canonical_name","aliases","profession","system","topic_hints"};ids=set()
     for item in pack["object_types"]:
@@ -27,7 +33,12 @@ def load_object_catalog(path:Path|None=None)->dict[str,Any]:
 
 
 def load_relation_catalog(path:Path|None=None,object_pack:dict|None=None)->dict[str,Any]:
-    pack=_load(path or RELATIONS_FILE);object_pack=object_pack or load_object_catalog()
+    selected=path or RELATIONS_FILE
+    if selected==RELATIONS_FILE:
+        from engineering_knowledge.json_schema import validate_json_file
+        pack=validate_json_file(selected,RELATIONS_SCHEMA)
+    else:pack=_load(selected)
+    object_pack=object_pack or load_object_catalog()
     if not isinstance(pack.get("relation_types"),list) or not isinstance(pack.get("rules"),list):raise ValueError("EngineeringRelation 配置结构无效。")
     relation_types=set(pack["relation_types"]);object_types={x["object_type"] for x in object_pack["object_types"]};rule_ids=set()
     required={"rule_id","relation_type","expressions","mode","subject_types","object_types","max_distance","score","topic_hints"}

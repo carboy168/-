@@ -9,6 +9,10 @@ CLAIM_TYPES = {
     "responsibility_requirement", "sequence_requirement", "normative_status_claim",
     "evidence_bypass_request", "unknown",
 }
+EVIDENCE_ROLES = {"normative_evidence","project_evidence","user_statement","derived_analysis","reference_only"}
+EVIDENCE_STATUSES = {"verified","unverified","rejected","blocked","superseded"}
+ASSERTION_STATUSES = {"affirmed","negated","conditional","uncertain"}
+ID_SCOPE = "package"
 
 
 @dataclass(frozen=True)
@@ -33,6 +37,7 @@ class EngineeringObject:
     numeric_score:float
     topic_hints:list[str]=field(default_factory=list)
     warnings:list[str]=field(default_factory=list)
+    id_scope:str=ID_SCOPE
 
 
 @dataclass
@@ -51,6 +56,9 @@ class EngineeringRelation:
     evidence_links:list[str]=field(default_factory=list)
     verification_status:str="unverified"
     warnings:list[str]=field(default_factory=list)
+    assertion_status:str="affirmed"
+    relation_relevant_for_retrieval:bool=True
+    id_scope:str=ID_SCOPE
 
 
 @dataclass
@@ -77,6 +85,7 @@ class RequirementClaim:
     extraction_confidence:str
     evidence_links:list[str]
     warnings:list[str]=field(default_factory=list)
+    id_scope:str=ID_SCOPE
 
 
 @dataclass
@@ -100,6 +109,9 @@ class EvidenceLink:
     linked_relation_ids:list[str]=field(default_factory=list)
     linked_claim_ids:list[str]=field(default_factory=list)
     warnings:list[str]=field(default_factory=list)
+    evidence_role:str="reference_only"
+    verification_status:str="unverified"
+    id_scope:str=ID_SCOPE
 
 
 @dataclass
@@ -110,6 +122,43 @@ class RetrievalPlan:
     object_ids:list[str]
     relation_ids:list[str]
     evidence_gate:str="requires_clause_evidence"
+    plan_id:str=""
+    profession:str=""
+    reason:str=""
+    required_entities:list[str]=field(default_factory=list)
+    required_relations:list[str]=field(default_factory=list)
+    project_stage:str="unknown"
+    intent:str=""
+    required_evidence_role:str="normative_evidence"
+    evidence_status:str="unverified"
+    confidence:str="low"
+    expanded_query_terms:list[str]=field(default_factory=list)
+    id_scope:str=ID_SCOPE
+
+
+@dataclass
+class TopicNode:
+    topic_id:str
+    profession:str
+    system:str
+    confidence:str
+
+
+@dataclass
+class TopicEdge:
+    source_topic_id:str
+    edge_type:str
+    target_topic_id:str
+    relation_ids:list[str]
+    assertion_status:str
+    relevant_for_retrieval:bool
+    reason:str
+
+
+@dataclass
+class TopicGraph:
+    nodes:list[TopicNode]=field(default_factory=list)
+    edges:list[TopicEdge]=field(default_factory=list)
 
 
 @dataclass
@@ -130,6 +179,8 @@ class KnowledgePackage:
     warnings:list[str]
     human_confirmation_required:bool
     route_metadata:dict[str,Any]=field(default_factory=dict)
+    topic_graph:TopicGraph=field(default_factory=TopicGraph)
+    id_scope:str=ID_SCOPE
 
     def to_dict(self)->dict[str,Any]:
         return asdict(self)

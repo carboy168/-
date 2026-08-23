@@ -1,9 +1,9 @@
 {
   "schema_version":1,
-  "catalog_version":"1.2-c0",
+  "catalog_version":"1.2-c1",
   "relation_types":["adjacent_to","intersects_with","crosses","penetrates","located_in","located_above","located_below","supported_by","shares_support_with","connected_to","conflicts_with","affects","requires_coordination_with"],
   "rules":[
-    {"rule_id":"adjacent-between","relation_type":"adjacent_to","expressions":["贴着","靠着","挨着","旁边"],"mode":"between","subject_types":["electrical_line","cable","conduit","cable_tray","floor_drain","fire_pipe","sprinkler_pipe"],"object_types":["water_supply_pipe","drainage_pipe","waterproof_layer","ceiling_keel","fire_pipe","sprinkler_pipe"],"max_distance":18,"score":92,"topic_hints":["requires_coordination"]},
+    {"rule_id":"adjacent-between","relation_type":"adjacent_to","expressions":["贴着","贴到","靠着","挨着","旁边"],"mode":"between","subject_types":["electrical_line","cable","conduit","cable_tray","floor_drain","fire_pipe","sprinkler_pipe"],"object_types":["water_supply_pipe","drainage_pipe","waterproof_layer","ceiling_keel","fire_pipe","sprinkler_pipe"],"max_distance":18,"score":92,"topic_hints":["requires_coordination"]},
     {"rule_id":"cross-two-before","relation_type":"crosses","expressions":["交叉过去","交叉","相交"],"mode":"two_before","subject_types":["electrical_line","cable","conduit","cable_tray","duct","water_supply_pipe","drainage_pipe","fire_pipe","sprinkler_pipe"],"object_types":["electrical_line","cable","conduit","cable_tray","duct","water_supply_pipe","drainage_pipe","fire_pipe","sprinkler_pipe"],"max_distance":24,"score":88,"topic_hints":["mep_coordination"]},
     {"rule_id":"penetrates-between","relation_type":"penetrates","expressions":["穿过","穿墙","贯穿"],"mode":"between","subject_types":["electrical_line","cable","conduit","cable_tray","duct","water_supply_pipe","drainage_pipe","fire_pipe","sprinkler_pipe"],"object_types":["fire_wall","partition_wall","load_bearing_wall","slab"],"max_distance":20,"score":94,"topic_hints":["penetration_firestopping"]},
     {"rule_id":"penetrates-two-before","relation_type":"penetrates","expressions":["穿下去","穿上去","穿楼板"],"mode":"two_before","subject_types":["electrical_line","cable","conduit","cable_tray","duct","water_supply_pipe","drainage_pipe","fire_pipe","sprinkler_pipe"],"object_types":["slab"],"max_distance":24,"score":92,"topic_hints":["penetration_firestopping"]},
