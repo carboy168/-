@@ -1,6 +1,36 @@
 {
   "schema_version": 1,
-  "router_version": "1.2-a",
+  "router_version": "1.2-b",
+  "project_stages": [
+    {"value":"pre_construction","aliases":["施工准备","开工准备"],"terms":[{"term":"施工前","weight":35},{"term":"开工前","weight":45},{"term":"进场前","weight":35},{"term":"准备阶段","weight":30}],"query_expansions":["施工准备","开工条件"],"confidence_threshold":{"high":55,"medium":25}},
+    {"value":"construction","aliases":["施工","施工过程"],"terms":[{"term":"施工中","weight":55},{"term":"施工过程","weight":50},{"term":"正在施工","weight":55},{"term":"闭水时","weight":30},{"term":"安装时","weight":30},{"term":"铺贴时","weight":30}],"query_expansions":["施工过程","过程质量控制"],"confidence_threshold":{"high":55,"medium":25}},
+    {"value":"acceptance","aliases":["专项验收","竣工验收","验收"],"terms":[{"term":"验收时","weight":55},{"term":"验收","weight":35},{"term":"闭水时","weight":60},{"term":"闭水试验","weight":55},{"term":"允许偏差","weight":35},{"term":"合格","weight":25},{"term":"交付前","weight":45}],"query_expansions":["质量验收","检查方法","合格判定"],"confidence_threshold":{"high":55,"medium":25}},
+    {"value":"maintenance","aliases":["运维/维修","维修","维护"],"terms":[{"term":"交付后","weight":65},{"term":"楼下反映","weight":45},{"term":"使用中","weight":45},{"term":"维修","weight":55},{"term":"报修","weight":55}],"query_expansions":["维修阶段","渗漏排查","修复"],"confidence_threshold":{"high":55,"medium":25}},
+    {"value":"renovation","aliases":["改造","既有建筑改造","室内装修","改扩建","结构加固"],"terms":[{"term":"改造","weight":50},{"term":"旧楼","weight":45},{"term":"重新装修","weight":65},{"term":"翻新","weight":55},{"term":"拆改","weight":45},{"term":"原有","weight":25}],"query_expansions":["既有建筑改造","改造前核查"],"confidence_threshold":{"high":55,"medium":25}},
+    {"value":"unknown","aliases":[],"terms":[],"confidence_threshold":{"high":55,"medium":25}}
+  ],
+  "user_roles": [
+    {"value":"construction","aliases":["施工","施工单位","项目经理","施工员"],"terms":[{"term":"我是施工员","weight":75},{"term":"我们施工单位","weight":70},{"term":"项目经理问","weight":65}],"confidence_threshold":{"high":55,"medium":25}},
+    {"value":"designer","aliases":["设计","设计单位","设计师"],"terms":[{"term":"我是设计师","weight":75},{"term":"我们设计单位","weight":70}],"confidence_threshold":{"high":55,"medium":25}},
+    {"value":"supervision","aliases":["监理","监理单位"],"terms":[{"term":"我是监理","weight":75},{"term":"监理检查","weight":60}],"confidence_threshold":{"high":55,"medium":25}},
+    {"value":"owner","aliases":["甲方","建设单位","业主"],"terms":[{"term":"我是甲方","weight":75},{"term":"我是业主","weight":75},{"term":"建设单位要求","weight":60}],"confidence_threshold":{"high":55,"medium":25}},
+    {"value":"cost","aliases":["造价","成本","预算","审价"],"terms":[{"term":"我是造价员","weight":75},{"term":"成本测算","weight":55}],"confidence_threshold":{"high":55,"medium":25}},
+    {"value":"general","aliases":["普通用户","一般咨询"],"terms":[{"term":"一般咨询","weight":60}],"confidence_threshold":{"high":55,"medium":25}},
+    {"value":"unknown","aliases":[],"terms":[],"confidence_threshold":{"high":55,"medium":25}}
+  ],
+  "project_binding_terms": [
+    {"value":"design_drawing","terms":["设计图纸","设计说明"]},
+    {"value":"design_change","terms":["设计变更","技术核定"]},
+    {"value":"approved_method_statement","terms":["经审批专项施工方案","批准的施工方案"]},
+    {"value":"contract_requirement","terms":["合同技术条款","合同要求"]},
+    {"value":"owner_instruction","terms":["甲方技术要求","建设单位指令"]},
+    {"value":"project_record","terms":["工程联系单","会议纪要","项目记录"]}
+  ],
+  "evidence_model": {
+    "normative_authority":["mandatory_code","national_standard","industry_standard","local_standard","technical_reference","engineering_experience"],
+    "project_binding":["design_drawing","design_change","approved_method_statement","contract_requirement","owner_instruction","project_record","none"],
+    "rule":"项目文件不得突破现行强制性工程建设规范底线；Router 候选和工程经验都不是条文证据。"
+  },
   "site_terms": [
     {"original":"拖地","normalized":["沿地面敷设","临时线路"]},
     {"original":"飞线","normalized":["临时线路","私拉乱接"]},
@@ -10,7 +40,10 @@
     {"original":"漏水","normalized":["渗漏"]},
     {"original":"拉毛","normalized":["界面处理"]},
     {"original":"空鼓","normalized":["粘结质量"]},
-    {"original":"吊杆","normalized":["吊顶吊杆"]}
+    {"original":"吊杆","normalized":["吊顶吊杆"]},
+    {"original":"瓷砖","normalized":["饰面砖"]},
+    {"original":"给水管","normalized":["建筑给水管道"]},
+    {"original":"线管","normalized":["电气导管"]}
   ],
   "topics": [
     {
@@ -18,7 +51,7 @@
       "subtopics":["电缆敷设/线路防护","临时线路","配电系统"],
       "aliases":["临时电","施工临电","私拉乱接"],
       "site_terms":["电缆拖地","电线拖地","电线放地上","飞线","电缆被车压","电缆过路"],
-      "phrases":["施工现场电缆","临时电缆被车压","电线可以直接放地上"],
+      "phrases":["施工现场电缆","临时电缆被车压","电线可以直接放地上","电缆不能拖地"],
       "positive_terms":[{"term":"电缆","weight":10},{"term":"电线","weight":8},{"term":"配电箱","weight":16},{"term":"施工现场","weight":8},{"term":"过路","weight":12},{"term":"车压","weight":14}],
       "negative_terms":[{"term":"建筑永久供电","weight":25}],
       "context_terms":["施工","现场","临时"],
@@ -27,8 +60,9 @@
       "confidence_threshold":{"high":60,"medium":32}
     },
     {
-      "topic_id":"ceiling_work","profession":"装饰装修","topic":"吊顶工程",
-      "subtopics":["吊杆安装","主副龙骨","吊顶隐蔽空间"],
+      "topic_id":"ceiling","profession":"装饰装修","topic":"吊顶/隐蔽空间",
+      "subtopics":["吊杆安装","主副龙骨","吊顶隐蔽空间","吊顶内管线/设备","检修空间"],
+      "subtopic_terms":{"吊杆安装":["吊杆"],"主副龙骨":["主龙骨","副龙骨","天花龙骨"],"吊顶隐蔽空间":["吊顶里面","吊顶内","隐蔽空间"],"吊顶内管线/设备":["吊顶内管线","吊顶内部设备","管线交叉"],"检修空间":["检修空间","检修口"]},
       "aliases":["天花","天花板","天花龙骨"],
       "site_terms":["吊顶吊杆","主龙骨","副龙骨","吊顶间距","天花龙骨","吊顶里面"],
       "phrases":["吊顶吊杆间距","主龙骨间距","吊顶里面"],
@@ -37,6 +71,48 @@
       "context_terms":["安装","间距","隐蔽","里面"],
       "governing_standards":["GB 55032-2022"],"primary_standards":["GB 50210-2018"],"companion_standards":[],
       "query_expansions":["吊顶工程","吊顶吊杆","主龙骨","副龙骨","安装间距","隐蔽验收"],
+      "confidence_threshold":{"high":58,"medium":30}
+    },
+    {
+      "topic_id":"building_electrical","profession":"建筑电气","topic":"建筑电气",
+      "subtopics":["吊顶内电气线路","电气管线交叉/间距","配电与用电设备","接地/等电位"],
+      "subtopic_terms":{"吊顶内电气线路":["吊顶里面电线","吊顶内电气","吊顶内线路"],"电气管线交叉/间距":["贴着给水管","管线交叉","管线间距","强弱电"],"配电与用电设备":["配电箱","开关插座"],"接地/等电位":["接地","等电位"]},
+      "aliases":["建筑电气","强电","弱电","强弱电"],
+      "site_terms":["电线","线管","配电箱","开关插座","接地","等电位","强弱电"],
+      "phrases":["吊顶里面电线","吊顶内电气线路","电线贴着给水管","电气与其它管线交叉","强弱电间距"],
+      "positive_terms":[{"term":"电线","weight":12},{"term":"电缆","weight":10},{"term":"线管","weight":12},{"term":"给水管","weight":8},{"term":"吊顶","weight":8},{"term":"交叉","weight":9}],
+      "negative_terms":[{"term":"施工现场电缆","weight":40},{"term":"临时电缆","weight":40},{"term":"临时用电","weight":45},{"term":"拖地","weight":35},{"term":"放地上","weight":35},{"term":"车压","weight":35}],
+      "context_terms":["建筑","安装","吊顶","管线","隐蔽"],
+      "governing_standards":["GB 55024-2022"],"primary_standards":["GB 50303-2015"],"companion_standards":[],
+      "query_expansions":["建筑电气","电气导管","电缆线路","吊顶内线路","管线交叉","管线间距","接地","等电位"],
+      "confidence_threshold":{"high":58,"medium":30}
+    },
+    {
+      "topic_id":"building_plumbing","profession":"建筑给排水","topic":"建筑给排水",
+      "subtopics":["给水管道","排水系统/地漏","管道坡度","管道支吊架","给排水与电气交叉"],
+      "subtopic_terms":{"给水管道":["给水管"],"排水系统/地漏":["排水管","地漏","存水弯","卫生间排水"],"管道坡度":["管道坡度","排水坡度"],"管道支吊架":["管道支架","管道支吊架"],"给排水与电气交叉":["贴着给水管","电气交叉","管线交叉"]},
+      "aliases":["给排水","建筑给排水","水管"],
+      "site_terms":["给水管","排水管","地漏","存水弯","管道坡度","管道支吊架","卫生间排水"],
+      "phrases":["电线贴着给水管","给排水与电气交叉","卫生间排水","排水管坡度"],
+      "positive_terms":[{"term":"给水管","weight":16},{"term":"排水管","weight":15},{"term":"地漏","weight":10},{"term":"电线","weight":7},{"term":"交叉","weight":8},{"term":"支吊架","weight":12}],
+      "negative_terms":[{"term":"防水层漏水","weight":24},{"term":"屋面漏水","weight":30}],
+      "context_terms":["管线","吊顶","卫生间","安装","坡度"],
+      "governing_standards":["GB 55020-2021"],"primary_standards":["GB 50242-2002"],"companion_standards":[],
+      "query_expansions":["建筑给排水","给水管道","排水管道","管线交叉","管线间距","管道支吊架","卫生间排水"],
+      "confidence_threshold":{"high":58,"medium":30}
+    },
+    {
+      "topic_id":"decoration_quality","profession":"装饰装修","topic":"装饰装修质量验收",
+      "subtopics":["饰面砖空鼓/粘结","墙面平整度/垂直度","抹灰/涂饰质量","门窗收口/接缝","允许偏差/合格判定"],
+      "subtopic_terms":{"饰面砖空鼓/粘结":["瓷砖空鼓","饰面砖空鼓","粘结质量"],"墙面平整度/垂直度":["平整度","垂直度","阴阳角"],"抹灰/涂饰质量":["抹灰","腻子","涂饰"],"门窗收口/接缝":["门窗收口","接缝"],"允许偏差/合格判定":["允许偏差","合格标准","不合格"]},
+      "aliases":["装修验收","质量验收","饰面砖","抹灰验收"],
+      "site_terms":["空鼓","平整度","垂直度","阴阳角","饰面砖","抹灰","腻子","涂饰","门窗收口","接缝","允许偏差"],
+      "phrases":["瓷砖空鼓多少算不合格","墙面平整度验收允许偏差","验收合格标准","饰面砖空鼓"],
+      "positive_terms":[{"term":"空鼓","weight":16},{"term":"平整度","weight":16},{"term":"垂直度","weight":15},{"term":"验收","weight":10},{"term":"允许偏差","weight":18},{"term":"不合格","weight":9}],
+      "negative_terms":[{"term":"地基沉降","weight":30},{"term":"结构垂直度","weight":25}],
+      "context_terms":["墙面","瓷砖","装修","质量","检查"],
+      "governing_standards":["GB 55032-2022"],"primary_standards":["GB 50210-2018"],"companion_standards":["GB 50300-2013"],
+      "query_expansions":["装饰装修质量验收","饰面砖粘结质量","空鼓","墙面平整度","垂直度","允许偏差","检验批"],
       "confidence_threshold":{"high":58,"medium":30}
     },
     {

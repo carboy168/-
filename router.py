@@ -139,18 +139,23 @@ def route_question(question:str, top_themes:int=5, top_standards:int=7, project_
             'normalized_terms':[{'original':x.original,'normalized':x.normalized} for x in item.normalized_terms],
         })
     seen={x['theme'] for x in modern_themes}
-    supplementary=[x for x in legacy.get('themes',[]) if x.get('theme') not in seen]
+    supplementary=[x for x in legacy.get('themes',[]) if x.get('theme') not in seen and (x.get('score',0)>=5 or not modern_themes)]
     themes=(modern_themes+supplementary)[:top_themes]
     modern_primary=list(dict.fromkeys(x for item in eligible_modern for x in (item.governing_standards+item.primary_standards)))
     modern_companion=list(dict.fromkeys(x for item in eligible_modern for x in item.companion_standards))
-    combined_codes=modern.preferred_standard_codes+legacy.get('primary_codes',[])+legacy.get('secondary_codes',[])
+    use_legacy_codes=not eligible_modern and not modern.explicit.explicit_standard
+    legacy_primary=legacy.get('primary_codes',[]) if use_legacy_codes else []
+    legacy_secondary=legacy.get('secondary_codes',[]) if use_legacy_codes else []
+    combined_codes=modern.preferred_standard_codes+legacy_primary+legacy_secondary
     allowed,warnings,statuses=modern_router.policy.validate(combined_codes,modern.explicit.standard_code,modern.explicit.clause_no)
+    status_keys={(x.get('code'),x.get('status')) for x in modern.standard_statuses}
+    statuses=modern.standard_statuses+[x for x in statuses if (x.get('code'),x.get('status')) not in status_keys]
     explicit_codes=[modern.explicit.standard_code] if modern.explicit.explicit_standard else []
-    preferred_primary,_w,_s=modern_router.policy.validate(explicit_codes+modern_primary+legacy.get('primary_codes',[]),modern.explicit.standard_code,modern.explicit.clause_no)
-    primary=[x for x in preferred_primary if x in allowed][:4]
-    preferred_companion,_w,_s=modern_router.policy.validate(modern_companion+legacy.get('secondary_codes',[]),modern.explicit.standard_code,modern.explicit.clause_no)
-    secondary=[x for x in preferred_companion if x in allowed and x not in primary][:4]
-    if not primary:primary=allowed[:4]
+    preferred_primary,_w,_s=modern_router.policy.validate(explicit_codes+modern_primary+legacy_primary,modern.explicit.standard_code,modern.explicit.clause_no)
+    primary=[x for x in preferred_primary if x in allowed][:8]
+    preferred_companion,_w,_s=modern_router.policy.validate(modern_companion+legacy_secondary,modern.explicit.standard_code,modern.explicit.clause_no)
+    secondary=[x for x in preferred_companion if x in allowed and x not in primary][:8]
+    if not primary:primary=allowed[:8]
     standards=[]
     for code in primary+secondary:
         role='用户点名' if code in explicit_codes else ('主规范' if code in primary else '配套规范')
@@ -163,6 +168,15 @@ def route_question(question:str, top_themes:int=5, top_standards:int=7, project_
         'explicit_clause':modern.explicit.explicit_clause,'explicit_clause_no':modern.explicit.clause_no,
         'explicit_clause_blocked':any(x.get('status')=='条文失效' for x in statuses),
         'warnings':list(dict.fromkeys(modern.warnings+warnings)),'standard_statuses':statuses,
+        'project_stage':modern.project_stage,'project_stage_confidence':modern.project_stage_confidence,
+        'project_stage_candidates':[{'value':x.value,'confidence':x.confidence,'score':x.numeric_score,'matched_terms':x.matched_terms} for x in modern.project_stage_candidates],
+        'user_role':modern.user_role,'user_role_confidence':modern.user_role_confidence,
+        'user_role_candidates':[{'value':x.value,'confidence':x.confidence,'score':x.numeric_score,'matched_terms':x.matched_terms} for x in modern.user_role_candidates],
+        'claims':[{'claim_type':x.claim_type,'claim_text':x.claim_text,'claim_value':x.claim_value,'claim_unit':x.claim_unit,'verification_status':x.verification_status} for x in modern.claims],
+        'normative_authority':[{'code':x,'authority':modern_router.policy.normative_authority(x)} for x in allowed],'project_binding':modern.project_binding,
+        'filtered_standards':[x for x in statuses if not x.get('allowed')],
+        'deprecated_standards':[x for x in statuses if not x.get('allowed') and any(k in x.get('status','') for k in ('废止','被替代','条文失效'))],
+        'conflicts':modern.conflicts,'evidence_gate':modern.evidence_gate,
         'topic_router_version':modern_router.pack['router_version'],'router_is_evidence':False,
     })
     if eligible_modern:
@@ -181,7 +195,13 @@ def route_summary(route:dict):
     sec='、'.join(route.get('secondary_codes',[])) or '暂无'
     sub=list(dict.fromkeys(s for x in route.get('themes',[]) for s in x.get('subtopics',[])))[:4]
     subtext=('；子主题：'+'、'.join(sub)) if sub else ''
-    return f"意图：{route['intent']}；风险：{route['risk']}；路由置信度：{route.get('confidence','-')}；主题：{themes}{subtext}；主规范候选：{prim}；配套规范候选：{sec}。"
+    stage_labels={'pre_construction':'施工准备','construction':'施工过程','acceptance':'验收','maintenance':'维修','renovation':'改造','unknown':'未识别'}
+    role_labels={'construction':'施工','designer':'设计','supervision':'监理','owner':'甲方/业主','cost':'造价','general':'普通用户','unknown':'未识别'}
+    stage=stage_labels.get(route.get('project_stage','unknown'),route.get('project_stage','未识别'))
+    role=role_labels.get(route.get('user_role','unknown'),route.get('user_role','未识别'))
+    evidence='待检索条文证据' if route.get('evidence_gate')=='requires_clause_evidence' else route.get('evidence_gate','待核验')
+    warning=('；警告：'+'；'.join(route.get('warnings',[])[:2])) if route.get('warnings') else ''
+    return f"意图：{route['intent']}；风险：{route['risk']}；路由置信度：{route.get('confidence','-')}；工程阶段：{stage}；用户角色：{role}；主题：{themes}{subtext}；主规范候选：{prim}；配套规范候选：{sec}；证据状态：{evidence}{warning}。"
 
 
 def log_route(route:dict):

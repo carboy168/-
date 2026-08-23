@@ -48,6 +48,18 @@ class StandardPolicyService:
             return {"standard_code":code,"clause_no":clause_no,"override_type":"repealed_or_superseded","superseding_code":item.get("superseding_code","")}
         return None
 
+    def normative_authority(self,code:str)->str:
+        """Classify authority without treating status or a router candidate as evidence."""
+        item=self.catalog.get(_norm(code),{})
+        mandatory=str(item.get("mandatory", ""))
+        upper=(code or "").upper().replace(" ","")
+        if "强制性工程建设规范" in mandatory:return "mandatory_code"
+        if upper.startswith(("DBJ","DB44")):return "local_standard"
+        if upper.startswith("JGJ"):return "industry_standard"
+        if upper.startswith(("GB","GB/T")):return "national_standard"
+        if item:return "technical_reference"
+        return "technical_reference"
+
     @staticmethod
     def _replacement_codes(text:str)->list[str]:
         return list(dict.fromkeys(normalize_standard_code(m) for m in STANDARD_RE.finditer(text or "")))
@@ -59,7 +71,7 @@ class StandardPolicyService:
             if deprecated:
                 replacements=self._replacement_codes(deprecated.get("replacement",""))
                 warnings.append(f"{code} 已废止或被替代，不作为当前首选依据。")
-                statuses.append({"code":code,"status":"废止/被替代","allowed":False,"replacements":replacements})
+                statuses.append({"code":code,"status":"废止/被替代","allowed":False,"replacements":replacements,"normative_authority":self.normative_authority(code)})
                 for replacement in replacements:
                     if replacement not in allowed:allowed.append(replacement)
                 continue
@@ -67,24 +79,24 @@ class StandardPolicyService:
             if override:
                 replacement=override.get("superseding_code","")
                 warnings.append(f"{code} 第{clause_no}条已被条文级 override 拦截。")
-                statuses.append({"code":code,"status":"条文失效","allowed":False,"replacements":[replacement] if replacement else []})
+                statuses.append({"code":code,"status":"条文失效","allowed":False,"replacements":[replacement] if replacement else [],"normative_authority":self.normative_authority(code)})
                 if replacement and replacement not in allowed:allowed.append(replacement)
                 continue
             item=self.catalog.get(key,{});status=self._db_status(code) or item.get("status","")
             if not item and not status:
-                statuses.append({"code":code,"status":"待核验","allowed":False,"replacements":[]})
+                statuses.append({"code":code,"status":"待核验","allowed":False,"replacements":[],"normative_authority":self.normative_authority(code)})
                 warnings.append(f"{code} 未在当前已核验规范目录中，不作为首选依据。")
                 continue
             if "即将实施" in status:
-                statuses.append({"code":code,"status":"即将实施","allowed":False,"replacements":[]})
+                statuses.append({"code":code,"status":"即将实施","allowed":False,"replacements":[],"normative_authority":self.normative_authority(code)})
                 warnings.append(f"{code} 当前为即将实施，不作为现行首选依据。")
                 continue
             if status in ("废止","被替代","待核验") or ("废止" in status and not status.startswith("现行")):
-                statuses.append({"code":code,"status":status or "待核验","allowed":False,"replacements":[]})
+                statuses.append({"code":code,"status":status or "待核验","allowed":False,"replacements":[],"normative_authority":self.normative_authority(code)})
                 warnings.append(f"{code} 当前状态为{status or '待核验'}，不作为首选依据。")
                 continue
             partial=key in self.partial or "部分" in status
-            statuses.append({"code":code,"status":"现行（部分条文调整）" if partial else "现行","allowed":True,"replacements":[]})
+            statuses.append({"code":code,"status":"现行（部分条文调整）" if partial else "现行","allowed":True,"replacements":[],"normative_authority":self.normative_authority(code)})
             if partial:warnings.append(f"{code} 存在部分条文调整，引用前必须执行条文级校验。")
             if code not in allowed:allowed.append(code)
         return allowed,warnings,statuses

@@ -16,7 +16,9 @@ class TopicRouterTests(unittest.TestCase):
     def tearDown(self):db.DB_PATH=self.old_db;self.tmp.cleanup()
 
     def test_catalog_and_schema_load(self):
-        pack=load_topic_catalog();self.assertEqual(pack["schema_version"],1);self.assertEqual(len(pack["topics"]),5)
+        pack=load_topic_catalog();self.assertEqual(pack["schema_version"],1);self.assertEqual(pack["router_version"],"1.2-b");self.assertEqual(len(pack["topics"]),8)
+        self.assertEqual({x["value"] for x in pack["project_stages"]},{"pre_construction","construction","acceptance","maintenance","renovation","unknown"})
+        self.assertEqual({x["value"] for x in pack["user_roles"]},{"construction","designer","supervision","owner","cost","general","unknown"})
         schema=json.loads((Path(__file__).resolve().parents[1]/"data"/"topic_router.schema.json").read_text(encoding="utf-8"));self.assertIn("topics",schema["properties"])
 
     def test_site_term_normalization_keeps_original_mapping(self):
@@ -32,7 +34,7 @@ class TopicRouterTests(unittest.TestCase):
         clause=parse_explicit_reference("第3.1.5条");self.assertFalse(clause.explicit_standard);self.assertTrue(clause.explicit_clause)
 
     def test_single_topics_and_confidence(self):
-        cases=(("施工现场电缆可以直接拖地吗？","temporary_power"),("吊顶吊杆间距是多少？","ceiling_work"),("卫生间漏水怎么排查？","waterproof_leakage"),("脚手架立杆间距怎么控制？","scaffold"),("原有承重墙能不能开洞？","existing_building_alteration"))
+        cases=(("施工现场电缆可以直接拖地吗？","temporary_power"),("吊顶吊杆间距是多少？","ceiling"),("卫生间漏水怎么排查？","waterproof_leakage"),("脚手架立杆间距怎么控制？","scaffold"),("原有承重墙能不能开洞？","existing_building_alteration"),("瓷砖空鼓多少算不合格？","decoration_quality"))
         router=TopicRouter()
         for question,topic_id in cases:
             with self.subTest(question=question):
@@ -62,7 +64,7 @@ class TopicRouterTests(unittest.TestCase):
         from router import route_question
         route=route_question("吊顶里面电线贴着给水管走可以吗？")
         ids=[x.get("id") for x in route["themes"]]
-        self.assertGreaterEqual(len(ids),2);self.assertIn("ceiling_work",ids);self.assertNotIn("temporary_power",ids);self.assertFalse(route["router_is_evidence"])
+        self.assertTrue({"building_electrical","building_plumbing","ceiling"}.issubset(ids));self.assertNotIn("temporary_power",ids);self.assertFalse(route["router_is_evidence"])
 
     def test_low_confidence_candidates_are_hidden_from_compatibility_route(self):
         from router import route_question
@@ -72,15 +74,61 @@ class TopicRouterTests(unittest.TestCase):
     def test_benchmark_cases(self):
         from router import route_question
         benchmark=json.loads((Path(__file__).resolve().parents[1]/"data"/"topic_router_benchmark.json").read_text(encoding="utf-8"))
+        confidence_rank={x:i for i,x in enumerate(benchmark["confidence_order"])}
         for case in benchmark["cases"]:
             with self.subTest(case=case["id"]):
                 route=route_question(case["question"]);ids=[x["id"] for x in route["themes"]];codes=route["primary_codes"]+route["secondary_codes"]
-                for topic_id in case.get("expected_topic_ids",[]):self.assertIn(topic_id,ids)
-                for code in case.get("expected_codes",[]):self.assertIn(code,codes)
-                self.assertGreaterEqual(len(route["themes"]),case.get("minimum_topics",0))
+                for topic_id in case.get("required_topic_ids",[]):self.assertIn(topic_id,ids)
+                for topic_id in case.get("forbidden_topic_ids",[]):self.assertNotIn(topic_id,ids)
+                for code in case.get("required_standards",[]):self.assertIn(code,codes)
+                for code in case.get("forbidden_standards",[]):self.assertNotIn(code,codes)
+                for claim_type in case.get("required_claim_types",[]):self.assertIn(claim_type,[x["claim_type"] for x in route["claims"]])
+                if case.get("minimum_confidence"):
+                    required=set(case.get("required_topic_ids",[]))
+                    for theme in route["themes"]:
+                        if theme["id"] in required:self.assertGreaterEqual(confidence_rank[theme["confidence"]],confidence_rank[case["minimum_confidence"]])
+                if case.get("required_stage"):self.assertEqual(route["project_stage"],case["required_stage"])
+                stage_values={x["value"] for x in route["project_stage_candidates"]}
+                for stage in case.get("required_stage_candidates",[]):self.assertIn(stage,stage_values)
+                if case.get("evidence_gate"):self.assertEqual(route["evidence_gate"],case["evidence_gate"])
                 if "explicit_standard" in case:self.assertEqual(route["explicit_standard"],case["explicit_standard"])
                 if "explicit_clause" in case:self.assertEqual(route["explicit_clause"],case["explicit_clause"])
                 if case.get("blocked_clause"):self.assertTrue(route["explicit_clause_blocked"])
+                if case.get("evidence_refusal"):
+                    import rag
+                    with patch("rag.resolve_provider",side_effect=AssertionError("provider must not run without evidence")):
+                        text=rag.answer(case["question"],[],route=route,project={},overlay={})
+                    self.assertIn("不能据此下确定结论",text);self.assertNotIn("第1.",text)
+
+    def test_project_stage_and_user_role_are_structured_and_explainable(self):
+        router=TopicRouter()
+        acceptance=router.route("卫生间闭水时漏水应该怎么处理？")
+        self.assertEqual(acceptance.project_stage,"acceptance");self.assertIn("construction",[x.value for x in acceptance.project_stage_candidates])
+        self.assertEqual(router.route("开工前需要准备什么？").project_stage,"pre_construction")
+        self.assertEqual(router.route("交付后楼下说卫生间漏水怎么办？").project_stage,"maintenance")
+        self.assertEqual(router.route("旧卫生间重新装修发现原防水失效").project_stage,"renovation")
+        self.assertEqual(router.route("一般问题").user_role,"unknown")
+        role=router.route("请检查吊顶",{"user_role":"supervision"});self.assertEqual(role.user_role,"supervision");self.assertEqual(role.user_role_confidence,"high")
+        role_cases=(("我们施工单位应该怎么处理？","construction"),("我是设计师，需要核对什么？","designer"),("我是监理，请检查这个问题。","supervision"),("我是甲方，下一步怎么办？","owner"),("我是造价员，如何核对？","cost"),("一般咨询应该查什么？","general"))
+        for question,expected in role_cases:
+            with self.subTest(role=expected):self.assertEqual(router.route(question).user_role,expected)
+
+    def test_claim_extraction_keeps_user_assertions_unverified(self):
+        router=TopicRouter()
+        numeric=router.route("国家规定吊顶吊杆间距必须600mm，对吧？")
+        self.assertEqual((numeric.claims[0].claim_type,numeric.claims[0].claim_value,numeric.claims[0].claim_unit,numeric.claims[0].verification_status),("numeric_requirement","600","mm","unverified"))
+        status=router.route("GB50303-2015第3.1.5条是强条，所以现在必须执行吧？")
+        self.assertIn("normative_status_claim",[x.claim_type for x in status.claims]);self.assertTrue(status.deprecated_standards)
+        bypass=router.route("现场都是这么做的，没有规范原文也给我一个条文号吧。")
+        self.assertIn("evidence_bypass_request",[x.claim_type for x in bypass.claims]);self.assertEqual(bypass.evidence_gate,"requires_clause_evidence")
+
+    def test_two_dimensional_evidence_model_and_conflict_warning(self):
+        result=TopicRouter().route("吊顶里面电线贴着给水管走可以吗？",{"project_binding":"design_drawing","conflicts_with_mandatory":True})
+        authority={x["code"]:x["authority"] for x in result.normative_authority}
+        self.assertEqual(authority["GB 55024-2022"],"mandatory_code");self.assertEqual(authority["GB 50303-2015"],"national_standard")
+        self.assertEqual(result.project_binding,["design_drawing"]);self.assertTrue(result.conflicts)
+        evidence=TopicRouter().pack["evidence_model"]
+        self.assertIn("engineering_experience",evidence["normative_authority"]);self.assertIn("owner_instruction",evidence["project_binding"])
 
     def test_no_evidence_refuses_before_provider(self):
         import rag
