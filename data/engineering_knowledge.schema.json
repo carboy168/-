@@ -1,0 +1,30 @@
+{
+  "$schema":"https://json-schema.org/draft/2020-12/schema",
+  "type":"object",
+  "required":["schema_version","package_id","question","normalized_question","objects","relations","topics","project_stage","user_role","user_claims","retrieval_plans","evidence_links","requirement_claims","warnings","human_confirmation_required","route_metadata"],
+  "properties":{
+    "schema_version":{"const":"1.2-c0"},
+    "package_id":{"type":"string","minLength":1},
+    "question":{"type":"string","minLength":1},
+    "normalized_question":{"type":"string"},
+    "objects":{"type":"array","items":{"$ref":"#/$defs/engineeringObject"}},
+    "relations":{"type":"array","items":{"$ref":"#/$defs/engineeringRelation"}},
+    "topics":{"type":"array"},
+    "project_stage":{"type":"string"},
+    "user_role":{"type":"string"},
+    "user_claims":{"type":"array"},
+    "retrieval_plans":{"type":"array"},
+    "evidence_links":{"type":"array","items":{"$ref":"#/$defs/evidenceLink"}},
+    "requirement_claims":{"type":"array","items":{"$ref":"#/$defs/requirementClaim"}},
+    "warnings":{"type":"array"},
+    "human_confirmation_required":{"type":"boolean"},
+    "route_metadata":{"type":"object","required":["router_is_evidence"],"properties":{"router_is_evidence":{"const":false}}}
+  },
+  "$defs":{
+    "sourceSpan":{"type":"object","required":["source_id","start","end"]},
+    "engineeringObject":{"type":"object","required":["object_id","object_type","canonical_name","original_text","aliases","profession","system","attributes","source_span","confidence","numeric_score"]},
+    "engineeringRelation":{"type":"object","required":["relation_id","subject_object_id","relation_type","object_object_id","original_text","attributes","source_span","confidence","numeric_score","rule_id","verification_status"]},
+    "requirementClaim":{"type":"object","required":["claim_id","claim_type","source_type","source_id","source_locator","original_text","subject","property","operator","value","unit","action","conditions","exceptions","project_stage","normative_authority","project_binding","standard_status","verification_status","extraction_confidence","evidence_links"],"properties":{"claim_type":{"enum":["numeric_requirement","method_requirement","material_requirement","prohibition_requirement","mandatory_requirement","acceptance_requirement","responsibility_requirement","sequence_requirement","normative_status_claim","evidence_bypass_request","unknown"]}}},
+    "evidenceLink":{"type":"object","required":["evidence_id","source_type","source_id","source_locator","original_text","status","normative_authority","project_binding","content_hash","verified"]}
+  }
+}

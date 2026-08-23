@@ -1,0 +1,10 @@
+{
+  "$schema":"https://json-schema.org/draft/2020-12/schema",
+  "type":"object",
+  "required":["schema_version","catalog_version","object_types"],
+  "properties":{
+    "schema_version":{"type":"integer","minimum":1},
+    "catalog_version":{"type":"string"},
+    "object_types":{"type":"array","minItems":24,"items":{"type":"object","required":["object_type","canonical_name","aliases","profession","system","topic_hints"]}}
+  }
+}

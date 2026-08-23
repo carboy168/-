@@ -1,0 +1,11 @@
+{
+  "$schema":"https://json-schema.org/draft/2020-12/schema",
+  "type":"object",
+  "required":["schema_version","catalog_version","relation_types","rules"],
+  "properties":{
+    "schema_version":{"type":"integer","minimum":1},
+    "catalog_version":{"type":"string"},
+    "relation_types":{"type":"array","minItems":13,"uniqueItems":true},
+    "rules":{"type":"array","minItems":1,"items":{"type":"object","required":["rule_id","relation_type","expressions","mode","subject_types","object_types","max_distance","score","topic_hints"]}}
+  }
+}

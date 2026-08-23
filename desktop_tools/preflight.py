@@ -7,6 +7,7 @@ files=[
     ROOT/"desktop_main.py",
     *sorted((ROOT/"desktop").rglob("*.py")),
     *sorted((ROOT/"routing").rglob("*.py")),
+    *sorted((ROOT/"engineering_knowledge").rglob("*.py")),
     ROOT/"db.py",ROOT/"migrations.py",ROOT/"provider.py",ROOT/"provider_config.py",ROOT/"log_security.py",ROOT/"rag.py",ROOT/"router.py",ROOT/"project_mode.py",ROOT/"project_kb.py",ROOT/"review_engine.py",
 ]
 bad=[]
@@ -22,6 +23,9 @@ for required in [
     ROOT/"data"/"core_standards.json",ROOT/"data"/"theme_router.json",ROOT/"data"/"guangdong_overlay.json",
     ROOT/"data"/"provider_catalog.json",
     ROOT/"data"/"topic_router.json",ROOT/"data"/"topic_router.schema.json",ROOT/"data"/"topic_router_benchmark.json",
+    ROOT/"data"/"engineering_objects.json",ROOT/"data"/"engineering_objects.schema.json",
+    ROOT/"data"/"engineering_relations.json",ROOT/"data"/"engineering_relations.schema.json",
+    ROOT/"data"/"engineering_knowledge.schema.json",ROOT/"data"/"engineering_knowledge_benchmark.json",
     ROOT/"prompts"/"system_prompt.txt",ROOT/"assets"/"app.ico",ROOT/"installer"/"EngineeringNormAgent.spec",
     ROOT/"installer"/"EngineeringNormAgent.iss",
 ]:

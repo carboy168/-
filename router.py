@@ -189,6 +189,12 @@ def build_route_query(question:str, route:dict):
     terms += route.get('query_expansion',[])[:8]
     return ' '.join(x for x in terms if x)
 
+
+def build_engineering_knowledge(question:str, project_context=None):
+    """Optional V1.2-C0 facade; existing route_question API remains unchanged."""
+    from engineering_knowledge.layer import build_knowledge_package
+    return build_knowledge_package(question, project_context=project_context)
+
 def route_summary(route:dict):
     themes='、'.join(x['theme'] for x in route.get('themes',[])[:4]) or '未明确识别'
     prim='、'.join(route.get('primary_codes',[])) or '暂无'
