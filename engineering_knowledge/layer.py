@@ -74,6 +74,13 @@ def _retrieval_plans(route:dict,topics:list[dict],objects,relations,crosswalk:Cr
             project_stage=route.get("project_stage","unknown"),intent=route.get("intent",""),required_evidence_role="normative_evidence",
             evidence_status="unverified",confidence=confidence,expanded_query_terms=terms,
         ))
+    if not plans and explicit_codes:
+        terms=list(dict.fromkeys(route.get("query_expansion",[])))[:32]
+        plans.append(RetrievalPlan(
+            "explicit_standard",list(dict.fromkeys(allowed_codes)),terms,[],[],route.get("evidence_gate","requires_clause_evidence"),
+            plan_id="plan-001",profession="",reason=f"用户明示规范：{explicit_code}",project_stage=route.get("project_stage","unknown"),
+            intent=route.get("intent",""),required_evidence_role="normative_evidence",evidence_status="unverified",confidence="high",expanded_query_terms=terms,
+        ))
     return plans
 
 
@@ -98,7 +105,7 @@ def build_knowledge_package(question:str,project_context=None,route:dict|None=No
     for relation in relations:relation.evidence_links=[evidence.evidence_id]
     claims=_user_claims(route,question,objects,evidence)
     package=KnowledgePackage(
-        schema_version="1.2-c1",package_id="kp-"+hashlib.sha256((question+json.dumps(project_context or {},sort_keys=True,ensure_ascii=False)).encode("utf-8")).hexdigest()[:12],question=question,
+        schema_version="1.2-c2",package_id="kp-"+hashlib.sha256((question+json.dumps(project_context or {},sort_keys=True,ensure_ascii=False)).encode("utf-8")).hexdigest()[:12],question=question,
         normalized_question=route.get("normalized",question),objects=objects,relations=relations,topics=topics,
         project_stage=route.get("project_stage","unknown"),user_role=route.get("user_role","unknown"),user_claims=list(route.get("claims",[])),
         retrieval_plans=_retrieval_plans(route,topics,objects,relations,crosswalk),evidence_links=[evidence],requirement_claims=claims,

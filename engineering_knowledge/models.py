@@ -134,6 +134,7 @@ class RetrievalPlan:
     confidence:str="low"
     expanded_query_terms:list[str]=field(default_factory=list)
     id_scope:str=ID_SCOPE
+    evidence_link_ids:list[str]=field(default_factory=list)
 
 
 @dataclass

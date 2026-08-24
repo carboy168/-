@@ -43,6 +43,17 @@ def retrieve(question: str, limit: int = 8, project: dict|None = None):
     rows, _, _ = retrieve_with_route(question, limit=limit, project=project)
     return rows
 
+
+def retrieve_with_knowledge(question: str, limit: int = 10, project: dict|None = None):
+    """C2 additive API: preserve legacy retrieval while returning evidence-bound claims."""
+    rows,route,overlay=retrieve_with_route(question,limit=limit,project=project)
+    from engineering_knowledge.layer import build_knowledge_package
+    from engineering_knowledge.requirement_claims import bind_project_chunks,bind_retrieved_clauses
+    package=build_knowledge_package(question,project_context=project,route=route)
+    bind_retrieved_clauses(package,rows)
+    bind_project_chunks(package,overlay.get('project_file_evidence',[]))
+    return rows,route,overlay,package
+
 def build_context(rows: list[dict]) -> str:
     parts = []
     for i, r in enumerate(rows, start=1):
