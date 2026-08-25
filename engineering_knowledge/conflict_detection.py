@@ -177,6 +177,8 @@ class ConflictDetector:
 
 def detect_claim_conflicts(package:KnowledgePackage,detector:ConflictDetector|None=None)->KnowledgePackage:
     package.conflicts=(detector or ConflictDetector()).detect(package)
+    from engineering_knowledge.project_evidence_lifecycle import apply_lifecycle_conflict_policy
+    package.conflicts=apply_lifecycle_conflict_policy(package,package.conflicts)
     if any(item.requires_human_review for item in package.conflicts):package.human_confirmation_required=True
     validate_knowledge_package(package)
     return package

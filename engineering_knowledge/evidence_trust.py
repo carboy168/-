@@ -71,6 +71,9 @@ class EvidenceTrustPolicy:
     def can_support_project_claim(self,evidence:EvidenceLink)->EvidenceTrustDecision:
         if evidence.evidence_role!="project_evidence":return EvidenceTrustDecision(False,"evidence_role 不是 project_evidence",[])
         if evidence.source_type not in PROJECT_SOURCE_TYPES:return EvidenceTrustDecision(False,"来源类型不是受支持的项目文件",[])
+        lifecycle=str(evidence.status or "")
+        if lifecycle in {"extracted","pending_confirmation","rejected","superseded","expired"}:
+            return EvidenceTrustDecision(False,f"项目证据生命周期状态为 {lifecycle}",[])
         if not self._verified(evidence):return EvidenceTrustDecision(False,"项目文件尚未验证",[])
         if not self.is_traceable(evidence):return EvidenceTrustDecision(False,"项目文件无法回溯原始来源",[])
         if evidence.project_binding=="none":return EvidenceTrustDecision(False,"缺少项目约束类型",[])

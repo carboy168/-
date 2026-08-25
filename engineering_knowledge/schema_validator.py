@@ -21,6 +21,7 @@ def validate_catalogs()->None:
     validate_json_file(ROOT/"data"/"topic_crosswalk.json",ROOT/"data"/"topic_crosswalk.schema.json")
     validate_json_file(ROOT/"data"/"requirement_claim_rules.json",ROOT/"data"/"requirement_claim_rules.schema.json")
     validate_json_file(ROOT/"data"/"conflict_detection_rules.json",ROOT/"data"/"conflict_detection_rules.schema.json")
+    validate_json_file(ROOT/"data"/"project_evidence_lifecycle_benchmark.json",ROOT/"data"/"project_evidence_lifecycle_benchmark.schema.json")
     objects=load_object_catalog();relations=load_relation_catalog(object_pack=objects)
     required_objects={"electrical_line","cable","conduit","cable_tray","distribution_box","water_supply_pipe","drainage_pipe","sprinkler_pipe","fire_pipe","duct","ceiling","ceiling_concealed_space","hanger","support","partition_wall","load_bearing_wall","beam","slab","floor","waterproof_layer","floor_drain","door","fire_door"}
     actual={x["object_type"] for x in objects["object_types"]}
@@ -42,6 +43,8 @@ def validate_catalogs()->None:
 
 
 def validate_knowledge_package(package:KnowledgePackage,*,for_write:bool=True)->None:
+    from engineering_knowledge.project_evidence_lifecycle import ProjectEvidenceLifecycleValidator
+    ProjectEvidenceLifecycleValidator().validate(package)
     errors=[]
     try:(assert_writable_version if for_write else assert_readable_version)(package.schema_version)
     except ValueError as exc:errors.append(str(exc))

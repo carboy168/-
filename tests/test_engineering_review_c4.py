@@ -78,7 +78,7 @@ class EngineeringReviewC4Tests(unittest.TestCase):
         norm=self._norm_row();chunk={"chunk_id":7,"file_id":3,"content":"吊杆间距不得小于1500mm。","title":"未确认图纸","doc_type":"施工图纸"}
         package=build_knowledge_package("吊杆间距怎么控制？");bind_retrieved_clauses(package,[norm]);bind_project_chunks(package,[chunk]);detect_claim_conflicts(package)
         findings,summary=review_conflict_findings(package,[norm],[chunk],[])
-        self.assertEqual(package.conflicts[0].status,"insufficient_evidence");self.assertEqual(findings[0]["evidence_grade"],"D");self.assertIn("证据不足",summary)
+        self.assertEqual(package.conflicts[0].status,"potential_conflict");self.assertEqual(findings[0]["evidence_grade"],"D");self.assertIn("潜在冲突",summary)
 
     def test_qa_summary_is_user_facing_and_hides_debug_weights(self):
         norm=self._norm_row();package=build_knowledge_package("吊杆间距怎么控制？");bind_retrieved_clauses(package,[norm]);detect_claim_conflicts(package)

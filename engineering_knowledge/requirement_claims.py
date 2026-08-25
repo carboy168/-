@@ -114,13 +114,15 @@ def evidence_from_project_row(row:dict)->EvidenceLink:
     page_no=row.get("page_no");page_no=page_no if isinstance(page_no,int) and page_no>0 else None
     source_token=str(chunk_id) if chunk_id is not None else "missing-"+hashlib.sha256(content.encode("utf-8")).hexdigest()[:12]
     source_type,project_binding=_project_source_scope(str(row.get("doc_type","") or ""))
-    return EvidenceLink(
+    evidence=EvidenceLink(
         evidence_id=f"ev-project-{source_token}",source_type=source_type,source_id=f"project_chunk:{source_token}",
         source_locator={"kind":"project_file_chunk","chunk_id":chunk_id,"file_id":row.get("file_id"),"page_no":page_no,"section":row.get("section","")},
         original_text=content,page_no=page_no,document_name=str(row.get("title","") or row.get("original_name","") or ""),
-        status="unverified",normative_authority="",project_binding=project_binding,content_hash=hashlib.sha256(content.encode("utf-8")).hexdigest(),
+        status="pending_confirmation",normative_authority="",project_binding=project_binding,content_hash=hashlib.sha256(content.encode("utf-8")).hexdigest(),
         verified=False,evidence_role="project_evidence",verification_status="unverified",warnings=["项目文件尚未经过人工确认，不得作为现行规范要求。"],
     )
+    from engineering_knowledge.project_evidence_lifecycle import enrich_project_evidence
+    return enrich_project_evidence(evidence,row,"pending_confirmation")
 
 
 def _project_source_scope(doc_type:str)->tuple[str,str]:
@@ -142,13 +144,19 @@ def evidence_from_project_requirement(row:dict)->EvidenceLink:
     source_token=str(requirement_id) if requirement_id is not None else "missing-"+hashlib.sha256(content.encode("utf-8")).hexdigest()[:12]
     source_type,project_binding=_project_source_scope(str(row.get("doc_type","") or ""))
     verified=_project_requirement_exists(row)
-    return EvidenceLink(
+    evidence=EvidenceLink(
         evidence_id=f"ev-project-req-{source_token}",source_type=source_type,source_id=f"project_requirement:{source_token}",
         source_locator={"kind":"project_requirement","requirement_id":requirement_id,"source_ref":row.get("source_ref","")},
         original_text=content,document_name=str(row.get("title","") or ""),status="verified" if verified else "unverified",normative_authority="",project_binding=project_binding,
         content_hash=hashlib.sha256(content.encode("utf-8")).hexdigest(),verified=verified,evidence_role="project_evidence",verification_status="verified" if verified else "unverified",
         warnings=[] if verified else ["项目控制条件不能回溯到有效数据库记录，保持未验证。"],
     )
+    from engineering_knowledge.project_evidence_lifecycle import enrich_project_evidence
+    enrich_project_evidence(evidence,row,"verified" if verified else "pending_confirmation")
+    if verified:
+        evidence.source_locator["confirmed_by"]=str(row.get("confirmed_by") or "project_requirements")
+        evidence.source_locator["confirmed_time"]=str(row.get("confirmed_time") or row.get("updated_at") or row.get("created_at") or evidence.source_locator["extracted_time"])
+    return evidence
 
 
 def _project_requirement_exists(item:dict)->bool:
@@ -190,6 +198,8 @@ def bind_project_chunks(package:KnowledgePackage,rows:list[dict])->KnowledgePack
         claims=extractor.extract(package,evidence,next_claim);next_claim+=len(claims)
         evidence.linked_claim_ids.extend(item.claim_id for item in claims);package.evidence_links.append(evidence);package.requirement_claims.extend(claims);existing.add(evidence.evidence_id)
     package.human_confirmation_required=package.human_confirmation_required or bool(rows)
+    from engineering_knowledge.project_evidence_lifecycle import ProjectEvidenceLifecycleValidator
+    ProjectEvidenceLifecycleValidator().validate(package)
     validate_knowledge_package(package)
     return package
 
@@ -203,5 +213,7 @@ def bind_project_requirements(package:KnowledgePackage,rows:list[dict])->Knowled
         if evidence.evidence_id in existing:continue
         claims=extractor.extract(package,evidence,next_claim);next_claim+=len(claims)
         evidence.linked_claim_ids.extend(item.claim_id for item in claims);package.evidence_links.append(evidence);package.requirement_claims.extend(claims);existing.add(evidence.evidence_id)
+    from engineering_knowledge.project_evidence_lifecycle import ProjectEvidenceLifecycleValidator
+    ProjectEvidenceLifecycleValidator().validate(package)
     validate_knowledge_package(package)
     return package

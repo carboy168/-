@@ -41,10 +41,11 @@ def review_conflict_findings(package:KnowledgePackage,norm_rows:list[dict],proje
         n_refs=[norm_refs[x] for x in item.evidence_links if x in norm_refs];p_refs=[project_refs[x] for x in item.evidence_links if x in project_refs]
         if item.status=="insufficient_evidence" and not p_refs:continue
         severity="高" if item.status in {"conflict","norm_stricter"} else ("中" if item.status=="potential_conflict" else "提示")
+        evidence_trusted=item.comparison_basis.get("project_evidence_trusted",True) and item.comparison_basis.get("normative_evidence_trusted",True)
         findings.append({
             "severity":severity,"category":"确定性要求比对","location":"项目控制条件/规范条文","issue":f"{STATUS_LABELS[item.status]}：{item.reason}",
             "norm_refs":n_refs,"project_refs":p_refs,"recommendation":"核对所引用原文、适用条件及项目文件确认状态后，由责任人员确认处理。",
-            "evidence_grade":"B" if item.status!="insufficient_evidence" else "D","confidence":{"high":"高","medium":"中","low":"低"}.get(item.confidence,"低"),
+            "evidence_grade":"B" if item.status!="insufficient_evidence" and evidence_trusted else "D","confidence":{"high":"高","medium":"中","low":"低"}.get(item.confidence,"低"),
             "finding_type":"需核对","status":"待确认","notes":"由确定性 Claim 比较生成；不自动宣布项目文件不合规。",
         })
         if len(findings)>=20:break
