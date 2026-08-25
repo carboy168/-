@@ -12,6 +12,7 @@ CLAIM_TYPES = {
 EVIDENCE_ROLES = {"normative_evidence","project_evidence","user_statement","derived_analysis","reference_only"}
 EVIDENCE_STATUSES = {"verified","unverified","rejected","blocked","superseded"}
 ASSERTION_STATUSES = {"affirmed","negated","conditional","uncertain"}
+CONFLICT_STATUSES = {"compatible","project_stricter","norm_stricter","conflict","potential_conflict","not_comparable","insufficient_evidence"}
 ID_SCOPE = "package"
 
 
@@ -138,6 +139,21 @@ class RetrievalPlan:
 
 
 @dataclass
+class ConflictResult:
+    conflict_id:str
+    status:str
+    project_claim_id:str
+    normative_claim_id:str
+    evidence_links:list[str]
+    reason:str
+    comparison_basis:dict[str,Any]
+    confidence:str
+    requires_human_review:bool
+    warnings:list[str]=field(default_factory=list)
+    id_scope:str=ID_SCOPE
+
+
+@dataclass
 class TopicNode:
     topic_id:str
     profession:str
@@ -181,6 +197,7 @@ class KnowledgePackage:
     human_confirmation_required:bool
     route_metadata:dict[str,Any]=field(default_factory=dict)
     topic_graph:TopicGraph=field(default_factory=TopicGraph)
+    conflicts:list[ConflictResult]=field(default_factory=list)
     id_scope:str=ID_SCOPE
 
     def to_dict(self)->dict[str,Any]:

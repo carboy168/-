@@ -1,10 +1,10 @@
 {
   "$schema":"https://json-schema.org/draft/2020-12/schema",
-  "$id":"https://engineering-norm-agent.local/schema/engineering-knowledge-1.2-c2.json",
+  "$id":"https://engineering-norm-agent.local/schema/engineering-knowledge-1.2-c3.json",
   "type":"object","additionalProperties":false,
-  "required":["schema_version","package_id","question","normalized_question","objects","relations","topics","project_stage","user_role","user_claims","retrieval_plans","evidence_links","requirement_claims","warnings","human_confirmation_required","route_metadata","topic_graph","id_scope"],
+  "required":["schema_version","package_id","question","normalized_question","objects","relations","topics","project_stage","user_role","user_claims","retrieval_plans","evidence_links","requirement_claims","warnings","human_confirmation_required","route_metadata","topic_graph","conflicts","id_scope"],
   "properties":{
-    "schema_version":{"const":"1.2-c2"},"package_id":{"type":"string","pattern":"^kp-[a-f0-9]{12}$"},
+    "schema_version":{"const":"1.2-c3"},"package_id":{"type":"string","pattern":"^kp-[a-f0-9]{12}$"},
     "question":{"type":"string","minLength":1},"normalized_question":{"type":"string"},
     "objects":{"type":"array","items":{"$ref":"#/$defs/engineeringObject"}},
     "relations":{"type":"array","items":{"$ref":"#/$defs/engineeringRelation"}},
@@ -13,7 +13,7 @@
     "evidence_links":{"type":"array","items":{"$ref":"#/$defs/evidenceLink"}},"requirement_claims":{"type":"array","items":{"$ref":"#/$defs/requirementClaim"}},
     "warnings":{"type":"array","items":{"type":"string"}},"human_confirmation_required":{"type":"boolean"},
     "route_metadata":{"type":"object","required":["router_is_evidence"],"properties":{"router_is_evidence":{"const":false}}},
-    "topic_graph":{"$ref":"#/$defs/topicGraph"},"id_scope":{"const":"package"}
+    "topic_graph":{"$ref":"#/$defs/topicGraph"},"conflicts":{"type":"array","items":{"$ref":"#/$defs/conflictResult"}},"id_scope":{"const":"package"}
   },
   "$defs":{
     "idScope":{"const":"package"},"confidence":{"enum":["low","medium","high"]},
@@ -44,6 +44,9 @@
     }},
     "topicNode":{"type":"object","additionalProperties":false,"required":["topic_id","profession","system","confidence"],"properties":{"topic_id":{"type":"string"},"profession":{"type":"string"},"system":{"type":"string"},"confidence":{"$ref":"#/$defs/confidence"}}},
     "topicEdge":{"type":"object","additionalProperties":false,"required":["source_topic_id","edge_type","target_topic_id","relation_ids","assertion_status","relevant_for_retrieval","reason"],"properties":{"source_topic_id":{"type":"string"},"edge_type":{"enum":["intersects_with","located_in","requires_coordination_with","affects"]},"target_topic_id":{"type":"string"},"relation_ids":{"$ref":"#/$defs/stringList"},"assertion_status":{"enum":["affirmed","negated","conditional","uncertain"]},"relevant_for_retrieval":{"type":"boolean"},"reason":{"type":"string"}}},
-    "topicGraph":{"type":"object","additionalProperties":false,"required":["nodes","edges"],"properties":{"nodes":{"type":"array","items":{"$ref":"#/$defs/topicNode"}},"edges":{"type":"array","items":{"$ref":"#/$defs/topicEdge"}}}}
+    "topicGraph":{"type":"object","additionalProperties":false,"required":["nodes","edges"],"properties":{"nodes":{"type":"array","items":{"$ref":"#/$defs/topicNode"}},"edges":{"type":"array","items":{"$ref":"#/$defs/topicEdge"}}}},
+    "conflictResult":{"type":"object","additionalProperties":false,"required":["conflict_id","status","project_claim_id","normative_claim_id","evidence_links","reason","comparison_basis","confidence","requires_human_review","warnings","id_scope"],"properties":{
+      "conflict_id":{"type":"string","pattern":"^conflict-[0-9]{3,}$"},"status":{"enum":["compatible","project_stricter","norm_stricter","conflict","potential_conflict","not_comparable","insufficient_evidence"]},"project_claim_id":{"type":"string"},"normative_claim_id":{"type":"string"},"evidence_links":{"$ref":"#/$defs/stringList"},"reason":{"type":"string","minLength":1},"comparison_basis":{"type":"object"},"confidence":{"$ref":"#/$defs/confidence"},"requires_human_review":{"type":"boolean"},"warnings":{"$ref":"#/$defs/stringList"},"id_scope":{"$ref":"#/$defs/idScope"}
+    }}
   }
 }

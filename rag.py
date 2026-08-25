@@ -45,13 +45,15 @@ def retrieve(question: str, limit: int = 8, project: dict|None = None):
 
 
 def retrieve_with_knowledge(question: str, limit: int = 10, project: dict|None = None):
-    """C2 additive API: preserve legacy retrieval while returning evidence-bound claims."""
+    """C2/C3 additive API: preserve legacy retrieval while returning evidence-bound claims and conflicts."""
     rows,route,overlay=retrieve_with_route(question,limit=limit,project=project)
     from engineering_knowledge.layer import build_knowledge_package
+    from engineering_knowledge.conflict_detection import detect_claim_conflicts
     from engineering_knowledge.requirement_claims import bind_project_chunks,bind_retrieved_clauses
     package=build_knowledge_package(question,project_context=project,route=route)
     bind_retrieved_clauses(package,rows)
     bind_project_chunks(package,overlay.get('project_file_evidence',[]))
+    detect_claim_conflicts(package)
     return rows,route,overlay,package
 
 def build_context(rows: list[dict]) -> str:

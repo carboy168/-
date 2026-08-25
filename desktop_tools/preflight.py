@@ -30,6 +30,7 @@ for required in [
     ROOT/"data"/"topic_crosswalk.json",ROOT/"data"/"topic_crosswalk.schema.json",
     ROOT/"data"/"engineering_knowledge_c1_benchmark.json",
     ROOT/"data"/"requirement_claim_rules.json",ROOT/"data"/"requirement_claim_rules.schema.json",ROOT/"data"/"engineering_knowledge_c2_benchmark.json",
+    ROOT/"data"/"conflict_detection_rules.json",ROOT/"data"/"conflict_detection_rules.schema.json",ROOT/"data"/"engineering_knowledge_c3_benchmark.json",
     ROOT/"prompts"/"system_prompt.txt",ROOT/"assets"/"app.ico",ROOT/"installer"/"EngineeringNormAgent.spec",
     ROOT/"installer"/"EngineeringNormAgent.iss",
 ]:

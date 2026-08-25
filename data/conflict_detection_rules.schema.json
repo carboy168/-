@@ -1,0 +1,14 @@
+{
+  "$schema":"https://json-schema.org/draft/2020-12/schema",
+  "$id":"https://engineering-norm-agent.local/schema/conflict-detection-rules-1.2-c3.json",
+  "type":"object","additionalProperties":false,
+  "required":["schema_version","rules_version","minimum_comparable_score","minimum_semantic_overlap","matching_weights","positive_claim_types","prohibition_claim_types","unit_conversions","semantic_stop_terms"],
+  "properties":{
+    "schema_version":{"const":1},"rules_version":{"const":"1.2-c3"},"minimum_comparable_score":{"type":"integer","minimum":1},"minimum_semantic_overlap":{"type":"integer","minimum":1},
+    "matching_weights":{"type":"object","additionalProperties":false,"required":["shared_subject","same_property","numeric_pair","same_claim_type","opposing_requirement","lexical_overlap"],"properties":{"shared_subject":{"type":"integer","minimum":0},"same_property":{"type":"integer","minimum":0},"numeric_pair":{"type":"integer","minimum":0},"same_claim_type":{"type":"integer","minimum":0},"opposing_requirement":{"type":"integer","minimum":0},"lexical_overlap":{"type":"integer","minimum":0}}},
+    "positive_claim_types":{"type":"array","minItems":1,"uniqueItems":true,"items":{"type":"string"}},
+    "prohibition_claim_types":{"type":"array","minItems":1,"uniqueItems":true,"items":{"type":"string"}},
+    "unit_conversions":{"type":"array","minItems":1,"items":{"type":"object","additionalProperties":false,"required":["unit","canonical_unit","family","factor"],"properties":{"unit":{"type":"string","minLength":1},"canonical_unit":{"type":"string","minLength":1},"family":{"type":"string","minLength":1},"factor":{"type":"number","exclusiveMinimum":0}}}},
+    "semantic_stop_terms":{"type":"array","uniqueItems":true,"items":{"type":"string","minLength":1}}
+  }
+}

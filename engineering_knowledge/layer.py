@@ -105,7 +105,7 @@ def build_knowledge_package(question:str,project_context=None,route:dict|None=No
     for relation in relations:relation.evidence_links=[evidence.evidence_id]
     claims=_user_claims(route,question,objects,evidence)
     package=KnowledgePackage(
-        schema_version="1.2-c2",package_id="kp-"+hashlib.sha256((question+json.dumps(project_context or {},sort_keys=True,ensure_ascii=False)).encode("utf-8")).hexdigest()[:12],question=question,
+        schema_version="1.2-c3",package_id="kp-"+hashlib.sha256((question+json.dumps(project_context or {},sort_keys=True,ensure_ascii=False)).encode("utf-8")).hexdigest()[:12],question=question,
         normalized_question=route.get("normalized",question),objects=objects,relations=relations,topics=topics,
         project_stage=route.get("project_stage","unknown"),user_role=route.get("user_role","unknown"),user_claims=list(route.get("claims",[])),
         retrieval_plans=_retrieval_plans(route,topics,objects,relations,crosswalk),evidence_links=[evidence],requirement_claims=claims,

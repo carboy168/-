@@ -4,7 +4,7 @@ import hashlib,json
 from pathlib import Path
 
 from engineering_knowledge.catalog import load_object_catalog,load_relation_catalog
-from engineering_knowledge.models import CLAIM_TYPES,KnowledgePackage
+from engineering_knowledge.models import CLAIM_TYPES,CONFLICT_STATUSES,KnowledgePackage
 from engineering_knowledge.models import ASSERTION_STATUSES,EVIDENCE_ROLES,EVIDENCE_STATUSES
 from engineering_knowledge.evidence_trust import EvidenceTrustPolicy,FORBIDDEN_NORMATIVE_SOURCE_TYPES
 from engineering_knowledge.json_schema import validate_instance,validate_json_file
@@ -18,6 +18,7 @@ def validate_catalogs()->None:
     validate_json_file(ROOT/"data"/"engineering_relations.json",ROOT/"data"/"engineering_relations.schema.json")
     validate_json_file(ROOT/"data"/"topic_crosswalk.json",ROOT/"data"/"topic_crosswalk.schema.json")
     validate_json_file(ROOT/"data"/"requirement_claim_rules.json",ROOT/"data"/"requirement_claim_rules.schema.json")
+    validate_json_file(ROOT/"data"/"conflict_detection_rules.json",ROOT/"data"/"conflict_detection_rules.schema.json")
     objects=load_object_catalog();relations=load_relation_catalog(object_pack=objects)
     required_objects={"electrical_line","cable","conduit","cable_tray","distribution_box","water_supply_pipe","drainage_pipe","sprinkler_pipe","fire_pipe","duct","ceiling","ceiling_concealed_space","hanger","support","partition_wall","load_bearing_wall","beam","slab","floor","waterproof_layer","floor_drain","door","fire_door"}
     actual={x["object_type"] for x in objects["object_types"]}
@@ -40,13 +41,14 @@ def validate_catalogs()->None:
 
 def validate_knowledge_package(package:KnowledgePackage)->None:
     errors=[]
-    if package.schema_version!="1.2-c2":errors.append("schema_version 无效")
+    if package.schema_version!="1.2-c3":errors.append("schema_version 无效")
     object_catalog=load_object_catalog();relation_catalog=load_relation_catalog(object_pack=object_catalog)
     allowed_object_types={x["object_type"] for x in object_catalog["object_types"]};allowed_relation_types=set(relation_catalog["relation_types"])
     object_ids=[x.object_id for x in package.objects];relation_ids=[x.relation_id for x in package.relations];claim_ids=[x.claim_id for x in package.requirement_claims];evidence_ids=[x.evidence_id for x in package.evidence_links]
-    for label,values in (("object",object_ids),("relation",relation_ids),("claim",claim_ids),("evidence",evidence_ids)):
+    conflict_ids=[x.conflict_id for x in package.conflicts]
+    for label,values in (("object",object_ids),("relation",relation_ids),("claim",claim_ids),("evidence",evidence_ids),("conflict",conflict_ids)):
         if len(values)!=len(set(values)):errors.append(f"{label} ID 重复")
-    object_set=set(object_ids);relation_set=set(relation_ids);claim_set=set(claim_ids);evidence_set=set(evidence_ids)
+    object_set=set(object_ids);relation_set=set(relation_ids);claim_set=set(claim_ids);evidence_set=set(evidence_ids);claim_by_id={x.claim_id:x for x in package.requirement_claims}
     for item in package.objects:
         if item.object_type not in allowed_object_types:errors.append(f"Object {item.object_id} 类型无效")
         if item.id_scope!="package":errors.append(f"Object {item.object_id} ID 作用域必须为 package")
@@ -92,6 +94,17 @@ def validate_knowledge_package(package:KnowledgePackage)->None:
         if any(x not in object_set for x in plan.object_ids) or any(x not in relation_set for x in plan.relation_ids):errors.append(f"RetrievalPlan {plan.topic_id} 引用未知知识对象")
         if any(x not in evidence_set for x in plan.evidence_link_ids):errors.append(f"RetrievalPlan {plan.topic_id} 引用未知证据")
         if plan.id_scope!="package" or plan.required_evidence_role!="normative_evidence":errors.append(f"RetrievalPlan {plan.topic_id} 信任边界无效")
+    for conflict in package.conflicts:
+        if conflict.status not in CONFLICT_STATUSES:errors.append(f"Conflict {conflict.conflict_id} 状态无效")
+        if conflict.id_scope!="package":errors.append(f"Conflict {conflict.conflict_id} ID 作用域必须为 package")
+        if conflict.project_claim_id and conflict.project_claim_id not in claim_set:errors.append(f"Conflict {conflict.conflict_id} 引用未知项目 Claim")
+        if conflict.normative_claim_id and conflict.normative_claim_id not in claim_set:errors.append(f"Conflict {conflict.conflict_id} 引用未知规范 Claim")
+        if any(x not in evidence_set for x in conflict.evidence_links):errors.append(f"Conflict {conflict.conflict_id} 引用未知证据")
+        project_claim=claim_by_id.get(conflict.project_claim_id);norm_claim=claim_by_id.get(conflict.normative_claim_id)
+        if project_claim and project_claim.project_binding=="none":errors.append(f"Conflict {conflict.conflict_id} 项目 Claim 作用域错误")
+        if norm_claim and (norm_claim.project_binding!="none" or norm_claim.source_type not in {"standard_clause","normative_clause"}):errors.append(f"Conflict {conflict.conflict_id} 规范 Claim 作用域错误")
+        expected_links=set((project_claim.evidence_links if project_claim else [])+(norm_claim.evidence_links if norm_claim else []))
+        if not expected_links.issubset(set(conflict.evidence_links)):errors.append(f"Conflict {conflict.conflict_id} 未完整保留 Claim EvidenceLink")
     if package.route_metadata.get("router_is_evidence") is not False:errors.append("Router 不能标记为 Evidence")
     if errors:raise ValueError("；".join(errors))
     schema=json.loads((ROOT/"data"/"engineering_knowledge.schema.json").read_text(encoding="utf-8"))

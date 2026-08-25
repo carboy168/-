@@ -1,0 +1,28 @@
+{
+  "schema_version": 1,
+  "rules_version": "1.2-c3",
+  "minimum_comparable_score": 3,
+  "minimum_semantic_overlap": 3,
+  "matching_weights": {
+    "shared_subject": 4,
+    "same_property": 3,
+    "numeric_pair": 3,
+    "same_claim_type": 2,
+    "opposing_requirement": 3,
+    "lexical_overlap": 2
+  },
+  "positive_claim_types": ["method_requirement","material_requirement","mandatory_requirement","acceptance_requirement","responsibility_requirement","sequence_requirement"],
+  "prohibition_claim_types": ["prohibition_requirement"],
+  "unit_conversions": [
+    {"unit":"mm","canonical_unit":"mm","family":"length","factor":1},
+    {"unit":"毫米","canonical_unit":"mm","family":"length","factor":1},
+    {"unit":"cm","canonical_unit":"mm","family":"length","factor":10},
+    {"unit":"厘米","canonical_unit":"mm","family":"length","factor":10},
+    {"unit":"m","canonical_unit":"mm","family":"length","factor":1000},
+    {"unit":"米","canonical_unit":"mm","family":"length","factor":1000},
+    {"unit":"MPa","canonical_unit":"MPa","family":"pressure","factor":1},
+    {"unit":"kN","canonical_unit":"kN","family":"force","factor":1},
+    {"unit":"%","canonical_unit":"%","family":"ratio","factor":1}
+  ],
+  "semantic_stop_terms": ["必须","应当","应","不得","不应","严禁","禁止","项目","规范","要求","规定"]
+}
