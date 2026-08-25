@@ -60,7 +60,8 @@ class ReviewPage(QWidget):
         w.signals.finished.connect(self.done); w.signals.error.connect(self.error); self.pool.start(w)
 
     def done(self,result):
-        self.run_btn.setEnabled(True); self.summary.setPlainText(result.get("summary",""))
+        self.run_btn.setEnabled(True)
+        self.summary.setPlainText(result.get("summary","")+"\n\n审查问题已进入闭环，可在“审查问题”页面更新确认、整改和关闭状态。")
         rows=[]
         for f in result.get("findings",[]):
             refs=" ".join(f.get("norm_refs",[])+f.get("project_refs",[]))

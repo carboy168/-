@@ -82,6 +82,10 @@ class ConflictDetectionC3Tests(unittest.TestCase):
         evidence.linked_claim_ids=[item.claim_id for item in claims];package.evidence_links.append(evidence);package.requirement_claims.extend(claims);detect_claim_conflicts(package)
         self.assertEqual({item.status for item in package.conflicts},{"project_stricter","conflict"})
 
+    def test_unrelated_numeric_requirements_with_same_unit_are_not_compared(self):
+        package=self._package("吊杆间距不应大于1200mm。","门洞宽度不应小于900mm。",question="吊杆和门洞怎么控制？")
+        self.assertEqual(package.conflicts[0].status,"not_comparable")
+
     def test_clause_override_forces_insufficient_evidence(self):
         package=self._package("本条规定吊杆间距不应大于1200mm。","吊杆间距不应大于900mm。",code="GB 50303-2015",clause_no="3.1.5")
         self.assertEqual(package.conflicts[0].status,"insufficient_evidence")

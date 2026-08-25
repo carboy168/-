@@ -76,6 +76,7 @@ class ConflictDetector:
         if opposing:score+=weights["opposing_requirement"]
         overlap=sorted(self._tokens(project.original_text)&self._tokens(norm.original_text));basis["lexical_overlap"]=overlap
         if overlap:score+=weights["lexical_overlap"]
+        basis["identity_anchor"]=bool(shared) or len(overlap)>=self.rules["minimum_semantic_overlap"]
         basis["match_score"]=score
         return score,basis
 
@@ -156,13 +157,13 @@ class ConflictDetector:
             for norm in norms:
                 score,basis=self._match(project,norm);norm_ok,norm_reason=self._trusted(norm,package,False)
                 ranked.append((score,basis,norm,norm_ok,norm_reason))
-            comparable=[item for item in ranked if item[3] and item[0]>=self.rules["minimum_comparable_score"]]
+            comparable=[item for item in ranked if item[3] and item[0]>=self.rules["minimum_comparable_score"] and item[1].get("identity_anchor")]
             selected=comparable if project_ok and comparable else [max(ranked,key=lambda item:(item[3],item[0]))]
             for score,basis,norm,norm_ok,norm_reason in selected:
                 basis=dict(basis,project_evidence_trusted=project_ok,normative_evidence_trusted=norm_ok)
                 if not project_ok or not norm_ok:
                     status="insufficient_evidence";reason=f"证据不足：项目 Claim（{project_reason}）；规范 Claim（{norm_reason}）。";confidence="low";review=True;warnings=["未验证项目文件、失效规范或被 override 条文不得参与确定性冲突结论。"]
-                elif score<self.rules["minimum_comparable_score"]:
+                elif score<self.rules["minimum_comparable_score"] or not basis.get("identity_anchor"):
                     status="not_comparable";reason="两个已验证 Claim 的对象、属性或语义匹配度不足。";confidence="low";review=True;warnings=[]
                 else:status,reason,confidence,review,warnings,basis=self._compare(project,norm,basis)
                 results.append(self._result(len(results)+1,status,project,norm,reason,basis,confidence,review,warnings))
