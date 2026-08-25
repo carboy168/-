@@ -211,21 +211,10 @@ def route_summary(route:dict):
 
 
 def log_route(route:dict):
-    """本地记录路由结果，便于发现低置信度现场说法。不会自动改变规范映射。"""
+    """Write to the initialized route_logs table; logging must never perform DDL."""
     try:
         from db import connect
         with connect() as con:
-            con.execute("""CREATE TABLE IF NOT EXISTS route_logs(
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                question TEXT,
-                intent TEXT,
-                risk TEXT,
-                confidence TEXT,
-                top_theme TEXT,
-                primary_codes TEXT,
-                route_json TEXT,
-                created_at TEXT DEFAULT CURRENT_TIMESTAMP
-            )""")
             top=(route.get('themes') or [{}])[0].get('theme','') if route.get('themes') else ''
             con.execute("""INSERT INTO route_logs(question,intent,risk,confidence,top_theme,primary_codes,route_json)
                            VALUES(?,?,?,?,?,?,?)""",

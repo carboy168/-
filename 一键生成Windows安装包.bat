@@ -2,9 +2,14 @@
 setlocal EnableExtensions
 chcp 65001 >nul
 cd /d "%~dp0"
+for /f "tokens=2 delims==" %%V in ('findstr /b /c:"app_version=" version.ini') do set APP_VERSION=%%V
+if "%APP_VERSION%"=="" (
+  echo [错误] version.ini 缺少 app_version。
+  exit /b 1
+)
 
 echo ==========================================================
-echo 工程规范智能体 V1.0 Desktop - Windows 安装包一键构建
+echo 工程规范智能体 V%APP_VERSION% Desktop - Windows 安装包一键构建
 echo ==========================================================
 echo.
 
@@ -72,7 +77,7 @@ if errorlevel 1 goto :fail
 echo.
 echo ==========================================================
 echo 构建完成！
-echo 安装包：release\工程规范智能体_V1.0_Setup.exe
+echo 安装包：release\工程规范智能体_V%APP_VERSION%_Setup.exe
 echo 便携目录：dist\EngineeringNormAgent\
 echo ==========================================================
 pause

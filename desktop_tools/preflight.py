@@ -32,6 +32,9 @@ for required in [
     ROOT/"data"/"requirement_claim_rules.json",ROOT/"data"/"requirement_claim_rules.schema.json",ROOT/"data"/"engineering_knowledge_c2_benchmark.json",
     ROOT/"data"/"conflict_detection_rules.json",ROOT/"data"/"conflict_detection_rules.schema.json",ROOT/"data"/"engineering_knowledge_c3_benchmark.json",
     ROOT/"data"/"engineering_knowledge_c4_benchmark.json",
+    ROOT/"data"/"engineering_contracts.json",ROOT/"data"/"engineering_contracts.schema.json",
+    ROOT/"data"/"benchmark_manifest.json",ROOT/"data"/"benchmark_manifest.schema.json",
+    ROOT/"version.ini",ROOT/"versioning.py",ROOT/"desktop_tools"/"benchmark_runner.py",
     ROOT/"prompts"/"system_prompt.txt",ROOT/"assets"/"app.ico",ROOT/"installer"/"EngineeringNormAgent.spec",
     ROOT/"installer"/"EngineeringNormAgent.iss",
 ]:
@@ -71,3 +74,14 @@ print("Official source/workflow paths PASS")
 from engineering_knowledge.schema_validator import validate_catalogs
 validate_catalogs()
 print("Engineering Knowledge JSON Schema validation PASS")
+
+from desktop_tools.benchmark_runner import load_benchmark_manifest
+from versioning import APP_VERSION
+load_benchmark_manifest()
+if f'OutputBaseFilename=工程规范智能体_V{{#MyAppVersion}}_Setup' not in iss:
+    print("VERSION CHECK FAIL: installer does not derive its filename from version.ini");raise SystemExit(5)
+if 'ReadIni(SourcePath + "\\..\\version.ini"' not in iss or "version.ini" not in spec:
+    print("VERSION CHECK FAIL: build configuration does not consume version.ini");raise SystemExit(5)
+if APP_VERSION not in bat and "%APP_VERSION%" not in bat:
+    print("VERSION CHECK FAIL: local build script does not consume the version variable");raise SystemExit(5)
+print("Version and benchmark governance PASS:",APP_VERSION)

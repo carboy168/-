@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-import os,tempfile,types,unittest
+import json,os,tempfile,types,unittest
 from pathlib import Path
 
 import db
@@ -28,7 +28,8 @@ class EngineeringReviewC4Tests(unittest.TestCase):
 
     def _norm_row(self,text="吊杆间距不应大于1200mm。"):
         with db.connect() as con:
-            standard_id=con.execute("INSERT INTO standards(code,title,status,source_priority) VALUES(?,?,?,?)",("GB 55032-2022","测试规范","现行",100)).lastrowid
+            existing=con.execute("SELECT id FROM standards WHERE code=? AND title=?",("GB 55032-2022","测试规范")).fetchone()
+            standard_id=existing["id"] if existing else con.execute("INSERT INTO standards(code,title,status,source_priority) VALUES(?,?,?,?)",("GB 55032-2022","测试规范","现行",100)).lastrowid
             clause_id=con.execute("INSERT INTO clauses(standard_id,clause_no,content,source_file) VALUES(?,?,?,?)",(standard_id,"1.0.1",text,"trusted-c4.pdf")).lastrowid
             return dict(con.execute("""SELECT c.id AS clause_id,c.clause_no,c.page_no,c.heading,c.content,
                 s.id AS standard_id,s.code,s.title,s.status,s.mandatory_level,s.source_url,s.source_priority,s.effective_date
@@ -84,6 +85,33 @@ class EngineeringReviewC4Tests(unittest.TestCase):
         text=knowledge_summary(package)
         for label in ("工程知识摘要","证据状态","要求 Claim","冲突检查","结论边界"):self.assertIn(label,text)
         self.assertNotIn("match_score",text);self.assertNotIn("lexical_overlap",text)
+
+    def test_c4_benchmark_fixture_drives_all_declared_cases(self):
+        fixture=json.loads((ROOT/"data"/"engineering_knowledge_c4_benchmark.json").read_text(encoding="utf-8"))
+        case_ids={case["id"] for case in fixture["cases"]}
+        self.assertEqual(case_ids,{
+            "qa-summary-shows-evidence-boundary","confirmed-project-requirement-enters-comparison",
+            "unverified-project-chunk-needs-confirmation","review-finding-enters-existing-closure","inactive-project-requirement-ignored",
+        })
+        for case in fixture["cases"]:
+            with self.subTest(case=case["id"]):
+                if case["id"]=="qa-summary-shows-evidence-boundary":
+                    package=build_knowledge_package("吊杆间距怎么控制？");bind_retrieved_clauses(package,[self._norm_row()]);detect_claim_conflicts(package)
+                    text=knowledge_summary(package)
+                    for label in case["required_labels"]:self.assertIn(label,text)
+                elif case["id"]=="confirmed-project-requirement-enters-comparison":
+                    package,findings,_=_engineering_conflict_overlay({"id":self.project_id,"name":"测试项目"},"施工图审查","吊杆间距",[self._norm_row()],[],[self._requirement()])
+                    self.assertEqual(package.conflicts[0].status,case["expected_status"]);self.assertEqual(findings[0]["norm_refs"]+findings[0]["project_refs"],case["required_refs"])
+                elif case["id"]=="unverified-project-chunk-needs-confirmation":
+                    norm=self._norm_row();chunk={"chunk_id":7,"file_id":3,"content":"吊杆间距不得小于1500mm。","title":"未确认图纸","doc_type":"施工图纸"}
+                    package=build_knowledge_package("吊杆间距怎么控制？");bind_retrieved_clauses(package,[norm]);bind_project_chunks(package,[chunk]);detect_claim_conflicts(package)
+                    findings,_=review_conflict_findings(package,[norm],[chunk],[]);self.assertEqual(package.conflicts[0].status,case["expected_status"]);self.assertEqual(findings[0]["evidence_grade"],case["evidence_grade"])
+                elif case["id"]=="review-finding-enters-existing-closure":
+                    _,findings,_=_engineering_conflict_overlay({"id":self.project_id,"name":"测试项目"},"施工图审查","吊杆间距",[self._norm_row()],[],[self._requirement()])
+                    self.assertEqual((findings[0]["finding_type"],findings[0]["status"]),(case["finding_type"],case["status"]))
+                else:
+                    package=build_knowledge_package("吊杆间距怎么控制？");before=len(package.requirement_claims);bind_project_requirements(package,[self._requirement(status="失效")])
+                    self.assertEqual(len(package.requirement_claims)-before,case["expected_claim_count"])
 
 
 if __name__=="__main__":unittest.main()

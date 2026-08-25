@@ -2,10 +2,10 @@ from __future__ import annotations
 import json, logging, os, shutil, sys, traceback, zipfile
 from datetime import datetime
 from pathlib import Path
+from versioning import APP_VERSION
 
 APP_NAME = "工程规范智能体"
 APP_ID = "EngineeringNormAgent"
-APP_VERSION = "1.0.0-desktop"
 PUBLISHER = "Engineering Norm Agent"
 
 def resource_root() -> Path:

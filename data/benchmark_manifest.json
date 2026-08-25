@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "runner_version": "1.3-0",
+  "suites": [
+    {"suite_id": "topic-router", "fixture": "data/topic_router_benchmark.json", "test_module": "tests.test_topic_router"},
+    {"suite_id": "knowledge-c0", "fixture": "data/engineering_knowledge_benchmark.json", "test_module": "tests.test_engineering_knowledge"},
+    {"suite_id": "knowledge-c1", "fixture": "data/engineering_knowledge_c1_benchmark.json", "test_module": "tests.test_engineering_knowledge_c1"},
+    {"suite_id": "knowledge-c2", "fixture": "data/engineering_knowledge_c2_benchmark.json", "test_module": "tests.test_requirement_claims_c2"},
+    {"suite_id": "knowledge-c3", "fixture": "data/engineering_knowledge_c3_benchmark.json", "test_module": "tests.test_conflict_detection_c3"},
+    {"suite_id": "knowledge-c4", "fixture": "data/engineering_knowledge_c4_benchmark.json", "test_module": "tests.test_engineering_review_c4"}
+  ]
+}
+

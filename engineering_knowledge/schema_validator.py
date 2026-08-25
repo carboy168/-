@@ -7,6 +7,7 @@ from engineering_knowledge.catalog import load_object_catalog,load_relation_cata
 from engineering_knowledge.models import CLAIM_TYPES,CONFLICT_STATUSES,KnowledgePackage
 from engineering_knowledge.models import ASSERTION_STATUSES,EVIDENCE_ROLES,EVIDENCE_STATUSES
 from engineering_knowledge.evidence_trust import EvidenceTrustPolicy,FORBIDDEN_NORMATIVE_SOURCE_TYPES
+from engineering_knowledge.contracts import assert_readable_version,assert_writable_version,load_contract_registry,schema_for_version
 from engineering_knowledge.json_schema import validate_instance,validate_json_file
 
 FORBIDDEN_EVIDENCE_TYPES={"router_candidate"}
@@ -14,6 +15,7 @@ ROOT=Path(__file__).resolve().parents[1]
 
 
 def validate_catalogs()->None:
+    load_contract_registry()
     validate_json_file(ROOT/"data"/"engineering_objects.json",ROOT/"data"/"engineering_objects.schema.json")
     validate_json_file(ROOT/"data"/"engineering_relations.json",ROOT/"data"/"engineering_relations.schema.json")
     validate_json_file(ROOT/"data"/"topic_crosswalk.json",ROOT/"data"/"topic_crosswalk.schema.json")
@@ -39,9 +41,10 @@ def validate_catalogs()->None:
         if unknown_objects or unknown_relations or unknown_topics or edge_topics:raise ValueError(f"Topic Crosswalk 关系映射引用无效：{sorted(unknown_objects|unknown_relations|unknown_topics|edge_topics)}")
 
 
-def validate_knowledge_package(package:KnowledgePackage)->None:
+def validate_knowledge_package(package:KnowledgePackage,*,for_write:bool=True)->None:
     errors=[]
-    if package.schema_version!="1.2-c3":errors.append("schema_version 无效")
+    try:(assert_writable_version if for_write else assert_readable_version)(package.schema_version)
+    except ValueError as exc:errors.append(str(exc))
     object_catalog=load_object_catalog();relation_catalog=load_relation_catalog(object_pack=object_catalog)
     allowed_object_types={x["object_type"] for x in object_catalog["object_types"]};allowed_relation_types=set(relation_catalog["relation_types"])
     object_ids=[x.object_id for x in package.objects];relation_ids=[x.relation_id for x in package.relations];claim_ids=[x.claim_id for x in package.requirement_claims];evidence_ids=[x.evidence_id for x in package.evidence_links]
@@ -107,5 +110,5 @@ def validate_knowledge_package(package:KnowledgePackage)->None:
         if not expected_links.issubset(set(conflict.evidence_links)):errors.append(f"Conflict {conflict.conflict_id} 未完整保留 Claim EvidenceLink")
     if package.route_metadata.get("router_is_evidence") is not False:errors.append("Router 不能标记为 Evidence")
     if errors:raise ValueError("；".join(errors))
-    schema=json.loads((ROOT/"data"/"engineering_knowledge.schema.json").read_text(encoding="utf-8"))
+    schema=schema_for_version(package.schema_version)
     validate_instance(package.to_dict(),schema)
