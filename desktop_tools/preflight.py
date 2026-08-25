@@ -75,6 +75,10 @@ from engineering_knowledge.schema_validator import validate_catalogs
 validate_catalogs()
 print("Engineering Knowledge JSON Schema validation PASS")
 
+from engineering_knowledge.json_schema import validate_json_file
+validate_json_file(ROOT/"data"/"topic_router.json",ROOT/"data"/"topic_router.schema.json")
+print("Topic Router JSON Schema validation PASS")
+
 from desktop_tools.benchmark_runner import load_benchmark_manifest
 from versioning import APP_VERSION
 load_benchmark_manifest()

@@ -59,17 +59,24 @@ class TopicRouter:
     def _confidence(score:float,thresholds:dict)->str:
         return "high" if score>=thresholds.get("high",60) else ("medium" if score>=thresholds.get("medium",30) else "low")
 
+    @staticmethod
+    def _term_is_negated(text:str,term:str)->bool:
+        """Return true when every occurrence is inside a short, explicit negation scope."""
+        matches=list(re.finditer(re.escape(term.lower()),text.lower()))
+        if not matches:return False
+        return all(re.search(r"(?:不是|并非|不属于|不算|非)\s*$",text[max(0,m.start()-6):m.start()]) for m in matches)
+
     def _score(self,rule:dict,q:str,mappings:list[NormalizedTerm],project_blob:str,explicit_code:str)->tuple[float,list[str],list[str]]:
         score=0.0;hits=[];signals=set()
         for phrase in rule.get("phrases",[]):
-            if phrase.lower() in q:score+=24+min(len(phrase),12)*0.4;hits.append(phrase);signals.add("phrase")
+            if phrase.lower() in q and not self._term_is_negated(q,phrase):score+=24+min(len(phrase),12)*0.4;hits.append(phrase);signals.add("phrase")
         for term in rule.get("site_terms",[]):
-            if term.lower() in q:score+=20+min(len(term),10)*0.5;hits.append(term);signals.add("site")
+            if term.lower() in q and not self._term_is_negated(q,term):score+=20+min(len(term),10)*0.5;hits.append(term);signals.add("site")
         for alias in rule.get("aliases",[]):
-            if alias.lower() in q:score+=14+min(len(alias),8)*0.4;hits.append(alias);signals.add("alias")
+            if alias.lower() in q and not self._term_is_negated(q,alias):score+=14+min(len(alias),8)*0.4;hits.append(alias);signals.add("alias")
         for item in rule.get("positive_terms",[]):
-            if item["term"].lower() in q:score+=float(item.get("weight",5));hits.append(item["term"]);signals.add("positive")
-        context_hits=[x for x in rule.get("context_terms",[]) if x.lower() in q]
+            if item["term"].lower() in q and not self._term_is_negated(q,item["term"]):score+=float(item.get("weight",5));hits.append(item["term"]);signals.add("positive")
+        context_hits=[x for x in rule.get("context_terms",[]) if x.lower() in q and not self._term_is_negated(q,x)]
         if context_hits:score+=min(10,len(context_hits)*3);hits+=context_hits;signals.add("context")
         normalized_hits=[m.original for m in mappings if any(x.lower() in q for x in m.normalized)]
         if normalized_hits and any(x in hits for x in normalized_hits):score+=5
@@ -79,7 +86,7 @@ class TopicRouter:
         all_codes=rule.get("governing_standards",[])+rule.get("primary_standards",[])+rule.get("companion_standards",[])
         if explicit_code and explicit_code in all_codes:score+=18;signals.add("explicit")
         for item in rule.get("negative_terms",[]):
-            if item["term"].lower() in q:score-=float(item.get("weight",10));hits.append("排除:"+item["term"]);signals.add("negative")
+            if item["term"].lower() in q and not self._term_is_negated(q,item["term"]):score-=float(item.get("weight",10));hits.append("排除:"+item["term"]);signals.add("negative")
         score=max(0.0,min(100.0,score))
         subtopics=[]
         for sub,terms in rule.get("subtopic_terms",{}).items():

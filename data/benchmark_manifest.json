@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "runner_version": "1.3-0",
+  "runner_version": "1.3-a",
   "suites": [
     {"suite_id": "topic-router", "fixture": "data/topic_router_benchmark.json", "test_module": "tests.test_topic_router"},
     {"suite_id": "knowledge-c0", "fixture": "data/engineering_knowledge_benchmark.json", "test_module": "tests.test_engineering_knowledge"},
@@ -10,4 +10,3 @@
     {"suite_id": "knowledge-c4", "fixture": "data/engineering_knowledge_c4_benchmark.json", "test_module": "tests.test_engineering_review_c4"}
   ]
 }
-

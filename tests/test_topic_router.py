@@ -4,6 +4,7 @@ from pathlib import Path
 from unittest.mock import patch
 
 import db
+from engineering_knowledge.json_schema import validate_json_file
 from routing.explicit_parser import parse_explicit_reference
 from routing.standard_policy import StandardPolicyService
 from routing.topic_router import TopicRouter,load_topic_catalog
@@ -16,10 +17,29 @@ class TopicRouterTests(unittest.TestCase):
     def tearDown(self):db.DB_PATH=self.old_db;self.tmp.cleanup()
 
     def test_catalog_and_schema_load(self):
-        pack=load_topic_catalog();self.assertEqual(pack["schema_version"],1);self.assertEqual(pack["router_version"],"1.2-b");self.assertEqual(len(pack["topics"]),8)
+        pack=load_topic_catalog();self.assertEqual(pack["schema_version"],1);self.assertEqual(pack["router_version"],"1.3-a");self.assertEqual(len(pack["topics"]),25)
         self.assertEqual({x["value"] for x in pack["project_stages"]},{"pre_construction","construction","acceptance","maintenance","renovation","unknown"})
         self.assertEqual({x["value"] for x in pack["user_roles"]},{"construction","designer","supervision","owner","cost","general","unknown"})
-        schema=json.loads((Path(__file__).resolve().parents[1]/"data"/"topic_router.schema.json").read_text(encoding="utf-8"));self.assertIn("topics",schema["properties"])
+        root=Path(__file__).resolve().parents[1]
+        schema=json.loads((root/"data"/"topic_router.schema.json").read_text(encoding="utf-8"));self.assertIn("topics",schema["properties"])
+        validate_json_file(root/"data"/"topic_router.json",root/"data"/"topic_router.schema.json")
+
+    def test_v13a_topic_taxonomy_crosswalk_and_standard_policy_coverage(self):
+        expected={
+            "temporary_power","ceiling","building_electrical","building_plumbing","decoration_quality",
+            "waterproof_leakage","scaffold","existing_building_alteration","high_altitude_work",
+            "fire_protection_system","fire_compartment","penetration_firestopping","hvac",
+            "support_and_hanger","mep_coordination","partition_wall","plastering","tile_finish",
+            "flooring","doors_windows","indoor_environment","accessibility",
+            "finished_product_protection","quality_acceptance","safety_civilized_construction",
+        }
+        pack=load_topic_catalog();self.assertEqual({x["topic_id"] for x in pack["topics"]},expected)
+        crosswalk=json.loads((Path(__file__).resolve().parents[1]/"data"/"topic_crosswalk.json").read_text(encoding="utf-8"))
+        self.assertEqual(crosswalk["crosswalk_version"],"1.3-a");self.assertTrue(expected.issubset(crosswalk["topics"]))
+        candidates=[]
+        for topic in pack["topics"]:candidates+=topic["governing_standards"]+topic["primary_standards"]+topic["companion_standards"]
+        _,_,statuses=StandardPolicyService().validate(candidates)
+        self.assertTrue(statuses);self.assertFalse([x for x in statuses if x["status"]=="待核验"])
 
     def test_site_term_normalization_keeps_original_mapping(self):
         text,mappings=TopicRouter().normalize("飞线拖地，卫生间二排漏水")
@@ -48,6 +68,11 @@ class TopicRouterTests(unittest.TestCase):
         router=TopicRouter();plain=router.route("架子怎么布置").topics[0].numeric_score
         project=router.route("架子怎么布置",{"scopes":["施工安全","脚手架"]}).topics[0].numeric_score
         self.assertGreater(project,plain);self.assertFalse(router.route("衣架怎么布置").topics)
+
+    def test_explicit_negation_does_not_become_a_positive_topic_signal(self):
+        result=TopicRouter().route("这不是临时用电问题，我问的是建筑永久配电箱验收。")
+        visible={x.topic_id for x in result.topics if x.confidence!="low"}
+        self.assertIn("building_electrical",visible);self.assertNotIn("temporary_power",visible)
 
     def test_superseded_alias_and_clause_override(self):
         policy=StandardPolicyService()

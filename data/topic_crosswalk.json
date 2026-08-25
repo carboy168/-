@@ -1,9 +1,12 @@
 {
   "schema_version": 1,
-  "crosswalk_version": "1.2-c1",
+  "crosswalk_version": "1.3-a",
   "topics": {
     "building_electrical": {"profession":"建筑电气","system":"建筑电气系统"},
     "building_plumbing": {"profession":"建筑给排水","system":"给排水系统"},
+    "temporary_power": {"profession":"施工安全","system":"施工现场临时用电"},
+    "high_altitude_work": {"profession":"施工安全","system":"高处作业防护"},
+    "scaffold": {"profession":"施工安全","system":"脚手架工程"},
     "ceiling": {"profession":"装饰装修","system":"吊顶/隐蔽空间"},
     "mep_coordination": {"profession":"机电综合","system":"机电综合协调"},
     "hvac": {"profession":"暖通空调","system":"通风空调系统"},
@@ -14,6 +17,16 @@
     "structural_safety": {"profession":"结构","system":"结构安全"},
     "waterproof_leakage": {"profession":"建筑防水","system":"防水系统"},
     "decoration_quality": {"profession":"装饰装修","system":"装饰装修质量验收"},
+    "partition_wall": {"profession":"装饰装修","system":"轻质隔墙工程"},
+    "plastering": {"profession":"装饰装修","system":"抹灰工程"},
+    "tile_finish": {"profession":"装饰装修","system":"饰面砖工程"},
+    "flooring": {"profession":"装饰装修","system":"建筑地面工程"},
+    "doors_windows": {"profession":"装饰装修","system":"门窗工程"},
+    "indoor_environment": {"profession":"室内环境","system":"民用建筑室内环境"},
+    "accessibility": {"profession":"无障碍","system":"建筑无障碍设施"},
+    "finished_product_protection": {"profession":"工程管理","system":"成品保护"},
+    "quality_acceptance": {"profession":"质量管理","system":"建筑工程质量验收"},
+    "safety_civilized_construction": {"profession":"施工安全","system":"安全文明施工"},
     "support_and_hanger": {"profession":"机电综合","system":"支吊架系统"},
     "existing_building_alteration": {"profession":"既有建筑","system":"既有建筑改造"},
     "requires_coordination": {"profession":"机电综合","system":"专业协调"}
@@ -25,10 +38,13 @@
     {"object_types":["duct"],"topic_ids":["hvac"],"query_terms":["通风管道","风管安装"]},
     {"object_types":["ceiling","ceiling_concealed_space","ceiling_keel","hanger"],"topic_ids":["ceiling"],"query_terms":["吊顶隐蔽空间","吊顶工程"]},
     {"object_types":["fire_wall","fire_door"],"topic_ids":["fire_compartment"],"query_terms":["防火分隔"]},
-    {"object_types":["support"],"topic_ids":["support_and_hanger"],"query_terms":["支吊架"]},
+    {"object_types":["support","hanger"],"topic_ids":["support_and_hanger"],"query_terms":["支吊架"]},
     {"object_types":["load_bearing_wall","beam","slab"],"topic_ids":["structural_safety","existing_building_alteration"],"query_terms":["结构安全","既有建筑改造"]},
     {"object_types":["waterproof_layer"],"topic_ids":["waterproof_leakage"],"query_terms":["防水层","渗漏"]},
-    {"object_types":["wall_finish","floor"],"topic_ids":["decoration_quality"],"query_terms":["装饰装修质量验收"]}
+    {"object_types":["wall_finish"],"topic_ids":["decoration_quality","plastering","tile_finish"],"query_terms":["装饰装修质量验收","墙面工程"]},
+    {"object_types":["partition_wall"],"topic_ids":["partition_wall"],"query_terms":["轻质隔墙","隔墙工程"]},
+    {"object_types":["floor"],"topic_ids":["flooring","decoration_quality"],"query_terms":["建筑地面","地面质量验收"]},
+    {"object_types":["door"],"topic_ids":["doors_windows"],"query_terms":["门窗工程","门窗节点"]}
   ],
   "relation_mappings": [
     {"subject_types":["electrical_line","cable","conduit","cable_tray"],"relation_types":["adjacent_to","crosses","located_above","located_below"],"object_types":["water_supply_pipe","drainage_pipe"],"topic_ids":["building_electrical","building_plumbing","mep_coordination"],"graph_edges":[{"source":"building_electrical","edge_type":"requires_coordination_with","target":"building_plumbing"}],"query_terms":["与其他管线关系","机电管线综合协调"],"reason_template":"{subject_type} {relation_type} {object_type}"},

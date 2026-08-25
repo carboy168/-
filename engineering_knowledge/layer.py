@@ -13,10 +13,14 @@ def extract_question_knowledge(question:str,source_id:str="question"):
 
 
 def _topic_list(route:dict,crosswalk:CrosswalkResult|None,objects,relations)->list[dict]:
-    topics=[];seen=set()
+    topics=[];seen=set();crosswalk_ids=set(crosswalk.topic_ids if crosswalk else [])
     for item in route.get("themes",[]):
         topic_id=item.get("id","")
-        if topic_id and topic_id not in seen:topics.append(dict(item,source="topic_router"));seen.add(topic_id)
+        if topic_id and topic_id not in seen:
+            source="topic_crosswalk" if topic_id in crosswalk_ids else "topic_router"
+            payload=dict(item,source=source)
+            if topic_id in crosswalk_ids:payload["sources"]=["topic_router","topic_crosswalk"]
+            topics.append(payload);seen.add(topic_id)
     if crosswalk is not None:
         for topic_id in crosswalk.topic_ids:
             if topic_id not in seen:topics.append({"id":topic_id,"source":"topic_crosswalk","confidence":"medium"});seen.add(topic_id)

@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "router_version": "1.2-b",
+  "router_version": "1.3-a",
   "project_stages": [
     {"value":"pre_construction","aliases":["施工准备","开工准备"],"terms":[{"term":"施工前","weight":35},{"term":"开工前","weight":45},{"term":"进场前","weight":35},{"term":"准备阶段","weight":30}],"query_expansions":["施工准备","开工条件"],"confidence_threshold":{"high":55,"medium":25}},
     {"value":"construction","aliases":["施工","施工过程"],"terms":[{"term":"施工中","weight":55},{"term":"施工过程","weight":50},{"term":"正在施工","weight":55},{"term":"闭水时","weight":30},{"term":"安装时","weight":30},{"term":"铺贴时","weight":30}],"query_expansions":["施工过程","过程质量控制"],"confidence_threshold":{"high":55,"medium":25}},
@@ -43,7 +43,17 @@
     {"original":"吊杆","normalized":["吊顶吊杆"]},
     {"original":"瓷砖","normalized":["饰面砖"]},
     {"original":"给水管","normalized":["建筑给水管道"]},
-    {"original":"线管","normalized":["电气导管"]}
+    {"original":"线管","normalized":["电气导管"]},
+    {"original":"临边","normalized":["临边作业","高处坠落防护"]},
+    {"original":"洞口","normalized":["洞口防护"]},
+    {"original":"消火栓","normalized":["消防给水设施"]},
+    {"original":"喷淋","normalized":["自动喷水灭火系统"]},
+    {"original":"风管","normalized":["通风空调管道"]},
+    {"original":"共架","normalized":["共用支吊架"]},
+    {"original":"轻质墙","normalized":["轻质隔墙"]},
+    {"original":"找平层","normalized":["地面找平层"]},
+    {"original":"收口","normalized":["节点收口"]},
+    {"original":"无障碍厕所","normalized":["无障碍卫生间"]}
   ],
   "topics": [
     {
@@ -64,8 +74,8 @@
       "subtopics":["吊杆安装","主副龙骨","吊顶隐蔽空间","吊顶内管线/设备","检修空间"],
       "subtopic_terms":{"吊杆安装":["吊杆"],"主副龙骨":["主龙骨","副龙骨","天花龙骨"],"吊顶隐蔽空间":["吊顶里面","吊顶内","隐蔽空间"],"吊顶内管线/设备":["吊顶内管线","吊顶内部设备","管线交叉"],"检修空间":["检修空间","检修口"]},
       "aliases":["天花","天花板","天花龙骨"],
-      "site_terms":["吊顶吊杆","主龙骨","副龙骨","吊顶间距","天花龙骨","吊顶里面"],
-      "phrases":["吊顶吊杆间距","主龙骨间距","吊顶里面"],
+      "site_terms":["吊顶吊杆","主龙骨","副龙骨","吊顶间距","天花龙骨","吊顶里面","吊顶内","吊顶里","吊顶里的"],
+      "phrases":["吊顶吊杆间距","主龙骨间距","吊顶里面","吊顶内管线"],
       "positive_terms":[{"term":"吊顶","weight":13},{"term":"吊杆","weight":13},{"term":"龙骨","weight":12},{"term":"间距","weight":7},{"term":"天花","weight":10}],
       "negative_terms":[{"term":"吊篮","weight":30},{"term":"脚手架","weight":18}],
       "context_terms":["安装","间距","隐蔽","里面"],
@@ -78,9 +88,9 @@
       "subtopics":["吊顶内电气线路","电气管线交叉/间距","配电与用电设备","接地/等电位"],
       "subtopic_terms":{"吊顶内电气线路":["吊顶里面电线","吊顶内电气","吊顶内线路"],"电气管线交叉/间距":["贴着给水管","管线交叉","管线间距","强弱电"],"配电与用电设备":["配电箱","开关插座"],"接地/等电位":["接地","等电位"]},
       "aliases":["建筑电气","强电","弱电","强弱电"],
-      "site_terms":["电线","线管","配电箱","开关插座","接地","等电位","强弱电"],
+      "site_terms":["电线","线管","电缆桥架","配电箱","开关插座","接地","等电位","强弱电"],
       "phrases":["吊顶里面电线","吊顶内电气线路","电线贴着给水管","电气与其它管线交叉","强弱电间距"],
-      "positive_terms":[{"term":"电线","weight":12},{"term":"电缆","weight":10},{"term":"线管","weight":12},{"term":"给水管","weight":8},{"term":"吊顶","weight":8},{"term":"交叉","weight":9}],
+      "positive_terms":[{"term":"电线","weight":12},{"term":"电缆","weight":10},{"term":"线管","weight":12},{"term":"配电箱","weight":16},{"term":"给水管","weight":8},{"term":"吊顶","weight":8},{"term":"交叉","weight":9}],
       "negative_terms":[{"term":"施工现场电缆","weight":40},{"term":"临时电缆","weight":40},{"term":"临时用电","weight":45},{"term":"拖地","weight":35},{"term":"放地上","weight":35},{"term":"车压","weight":35}],
       "context_terms":["建筑","安装","吊顶","管线","隐蔽"],
       "governing_standards":["GB 55024-2022"],"primary_standards":["GB 50303-2015"],"companion_standards":[],
@@ -153,6 +163,193 @@
       "governing_standards":["GB 55021-2021"],"primary_standards":["GB 55022-2021"],"companion_standards":[],
       "query_expansions":["既有建筑改造","结构安全","承重构件","拆除前鉴定","结构加固"],
       "confidence_threshold":{"high":58,"medium":30}
+    },
+    {
+      "topic_id":"high_altitude_work","profession":"施工安全","topic":"高处作业",
+      "subtopics":["临边/洞口防护","登高作业","安全带/防坠落"],
+      "subtopic_terms":{"临边/洞口防护":["临边","洞口","防护栏杆"],"登高作业":["高处作业","登高","多少米"],"安全带/防坠落":["安全带","防坠器","坠落"]},
+      "aliases":["高空作业","登高作业","临边作业"],"site_terms":["高处作业","临边防护","洞口防护","安全带","高空干活"],
+      "phrases":["高处作业多少米","临边需要怎么防护","洞口怎么盖","安全带怎么挂"],
+      "positive_terms":[{"term":"高处","weight":17},{"term":"高空","weight":17},{"term":"临边","weight":18},{"term":"洞口","weight":14},{"term":"安全带","weight":17},{"term":"坠落","weight":14}],
+      "negative_terms":[{"term":"高处水箱","weight":30},{"term":"洞口尺寸验收","weight":12},{"term":"防火封堵","weight":30},{"term":"防火墙","weight":25}],"context_terms":["施工","作业","防护","人员"],
+      "governing_standards":["GB 55034-2022"],"primary_standards":["JGJ 80-2016"],"companion_standards":["JGJ 59-2011"],
+      "query_expansions":["高处作业","临边防护","洞口防护","坠落防护","安全带"],"confidence_threshold":{"high":58,"medium":30}
+    },
+    {
+      "topic_id":"fire_protection_system","profession":"消防","topic":"消防设施",
+      "subtopics":["消防给水/消火栓","自动喷水灭火系统","火灾报警/应急照明"],
+      "subtopic_terms":{"消防给水/消火栓":["消防管","消火栓"],"自动喷水灭火系统":["喷淋","喷头"],"火灾报警/应急照明":["报警","烟感","应急照明"]},
+      "aliases":["消防系统","消防设施","喷淋系统"],"site_terms":["消防管道","消火栓","喷淋管","喷头","烟感","消防报警"],
+      "phrases":["消防管道能不能喷漆","喷淋管能不能共架","消火栓前面能遮挡吗"],
+      "positive_terms":[{"term":"消防","weight":16},{"term":"喷淋","weight":17},{"term":"消火栓","weight":18},{"term":"喷头","weight":13},{"term":"报警","weight":10},{"term":"烟感","weight":14}],
+      "negative_terms":[{"term":"防火墙","weight":18},{"term":"防火分隔","weight":25}],"context_terms":["管道","设施","安装","验收"],
+      "governing_standards":["GB 55036-2022"],"primary_standards":["GB 50261-2017","GB 50974-2014"],"companion_standards":["GB 50166-2019","GB 51309-2018"],
+      "query_expansions":["消防设施","消防给水","自动喷水灭火系统","火灾报警","应急照明"],"confidence_threshold":{"high":58,"medium":30}
+    },
+    {
+      "topic_id":"fire_compartment","profession":"建筑防火","topic":"防火分隔",
+      "subtopics":["防火墙/防火分区","防火门","装修材料防火"],
+      "subtopic_terms":{"防火墙/防火分区":["防火墙","防火分区","防火分隔"],"防火门":["防火门"],"装修材料防火":["装修材料","燃烧性能"]},
+      "aliases":["防火分区","防火墙","防火隔断"],"site_terms":["防火门","防火墙","防火分隔","防火卷帘"],
+      "phrases":["防火门能不能常开","防火墙上能不能开洞","装修材料防火等级"],
+      "positive_terms":[{"term":"防火","weight":14},{"term":"分隔","weight":17},{"term":"防火门","weight":18},{"term":"防火墙","weight":18},{"term":"防火分区","weight":18}],
+      "negative_terms":[{"term":"消防喷淋","weight":25},{"term":"消火栓","weight":25}],"context_terms":["建筑","分区","墙体","门"],
+      "governing_standards":["GB 55037-2022"],"primary_standards":["GB 50016-2014（2018年版）"],"companion_standards":["GB 50222-2017"],
+      "query_expansions":["建筑防火","防火分隔","防火墙","防火门","防火分区"],"confidence_threshold":{"high":58,"medium":30}
+    },
+    {
+      "topic_id":"penetration_firestopping","profession":"建筑防火","topic":"穿墙/穿楼板防火封堵",
+      "subtopics":["管线贯穿孔口","电缆孔洞封堵","风管穿防火分隔"],
+      "subtopic_terms":{"管线贯穿孔口":["管线穿墙","穿楼板"],"电缆孔洞封堵":["电缆穿墙","桥架穿墙"],"风管穿防火分隔":["风管穿防火墙"]},
+      "aliases":["防火封堵","孔洞封堵","贯穿封堵"],"site_terms":["穿墙封堵","穿楼板封堵","桥架防火封堵","套管封堵"],
+      "phrases":["电缆穿防火墙怎么封堵","管道穿楼板洞口怎么封","风管穿防火墙"],
+      "positive_terms":[{"term":"穿墙","weight":15},{"term":"穿楼板","weight":18},{"term":"贯穿","weight":14},{"term":"封堵","weight":18},{"term":"孔洞","weight":11},{"term":"桥架","weight":8}],
+      "negative_terms":[{"term":"普通门洞","weight":25},{"term":"承重墙开洞","weight":28}],"context_terms":["防火","管线","套管","洞口"],
+      "governing_standards":["GB 55037-2022"],"primary_standards":[],"companion_standards":["GB 50016-2014（2018年版）"],
+      "query_expansions":["贯穿孔口防火封堵","管线穿墙","穿楼板","防火材料","孔洞封堵"],"confidence_threshold":{"high":58,"medium":30}
+    },
+    {
+      "topic_id":"hvac","profession":"暖通空调","topic":"暖通空调",
+      "subtopics":["风管安装","通风/排烟","空调水系统"],
+      "subtopic_terms":{"风管安装":["风管","风口"],"通风/排烟":["通风","排烟"],"空调水系统":["冷冻水","冷凝水"]},
+      "aliases":["暖通","通风空调","空调系统"],"site_terms":["风管","风口","排烟管","冷凝水管","空调水管"],
+      "phrases":["风管穿防火墙怎么处理","吊顶里面风管和喷淋打架","空调冷凝水坡度"],
+      "positive_terms":[{"term":"风管","weight":18},{"term":"通风","weight":15},{"term":"空调","weight":13},{"term":"排烟","weight":17},{"term":"风口","weight":12},{"term":"冷凝水","weight":14}],
+      "negative_terms":[{"term":"空调插座","weight":24}],"context_terms":["安装","吊顶","管线","设备"],
+      "governing_standards":["GB 55036-2022"],"primary_standards":["GB 50243-2016"],"companion_standards":["GB 51251-2017"],
+      "query_expansions":["通风与空调","风管安装","防烟排烟","空调水系统","冷凝水"],"confidence_threshold":{"high":58,"medium":30}
+    },
+    {
+      "topic_id":"support_and_hanger","profession":"机电综合","topic":"支吊架",
+      "subtopics":["管道支架","吊架间距","共用支吊架"],
+      "subtopic_terms":{"管道支架":["管道支架"],"吊架间距":["支架间距","吊架间距"],"共用支吊架":["共用支架","共架"]},
+      "aliases":["支架","吊架","共架"],"site_terms":["管道支吊架","桥架支架","风管吊架","共用支架"],
+      "phrases":["电线管和喷淋管能不能共用支架","管道支架间距","吊架固定在哪里"],
+      "positive_terms":[{"term":"支架","weight":17},{"term":"吊架","weight":17},{"term":"支吊架","weight":19},{"term":"共架","weight":18},{"term":"固定","weight":7}],
+      "negative_terms":[{"term":"脚手架","weight":40},{"term":"衣架","weight":40}],"context_terms":["管道","风管","桥架","安装"],
+      "governing_standards":["GB 55032-2022"],"primary_standards":[],"companion_standards":["GB 50242-2002","GB 50243-2016"],
+      "query_expansions":["机电支吊架","管道支架","吊架间距","共用支架","固定方式"],"confidence_threshold":{"high":58,"medium":30}
+    },
+    {
+      "topic_id":"mep_coordination","profession":"机电综合","topic":"管线综合协调",
+      "subtopics":["专业交叉/净距","综合排布","检修与净高"],
+      "subtopic_terms":{"专业交叉/净距":["交叉","贴着","间距"],"综合排布":["管综","综合排布","碰撞"],"检修与净高":["检修空间","净高"]},
+      "aliases":["管综","机电综合","管线协调"],"site_terms":["管线打架","管线碰撞","共用支架","管线交叉"],
+      "phrases":["吊顶里面电线贴着给水管","风管和喷淋管打架","风管和消防喷淋管打架","机电管线怎么排"],
+      "positive_terms":[{"term":"管线","weight":11},{"term":"交叉","weight":14},{"term":"贴着","weight":13},{"term":"打架","weight":18},{"term":"碰撞","weight":18},{"term":"净高","weight":12},{"term":"管综","weight":18}],
+      "negative_terms":[{"term":"单根管道坡度","weight":20}],"context_terms":["吊顶","机电","综合","间距"],
+      "governing_standards":["GB 55032-2022"],"primary_standards":[],"companion_standards":["GB 55020-2021","GB 55024-2022","GB 55036-2022"],
+      "query_expansions":["机电管线综合","专业协调","管线交叉","安装净距","检修空间","净高"],"confidence_threshold":{"high":60,"medium":32}
+    },
+    {
+      "topic_id":"partition_wall","profession":"装饰装修","topic":"隔墙工程",
+      "subtopics":["轻钢龙骨隔墙","板材安装","挂重物/节点加固"],
+      "subtopic_terms":{"轻钢龙骨隔墙":["轻钢龙骨隔墙","轻质隔墙"],"板材安装":["石膏板","板缝"],"挂重物/节点加固":["挂重物","加固板"]},
+      "aliases":["轻质隔墙","轻钢龙骨墙","石膏板墙"],"site_terms":["隔墙","轻质墙","石膏板隔墙","隔墙挂重物"],
+      "phrases":["轻钢龙骨隔墙可以挂重物吗","隔墙板缝怎么处理","轻质隔墙怎么验收"],
+      "positive_terms":[{"term":"隔墙","weight":18},{"term":"轻钢龙骨","weight":15},{"term":"石膏板","weight":14},{"term":"挂重物","weight":17},{"term":"板缝","weight":10}],
+      "negative_terms":[{"term":"承重墙","weight":35},{"term":"防火墙","weight":24}],"context_terms":["装修","墙体","安装","节点"],
+      "governing_standards":["GB 55032-2022"],"primary_standards":["GB 50210-2018"],"companion_standards":[],
+      "query_expansions":["轻质隔墙工程","轻钢龙骨隔墙","板缝处理","节点加固","质量验收"],"confidence_threshold":{"high":58,"medium":30}
+    },
+    {
+      "topic_id":"plastering","profession":"装饰装修","topic":"抹灰工程",
+      "subtopics":["基层处理/拉毛","分层抹灰","空鼓裂缝"],
+      "subtopic_terms":{"基层处理/拉毛":["拉毛","界面处理"],"分层抹灰":["分层抹灰","抹灰厚度"],"空鼓裂缝":["抹灰空鼓","抹灰裂缝"]},
+      "aliases":["墙面抹灰","粉刷","批荡"],"site_terms":["抹灰","拉毛","界面剂","墙面空鼓"],
+      "phrases":["抹灰前为什么要拉毛","抹灰层空鼓怎么处理","墙面抹灰允许偏差"],
+      "positive_terms":[{"term":"抹灰","weight":18},{"term":"拉毛","weight":18},{"term":"界面处理","weight":15},{"term":"砂浆","weight":8},{"term":"空鼓","weight":9}],
+      "negative_terms":[{"term":"瓷砖空鼓","weight":30},{"term":"地面找平","weight":25}],"context_terms":["墙面","基层","施工","验收"],
+      "governing_standards":["GB 55032-2022"],"primary_standards":["GB 50210-2018"],"companion_standards":[],
+      "query_expansions":["一般抹灰","基层处理","界面处理","分层抹灰","空鼓裂缝","允许偏差"],"confidence_threshold":{"high":58,"medium":30}
+    },
+    {
+      "topic_id":"tile_finish","profession":"装饰装修","topic":"饰面砖工程",
+      "subtopics":["铺贴基层","粘结/空鼓","接缝/排版"],
+      "subtopic_terms":{"铺贴基层":["贴砖基层","防水层上贴砖"],"粘结/空鼓":["瓷砖空鼓","粘结"],"接缝/排版":["砖缝","排版"]},
+      "aliases":["瓷砖工程","墙地砖","饰面砖"],"site_terms":["贴砖","瓷砖空鼓","墙砖","地砖","砖缝"],
+      "phrases":["防水层上面能不能直接贴砖","瓷砖空鼓多少算不合格","墙砖怎么排版"],
+      "positive_terms":[{"term":"瓷砖","weight":17},{"term":"饰面砖","weight":18},{"term":"贴砖","weight":16},{"term":"墙砖","weight":14},{"term":"地砖","weight":14},{"term":"砖缝","weight":11}],
+      "negative_terms":[{"term":"砌砖墙","weight":30},{"term":"防火砖墙","weight":25}],"context_terms":["铺贴","粘结","基层","验收"],
+      "governing_standards":["GB 55032-2022"],"primary_standards":["GB 50210-2018"],"companion_standards":["GB 50209-2010"],
+      "query_expansions":["饰面砖工程","铺贴基层","粘结质量","空鼓","接缝","允许偏差"],"confidence_threshold":{"high":58,"medium":30}
+    },
+    {
+      "topic_id":"flooring","profession":"装饰装修","topic":"建筑地面",
+      "subtopics":["基层/找平层","面层施工","坡度/高差"],
+      "subtopic_terms":{"基层/找平层":["找平层","基层"],"面层施工":["地面面层","地坪"],"坡度/高差":["地面坡度","高差"]},
+      "aliases":["楼地面","地坪","地面工程"],"site_terms":["地面找平","地坪","楼地面","地面坡度","门槛高差"],
+      "phrases":["卫生间地面坡度怎么控制","找平层空鼓怎么办","门口地面高差"],
+      "positive_terms":[{"term":"地面","weight":12},{"term":"地坪","weight":17},{"term":"找平层","weight":18},{"term":"楼地面","weight":18},{"term":"高差","weight":12},{"term":"坡度","weight":9}],
+      "negative_terms":[{"term":"地面放电线","weight":32},{"term":"地基","weight":20}],"context_terms":["面层","基层","施工","验收"],
+      "governing_standards":["GB 55032-2022"],"primary_standards":["GB 50209-2010"],"companion_standards":["GB 50300-2013"],
+      "query_expansions":["建筑地面工程","基层","找平层","面层","坡度","高差","质量验收"],"confidence_threshold":{"high":58,"medium":30}
+    },
+    {
+      "topic_id":"doors_windows","profession":"装饰装修","topic":"门窗工程",
+      "subtopics":["门窗安装","洞口/收口","渗漏/密封"],
+      "subtopic_terms":{"门窗安装":["门窗安装","窗框"],"洞口/收口":["门窗洞口","门窗收口"],"渗漏/密封":["窗边漏水","密封胶"]},
+      "aliases":["门窗","窗框","门框"],"site_terms":["门窗收口","窗边漏水","窗框固定","门框缝隙"],
+      "phrases":["窗框固定点怎么布置","门窗收口怎么验收","窗边漏水怎么处理"],
+      "positive_terms":[{"term":"门窗","weight":18},{"term":"窗框","weight":17},{"term":"门框","weight":15},{"term":"收口","weight":12},{"term":"密封胶","weight":14}],
+      "negative_terms":[{"term":"防火门","weight":32},{"term":"承重墙开门洞","weight":35}],"context_terms":["安装","洞口","固定","验收"],
+      "governing_standards":["GB 55031-2022"],"primary_standards":["GB 50210-2018"],"companion_standards":[],
+      "query_expansions":["门窗工程","门窗安装","洞口收口","框体固定","密封防水","质量验收"],"confidence_threshold":{"high":58,"medium":30}
+    },
+    {
+      "topic_id":"indoor_environment","profession":"建筑环境","topic":"室内环境",
+      "subtopics":["室内污染物","材料进场/复验","检测验收"],
+      "subtopic_terms":{"室内污染物":["甲醛","苯","氡"],"材料进场/复验":["材料复验","人造板"],"检测验收":["室内环境检测","空气检测"]},
+      "aliases":["室内空气质量","环保检测","空气检测"],"site_terms":["甲醛超标","室内空气检测","装修污染","材料环保"],
+      "phrases":["装修后甲醛怎么验收","室内环境检测什么时候做","材料要不要复验"],
+      "positive_terms":[{"term":"甲醛","weight":18},{"term":"室内环境","weight":18},{"term":"空气检测","weight":17},{"term":"装修污染","weight":17},{"term":"环保","weight":10}],
+      "negative_terms":[{"term":"室外环境","weight":30},{"term":"施工扬尘","weight":25}],"context_terms":["装修","材料","检测","验收"],
+      "governing_standards":["GB 55016-2021"],"primary_standards":["GB 50325-2020"],"companion_standards":[],
+      "query_expansions":["民用建筑室内环境","污染物浓度","材料复验","室内空气检测","验收"],"confidence_threshold":{"high":58,"medium":30}
+    },
+    {
+      "topic_id":"accessibility","profession":"建筑设计","topic":"无障碍",
+      "subtopics":["无障碍卫生间","坡道/通道","扶手/设施"],
+      "subtopic_terms":{"无障碍卫生间":["无障碍卫生间","无障碍厕所"],"坡道/通道":["无障碍坡道","轮椅通道"],"扶手/设施":["无障碍扶手","扶手布置"]},
+      "aliases":["无障碍设计","残障设施","适老化"],"site_terms":["无障碍扶手","无障碍卫生间","轮椅坡道","无障碍通道"],
+      "phrases":["无障碍卫生间扶手怎么布置","无障碍坡道坡度是多少","轮椅通道多宽"],
+      "positive_terms":[{"term":"无障碍","weight":19},{"term":"轮椅","weight":17},{"term":"扶手","weight":11},{"term":"坡道","weight":13},{"term":"残障","weight":15}],
+      "negative_terms":[{"term":"楼梯普通扶手","weight":22}],"context_terms":["卫生间","通道","设计","验收"],
+      "governing_standards":["GB 55019-2021"],"primary_standards":[],"companion_standards":["GB 55031-2022"],
+      "query_expansions":["无障碍设施","无障碍卫生间","扶手","轮椅坡道","通行净宽"],"confidence_threshold":{"high":58,"medium":30}
+    },
+    {
+      "topic_id":"finished_product_protection","profession":"施工管理","topic":"成品保护",
+      "subtopics":["已完工程保护","交叉施工保护","移交/责任"],
+      "subtopic_terms":{"已完工程保护":["成品保护","保护膜"],"交叉施工保护":["交叉施工","损坏"],"移交/责任":["移交","谁负责"]},
+      "aliases":["成品保护","半成品保护","工序保护"],"site_terms":["保护膜","成品被破坏","交叉施工损坏","移交保护"],
+      "phrases":["瓷砖铺完怎么做成品保护","门窗保护膜什么时候拆","交叉施工损坏谁负责"],
+      "positive_terms":[{"term":"成品保护","weight":20},{"term":"保护膜","weight":17},{"term":"损坏","weight":10},{"term":"移交","weight":9},{"term":"交叉施工","weight":14}],
+      "negative_terms":[{"term":"消防保护范围","weight":25}],"context_terms":["施工","工序","责任","保护"],
+      "governing_standards":["GB 55032-2022"],"primary_standards":[],"companion_standards":["GB 50300-2013"],
+      "query_expansions":["成品保护","工序交接","交叉施工","移交检查","责任界面"],"confidence_threshold":{"high":58,"medium":30}
+    },
+    {
+      "topic_id":"quality_acceptance","profession":"质量管理","topic":"工程质量验收",
+      "subtopics":["检验批/分项工程","验收程序","合格判定/资料"],
+      "subtopic_terms":{"检验批/分项工程":["检验批","分项工程"],"验收程序":["验收程序","谁组织验收"],"合格判定/资料":["合格判定","验收资料"]},
+      "aliases":["质量验收","竣工验收","检验批"],"site_terms":["验收合格","验收资料","检验批划分","谁组织验收"],
+      "phrases":["检验批怎么划分","分项工程谁组织验收","没有资料能不能验收"],
+      "positive_terms":[{"term":"验收","weight":12},{"term":"检验批","weight":19},{"term":"分项工程","weight":18},{"term":"合格判定","weight":17},{"term":"验收资料","weight":16}],
+      "negative_terms":[{"term":"单项允许偏差","weight":12},{"term":"消防专项验收","weight":10}],"context_terms":["质量","程序","资料","组织"],
+      "governing_standards":["GB 55032-2022"],"primary_standards":["GB 50300-2013"],"companion_standards":[],
+      "query_expansions":["建筑工程质量验收","检验批","分项工程","验收程序","合格判定","质量资料"],"confidence_threshold":{"high":60,"medium":32}
+    },
+    {
+      "topic_id":"safety_civilized_construction","profession":"施工安全","topic":"安全文明施工",
+      "subtopics":["现场防护/警示","临建设施/卫生","扬尘/通道/材料堆放"],
+      "subtopic_terms":{"现场防护/警示":["警示标志","围挡"],"临建设施/卫生":["临建","生活区","卫生"],"扬尘/通道/材料堆放":["扬尘","施工通道","材料堆放"]},
+      "aliases":["文明施工","安全检查","现场文明"],"site_terms":["现场围挡","材料乱堆","施工扬尘","安全通道","警示标志"],
+      "phrases":["现场材料可以随便堆吗","安全通道怎么设置","施工扬尘怎么控制"],
+      "positive_terms":[{"term":"文明施工","weight":19},{"term":"围挡","weight":16},{"term":"扬尘","weight":17},{"term":"安全通道","weight":18},{"term":"材料堆放","weight":16},{"term":"警示","weight":12}],
+      "negative_terms":[{"term":"室内环境污染","weight":25}],"context_terms":["施工现场","安全","卫生","管理"],
+      "governing_standards":["GB 55034-2022"],"primary_standards":["JGJ 59-2011"],"companion_standards":[],
+      "query_expansions":["安全文明施工","现场围挡","施工扬尘","安全通道","材料堆放","警示标志"],"confidence_threshold":{"high":58,"medium":30}
     }
   ]
 }

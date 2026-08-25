@@ -1,12 +1,12 @@
 {
   "$schema":"https://json-schema.org/draft/2020-12/schema",
-  "$id":"https://engineering-norm-agent.local/schema/topic-crosswalk-1.2-c1.json",
+  "$id":"https://engineering-norm-agent.local/schema/topic-crosswalk-1.3-a.json",
   "type":"object",
   "additionalProperties":false,
   "required":["schema_version","crosswalk_version","topics","object_mappings","relation_mappings"],
   "properties":{
     "schema_version":{"const":1},
-    "crosswalk_version":{"const":"1.2-c1"},
+    "crosswalk_version":{"const":"1.3-a"},
     "topics":{"type":"object","additionalProperties":{"type":"object","additionalProperties":false,"required":["profession","system"],"properties":{"profession":{"type":"string","minLength":1},"system":{"type":"string","minLength":1}}}},
     "object_mappings":{"type":"array","items":{"$ref":"#/$defs/objectMapping"}},
     "relation_mappings":{"type":"array","items":{"$ref":"#/$defs/relationMapping"}}
