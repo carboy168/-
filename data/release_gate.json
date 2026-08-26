@@ -1,0 +1,19 @@
+{
+  "schema_version":1,
+  "gate_version":"1.3-d",
+  "minimum_app_version":"1.3.0",
+  "benchmark":{
+    "runner_version":"1.3-d",
+    "required_suites":["topic-router","knowledge-c0","knowledge-c1","knowledge-c2","knowledge-c3","knowledge-c4","project-evidence-lifecycle","review-workflow","release-gate"],
+    "minimum_test_count":100
+  },
+  "protected_paths":["db.py","migrations.py","migrations/"],
+  "commands":[
+    {"id":"full-regression","args":["{python}","-m","unittest","discover","-s","tests"],"timeout_seconds":300},
+    {"id":"unified-benchmark","args":["{python}","desktop_tools/benchmark_runner.py","--quiet","--json-output","{benchmark_report}"],"timeout_seconds":300},
+    {"id":"backend-smoke","args":["{python}","desktop_tools/backend_smoke_test.py"],"timeout_seconds":120},
+    {"id":"windows-preflight","args":["{python}","desktop_tools/preflight.py"],"timeout_seconds":120},
+    {"id":"compileall","args":["{python}","-m","compileall","-q","engineering_knowledge","routing","desktop","review_engine.py"],"timeout_seconds":120},
+    {"id":"diff-check","args":["git","diff","--check"],"timeout_seconds":60}
+  ]
+}

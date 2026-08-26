@@ -1,0 +1,23 @@
+{
+  "schema_version":1,
+  "benchmark_version":"1.2-c1",
+  "cases":[
+    {"id":"affirmed-adjacent","question":"电线贴着给水管走。","required_objects":["electrical_line","water_supply_pipe"],"required_relation":{"subject_type":"electrical_line","relation_type":"adjacent_to","object_type":"water_supply_pipe","assertion_status":"affirmed"},"required_topics":["building_electrical","building_plumbing","mep_coordination"],"required_plans":["building_electrical","building_plumbing","mep_coordination"]},
+    {"id":"negated-adjacent","question":"电线没有贴着给水管走。","required_objects":["electrical_line","water_supply_pipe"],"required_relation":{"subject_type":"electrical_line","relation_type":"adjacent_to","object_type":"water_supply_pipe","assertion_status":"negated"},"forbid_affirmed":true,"required_topics":["building_electrical","building_plumbing","mep_coordination"],"required_plans":["mep_coordination"]},
+    {"id":"conditional-adjacent","question":"电线如果贴着给水管走怎么办？","required_objects":["electrical_line","water_supply_pipe"],"required_relation":{"subject_type":"electrical_line","relation_type":"adjacent_to","object_type":"water_supply_pipe","assertion_status":"conditional"},"forbid_affirmed":true,"required_topics":["building_electrical","building_plumbing","mep_coordination"],"required_plans":["mep_coordination"]},
+    {"id":"uncertain-adjacent","question":"怀疑电线可能贴到给水管。","required_objects":["electrical_line","water_supply_pipe"],"required_relation":{"subject_type":"electrical_line","relation_type":"adjacent_to","object_type":"water_supply_pipe","assertion_status":"uncertain"},"forbid_affirmed":true,"required_topics":["building_electrical","building_plumbing","mep_coordination"],"required_plans":["mep_coordination"]},
+    {"id":"cooccurrence-only","question":"电线和给水管同时施工。","required_objects":["electrical_line","water_supply_pipe"],"forbidden_relations":["adjacent_to","intersects_with","crosses"],"required_topics":["building_electrical","building_plumbing"]},
+    {"id":"duct-fire-wall","question":"风管穿过防火墙后怎么处理？","required_objects":["duct","fire_wall"],"required_relation":{"subject_type":"duct","relation_type":"penetrates","object_type":"fire_wall","assertion_status":"affirmed"},"required_topics":["hvac","fire_compartment","penetration_firestopping"],"required_plans":["hvac","fire_compartment","penetration_firestopping"]},
+    {"id":"conditional-shared-support","question":"电线管和喷淋管能共用支架吗？","required_objects":["conduit","sprinkler_pipe","support"],"required_relation":{"subject_type":"conduit","relation_type":"shares_support_with","object_type":"sprinkler_pipe","assertion_status":"conditional"},"forbid_affirmed":true,"required_topics":["building_electrical","fire_protection_system","mep_coordination"],"required_plans":["building_electrical","fire_protection_system","mep_coordination"]},
+    {"id":"ceiling-mep","question":"吊顶内风管、喷淋和桥架太多，净高不够怎么办？","required_objects":["ceiling_concealed_space","duct","sprinkler_pipe","cable_tray"],"minimum_relations":3,"required_relation_type":"located_in","required_topics":["mep_coordination","hvac","fire_protection_system","building_electrical","ceiling"],"required_plans":["mep_coordination","hvac","fire_protection_system","building_electrical"]},
+    {"id":"inspection-list","question":"检查吊顶、电线和给水管施工质量。","required_objects":["ceiling","electrical_line","water_supply_pipe"],"forbidden_relations":["located_in","adjacent_to","intersects_with","crosses"],"required_topics":["ceiling","building_electrical","building_plumbing"]},
+    {"id":"deprecated-standard","question":"JGJ 46-2005里说可以这样做，现在还是按它吗？","required_objects":[],"explicit_standard":true,"forbidden_preferred_standards":["JGJ 46-2005"],"required_warning_text":"废止或被替代"}
+  ],
+  "trust_cases":[
+    {"id":"user-statement-not-normative","expected_normative_support":false},
+    {"id":"router-candidate-not-normative","expected_normative_support":false},
+    {"id":"verified-current-clause","expected_normative_support":true},
+    {"id":"clause-override-blocked","expected_normative_support":false},
+    {"id":"project-evidence-scope","expected_project_support":true,"expected_normative_support":false}
+  ]
+}

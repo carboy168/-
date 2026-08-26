@@ -3,7 +3,8 @@ from PySide6.QtCore import QThreadPool
 from PySide6.QtWidgets import QHBoxLayout, QLabel, QMessageBox, QPushButton, QSplitter, QTextBrowser, QTextEdit, QVBoxLayout, QWidget
 from desktop.workers import FunctionWorker
 from project_mode import get_active_project
-from rag import retrieve_with_route, answer
+from rag import retrieve_with_knowledge, answer
+from engineering_knowledge.presentation import knowledge_summary
 from router import route_summary
 from project_mode import overlay_summary
 
@@ -34,15 +35,15 @@ class QAPage(QWidget):
         p=get_active_project()
         self.ask.setEnabled(False); self.response.setPlainText("正在检索规范与项目文件，并生成回答…")
         def task():
-            rows,route,overlay=retrieve_with_route(q,limit=12,project=p)
+            rows,route,overlay,package=retrieve_with_knowledge(q,limit=12,project=p)
             text=answer(q,rows,route=route,project=p,overlay=overlay)
-            return rows,route,overlay,text
+            return rows,route,overlay,package,text
         w=FunctionWorker(task); w.signals.finished.connect(self.done); w.signals.error.connect(self.error); self.pool.start(w)
 
     def done(self,data):
-        rows,route,overlay,text=data
+        rows,route,overlay,package,text=data
         evidence="\n".join(f'- {r["code"]} {r.get("clause_no") or ("第"+str(r.get("page_no"))+"页")}｜{r["content"][:100]}' for r in rows[:8]) or "未检索到规范条文"
-        self.route.setPlainText(f'{route_summary(route)}\n\n{overlay_summary(overlay)}\n\n规范证据摘要：\n{evidence}')
+        self.route.setPlainText(f'{route_summary(route)}\n\n{overlay_summary(overlay)}\n\n{knowledge_summary(package)}\n\n规范证据摘要：\n{evidence}')
         self.response.setPlainText(text); self.ask.setEnabled(True)
 
     def error(self,e):

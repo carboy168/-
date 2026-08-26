@@ -21,6 +21,14 @@ jobs:
     steps:
       - name: Checkout official repository source
         uses: actions/checkout@v4
+      - name: Load application version
+        shell: pwsh
+        run: |
+          $line = Get-Content version.ini | Where-Object { $_ -match '^app_version=' } | Select-Object -First 1
+          if (-not $line) { throw "version.ini is missing app_version" }
+          $version = ($line -split '=', 2)[1].Trim()
+          "APP_VERSION=$version" | Out-File $env:GITHUB_ENV -Encoding utf8 -Append
+          "SETUP_BASENAME=工程规范智能体_V${version}_Setup" | Out-File $env:GITHUB_ENV -Encoding utf8 -Append
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
@@ -30,15 +38,9 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements-build.txt
-      - name: Run regression tests
+      - name: Run V1.3 release gate
         shell: pwsh
-        run: python -m unittest discover -s tests -v
-      - name: Preflight
-        shell: pwsh
-        run: python desktop_tools/preflight.py
-      - name: Backend smoke test
-        shell: pwsh
-        run: python desktop_tools/backend_smoke_test.py
+        run: python desktop_tools/release_gate.py --ci --base-ref "${{ github.event.before }}" --json-output .test-tmp/release-gate-report.json
       - name: Build application
         shell: pwsh
         run: pyinstaller --noconfirm --clean installer/EngineeringNormAgent.spec
@@ -63,11 +65,11 @@ jobs:
       - name: Verify and hash installer
         shell: pwsh
         run: |
-          $setup = "release\工程规范智能体_V1.0_Setup.exe"
+          $setup = "release\$env:SETUP_BASENAME.exe"
           if (-not (Test-Path $setup)) { throw "Setup.exe not generated" }
           $hash = (Get-FileHash $setup -Algorithm SHA256).Hash
-          "SHA256  $hash  工程规范智能体_V1.0_Setup.exe" | Out-File `
-            "release\工程规范智能体_V1.0_Setup_SHA256.txt" -Encoding utf8
+          "SHA256  $hash  $env:SETUP_BASENAME.exe" | Out-File `
+            "release\$env:SETUP_BASENAME`_SHA256.txt" -Encoding utf8
       - name: Create source archive from the same commit
         shell: pwsh
         run: git archive --format=zip --output=release/EngineeringNormAgent_source.zip HEAD
@@ -76,7 +78,7 @@ jobs:
         with:
           name: EngineeringNormAgent-Windows
           path: |
-            release/工程规范智能体_V1.0_Setup.exe
-            release/工程规范智能体_V1.0_Setup_SHA256.txt
+            release/工程规范智能体_V*_Setup.exe
+            release/工程规范智能体_V*_Setup_SHA256.txt
             release/EngineeringNormAgent_source.zip
           retention-days: 30

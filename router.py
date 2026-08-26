@@ -53,7 +53,7 @@ def theme_score(theme:dict, q:str):
         score += max(0,theme.get('priority',5)-5)*0.35
     return score, hits
 
-def route_question(question:str, top_themes:int=5, top_standards:int=7):
+def _legacy_route_question(question:str, top_themes:int=5, top_standards:int=7):
     pack=load_router(); q=normalize(question,pack.get('synonyms',{}))
     intent=detect_intent(q)
     explicit_codes=[re.sub(r'\s+',' ',x.upper()).strip() for x in CODE_RE.findall(question or '')]
@@ -125,34 +125,96 @@ def route_question(question:str, top_themes:int=5, top_standards:int=7):
         'router_is_evidence':False,
     }
 
+def route_question(question:str, top_themes:int=5, top_standards:int=7, project_context=None):
+    """Compatibility facade for the V1.2 data-driven Topic Router."""
+    from routing.topic_router import TopicRouter
+    modern_router=TopicRouter();modern=modern_router.route(question,project_context)
+    legacy=_legacy_route_question(question,top_themes,top_standards)
+    eligible_modern=[item for item in modern.topics if item.confidence!='low']
+    modern_themes=[]
+    for item in eligible_modern:
+        modern_themes.append({
+            'id':item.topic_id,'theme':item.topic,'category':item.profession,'subtopics':item.subtopics,
+            'score':item.numeric_score,'confidence':item.confidence,'hits':item.matched_terms,'risk':'中',
+            'normalized_terms':[{'original':x.original,'normalized':x.normalized} for x in item.normalized_terms],
+        })
+    seen={x['theme'] for x in modern_themes}
+    supplementary=[x for x in legacy.get('themes',[]) if x.get('theme') not in seen and (x.get('score',0)>=5 or not modern_themes)]
+    themes=(modern_themes+supplementary)[:top_themes]
+    modern_primary=list(dict.fromkeys(x for item in eligible_modern for x in (item.governing_standards+item.primary_standards)))
+    modern_companion=list(dict.fromkeys(x for item in eligible_modern for x in item.companion_standards))
+    use_legacy_codes=not eligible_modern and not modern.explicit.explicit_standard
+    legacy_primary=legacy.get('primary_codes',[]) if use_legacy_codes else []
+    legacy_secondary=legacy.get('secondary_codes',[]) if use_legacy_codes else []
+    combined_codes=modern.preferred_standard_codes+legacy_primary+legacy_secondary
+    allowed,warnings,statuses=modern_router.policy.validate(combined_codes,modern.explicit.standard_code,modern.explicit.clause_no)
+    status_keys={(x.get('code'),x.get('status')) for x in modern.standard_statuses}
+    statuses=modern.standard_statuses+[x for x in statuses if (x.get('code'),x.get('status')) not in status_keys]
+    explicit_codes=[modern.explicit.standard_code] if modern.explicit.explicit_standard else []
+    preferred_primary,_w,_s=modern_router.policy.validate(explicit_codes+modern_primary+legacy_primary,modern.explicit.standard_code,modern.explicit.clause_no)
+    primary=[x for x in preferred_primary if x in allowed][:8]
+    preferred_companion,_w,_s=modern_router.policy.validate(modern_companion+legacy_secondary,modern.explicit.standard_code,modern.explicit.clause_no)
+    secondary=[x for x in preferred_companion if x in allowed and x not in primary][:8]
+    if not primary:primary=allowed[:8]
+    standards=[]
+    for code in primary+secondary:
+        role='用户点名' if code in explicit_codes else ('主规范' if code in primary else '配套规范')
+        standards.append({'code':code,'score':100 if role=='用户点名' else 50,'role':role,'themes':[x['theme'] for x in themes[:3]]})
+    result=dict(legacy)
+    result.update({
+        'themes':themes,'standards':standards,'primary_codes':primary,'secondary_codes':secondary,
+        'query_expansion':list(dict.fromkeys(modern.expanded_query_terms+legacy.get('query_expansion',[])))[:16],
+        'explicit_codes':explicit_codes,'explicit_standard':modern.explicit.explicit_standard,
+        'explicit_clause':modern.explicit.explicit_clause,'explicit_clause_no':modern.explicit.clause_no,
+        'explicit_clause_blocked':any(x.get('status')=='条文失效' for x in statuses),
+        'warnings':list(dict.fromkeys(modern.warnings+warnings)),'standard_statuses':statuses,
+        'project_stage':modern.project_stage,'project_stage_confidence':modern.project_stage_confidence,
+        'project_stage_candidates':[{'value':x.value,'confidence':x.confidence,'score':x.numeric_score,'matched_terms':x.matched_terms} for x in modern.project_stage_candidates],
+        'user_role':modern.user_role,'user_role_confidence':modern.user_role_confidence,
+        'user_role_candidates':[{'value':x.value,'confidence':x.confidence,'score':x.numeric_score,'matched_terms':x.matched_terms} for x in modern.user_role_candidates],
+        'claims':[{'claim_type':x.claim_type,'claim_text':x.claim_text,'claim_value':x.claim_value,'claim_unit':x.claim_unit,'verification_status':x.verification_status} for x in modern.claims],
+        'normative_authority':[{'code':x,'authority':modern_router.policy.normative_authority(x)} for x in allowed],'project_binding':modern.project_binding,
+        'filtered_standards':[x for x in statuses if not x.get('allowed')],
+        'deprecated_standards':[x for x in statuses if not x.get('allowed') and any(k in x.get('status','') for k in ('废止','被替代','条文失效'))],
+        'conflicts':modern.conflicts,'evidence_gate':modern.evidence_gate,
+        'topic_router_version':modern_router.pack['router_version'],'router_is_evidence':False,
+    })
+    if eligible_modern:
+        result['top_score']=eligible_modern[0].numeric_score
+        result['confidence']={'high':'高','medium':'中','low':'低'}.get(eligible_modern[0].confidence,'低')
+    return result
+
 def build_route_query(question:str, route:dict):
     terms=[question]
     terms += route.get('query_expansion',[])[:8]
     return ' '.join(x for x in terms if x)
 
+
+def build_engineering_knowledge(question:str, project_context=None):
+    """Optional V1.2-C0 facade; existing route_question API remains unchanged."""
+    from engineering_knowledge.layer import build_knowledge_package
+    return build_knowledge_package(question, project_context=project_context)
+
 def route_summary(route:dict):
     themes='、'.join(x['theme'] for x in route.get('themes',[])[:4]) or '未明确识别'
     prim='、'.join(route.get('primary_codes',[])) or '暂无'
     sec='、'.join(route.get('secondary_codes',[])) or '暂无'
-    return f"意图：{route['intent']}；风险：{route['risk']}；路由置信度：{route.get('confidence','-')}；主题：{themes}；主规范候选：{prim}；配套规范候选：{sec}。"
+    sub=list(dict.fromkeys(s for x in route.get('themes',[]) for s in x.get('subtopics',[])))[:4]
+    subtext=('；子主题：'+'、'.join(sub)) if sub else ''
+    stage_labels={'pre_construction':'施工准备','construction':'施工过程','acceptance':'验收','maintenance':'维修','renovation':'改造','unknown':'未识别'}
+    role_labels={'construction':'施工','designer':'设计','supervision':'监理','owner':'甲方/业主','cost':'造价','general':'普通用户','unknown':'未识别'}
+    stage=stage_labels.get(route.get('project_stage','unknown'),route.get('project_stage','未识别'))
+    role=role_labels.get(route.get('user_role','unknown'),route.get('user_role','未识别'))
+    evidence='待检索条文证据' if route.get('evidence_gate')=='requires_clause_evidence' else route.get('evidence_gate','待核验')
+    warning=('；警告：'+'；'.join(route.get('warnings',[])[:2])) if route.get('warnings') else ''
+    return f"意图：{route['intent']}；风险：{route['risk']}；路由置信度：{route.get('confidence','-')}；工程阶段：{stage}；用户角色：{role}；主题：{themes}{subtext}；主规范候选：{prim}；配套规范候选：{sec}；证据状态：{evidence}{warning}。"
 
 
 def log_route(route:dict):
-    """本地记录路由结果，便于发现低置信度现场说法。不会自动改变规范映射。"""
+    """Write to the initialized route_logs table; logging must never perform DDL."""
     try:
         from db import connect
         with connect() as con:
-            con.execute("""CREATE TABLE IF NOT EXISTS route_logs(
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                question TEXT,
-                intent TEXT,
-                risk TEXT,
-                confidence TEXT,
-                top_theme TEXT,
-                primary_codes TEXT,
-                route_json TEXT,
-                created_at TEXT DEFAULT CURRENT_TIMESTAMP
-            )""")
             top=(route.get('themes') or [{}])[0].get('theme','') if route.get('themes') else ''
             con.execute("""INSERT INTO route_logs(question,intent,risk,confidence,top_theme,primary_codes,route_json)
                            VALUES(?,?,?,?,?,?,?)""",

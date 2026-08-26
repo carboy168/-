@@ -1,5 +1,5 @@
 from __future__ import annotations
-import base64, json, mimetypes, re
+import base64, json, logging, mimetypes, re
 from pathlib import Path
 from config_env import load_dotenv
 from db import search_clauses_v3
@@ -46,7 +46,7 @@ def _norm_evidence(project:dict, review_type:str, scope:str, max_rows:int=28):
     checks=DRAWING_CHECKS if review_type=='施工图审查' else PLAN_CHECKS
     rows=[];seen=set()
     for _,q in checks:
-        question=f'{scope} {q}'.strip();route=route_question(question);overlay=build_project_overlay(question,route,project)
+        question=f'{scope} {q}'.strip();route=route_question(question,project_context=project);overlay=build_project_overlay(question,route,project)
         codes=list(dict.fromkeys([resolve_standard_alias(x) for x in route.get('primary_codes',[])+overlay.get('candidate_codes',[])+route.get('secondary_codes',[])]))
         got=search_clauses_v3(build_route_query(question,route),standard_codes=codes or None,limit=4)
         for r in got:
@@ -93,7 +93,20 @@ def validate_review_result(result:dict,n_count:int,p_count:int,r_count:int):
     return result
 
 
-def run_review(project:dict,file_paths:list[str],review_type:str,scope:str='',title:str=''):
+def _engineering_conflict_overlay(project:dict,review_type:str,scope:str,norms:list[dict],project_rows:list[dict],requirements:list[dict]):
+    """Additive C4 path; failure must not break the established review workflow."""
+    from engineering_knowledge.conflict_detection import detect_claim_conflicts
+    from engineering_knowledge.layer import build_knowledge_package
+    from engineering_knowledge.presentation import review_conflict_findings
+    from engineering_knowledge.requirement_claims import bind_project_chunks,bind_project_requirements,bind_retrieved_clauses
+    question=" ".join([review_type,scope]+[str(item.get("requirement_text","") or "") for item in requirements]).strip()
+    package=build_knowledge_package(question or review_type,project_context=project)
+    bind_retrieved_clauses(package,norms);bind_project_chunks(package,project_rows);bind_project_requirements(package,requirements);detect_claim_conflicts(package)
+    findings,summary=review_conflict_findings(package,norms,project_rows,requirements)
+    return package,findings,summary
+
+
+def run_review(project:dict,file_paths:list[str],review_type:str,scope:str='',title:str='',workflow_store=None):
     if not project:raise ValueError('必须先启用项目模式。')
     if review_type not in REVIEW_TYPES:raise ValueError('未知审查类型。')
     paths=[Path(x) for x in file_paths if Path(x).exists()]
@@ -124,8 +137,32 @@ def run_review(project:dict,file_paths:list[str],review_type:str,scope:str='',ti
             content.append(item)
     text=provider.generate(model=model,input=[{'role':'user','content':content}])
     result=validate_review_result(_extract_json(text),len(norms),len(p_rows),len(reqs))
-    result['meta']={'review_type':review_type,'model':model,'norm_evidence_count':len(norms),'project_evidence_count':len(p_rows),'project_requirement_count':len(reqs),'files':[p.name for p in paths]}
+    model_findings=list(result['findings'])
+    conflict_meta=[];conflict_summary="未执行"
+    package=None
+    try:
+        package,deterministic_findings,conflict_summary=_engineering_conflict_overlay(project,review_type,scope,norms,p_rows,reqs)
+        result['findings'].extend(deterministic_findings);result=validate_review_result(result,len(norms),len(p_rows),len(reqs))
+        conflict_meta=package.to_dict()['conflicts']
+        if conflict_meta:result['summary']=(result.get('summary','')+f"\n确定性要求比对：{conflict_summary}。").strip()
+    except Exception as exc:
+        logging.exception("Engineering conflict overlay failed");conflict_summary=f"已回退原审查流程（{type(exc).__name__}）"
+    result['meta']={'review_type':review_type,'model':model,'norm_evidence_count':len(norms),'project_evidence_count':len(p_rows),'project_requirement_count':len(reqs),'files':[p.name for p in paths],
+                    'engineering_conflict_summary':conflict_summary,'engineering_conflicts':conflict_meta}
+    # V1.3-C workflow state is intentionally attached only after the legacy save.
+    # It is an explicit runtime compatibility interface and is never persisted by this path.
+    workflow_payload=[]
+    try:
+        from engineering_knowledge.review_workflow import ReviewFindingStore
+        workflow_store=workflow_store or ReviewFindingStore()
+        workflow_store.ingest_model_findings(model_findings)
+        if package is not None:workflow_store.ingest_conflicts(package)
+        workflow_payload=[item.to_dict() for item in workflow_store.all()]
+        result['meta']['review_workflow_summary']=f"运行时审查问题 {len(workflow_payload)} 项"
+    except Exception as exc:
+        logging.exception("Runtime review workflow failed");result['meta']['review_workflow_summary']=f"已回退旧审查闭环（{type(exc).__name__}）"
     result['review_id']=save_review(project['id'],review_type,title or f'{review_type}-{paths[0].stem}',scope,model,[p.name for p in paths],result)
+    result['review_workflow']=workflow_payload
     return result
 
 

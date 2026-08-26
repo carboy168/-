@@ -3,9 +3,13 @@ import ast, os, sys
 from pathlib import Path
 
 ROOT=Path(__file__).resolve().parents[1]
+if str(ROOT) not in sys.path:sys.path.insert(0,str(ROOT))
 files=[
     ROOT/"desktop_main.py",
     *sorted((ROOT/"desktop").rglob("*.py")),
+    *sorted((ROOT/"desktop_tools").rglob("*.py")),
+    *sorted((ROOT/"routing").rglob("*.py")),
+    *sorted((ROOT/"engineering_knowledge").rglob("*.py")),
     ROOT/"db.py",ROOT/"migrations.py",ROOT/"provider.py",ROOT/"provider_config.py",ROOT/"log_security.py",ROOT/"rag.py",ROOT/"router.py",ROOT/"project_mode.py",ROOT/"project_kb.py",ROOT/"review_engine.py",
 ]
 bad=[]
@@ -20,6 +24,22 @@ if bad:
 for required in [
     ROOT/"data"/"core_standards.json",ROOT/"data"/"theme_router.json",ROOT/"data"/"guangdong_overlay.json",
     ROOT/"data"/"provider_catalog.json",
+    ROOT/"data"/"topic_router.json",ROOT/"data"/"topic_router.schema.json",ROOT/"data"/"topic_router_benchmark.json",
+    ROOT/"data"/"engineering_objects.json",ROOT/"data"/"engineering_objects.schema.json",
+    ROOT/"data"/"engineering_relations.json",ROOT/"data"/"engineering_relations.schema.json",
+    ROOT/"data"/"engineering_knowledge.schema.json",ROOT/"data"/"engineering_knowledge_benchmark.json",
+    ROOT/"data"/"topic_crosswalk.json",ROOT/"data"/"topic_crosswalk.schema.json",
+    ROOT/"data"/"engineering_knowledge_c1_benchmark.json",
+    ROOT/"data"/"requirement_claim_rules.json",ROOT/"data"/"requirement_claim_rules.schema.json",ROOT/"data"/"engineering_knowledge_c2_benchmark.json",
+    ROOT/"data"/"conflict_detection_rules.json",ROOT/"data"/"conflict_detection_rules.schema.json",ROOT/"data"/"engineering_knowledge_c3_benchmark.json",
+    ROOT/"data"/"engineering_knowledge_c4_benchmark.json",
+    ROOT/"data"/"engineering_contracts.json",ROOT/"data"/"engineering_contracts.schema.json",
+    ROOT/"data"/"benchmark_manifest.json",ROOT/"data"/"benchmark_manifest.schema.json",
+    ROOT/"data"/"project_evidence_lifecycle.schema.json",ROOT/"data"/"project_evidence_lifecycle_benchmark.json",ROOT/"data"/"project_evidence_lifecycle_benchmark.schema.json",
+    ROOT/"data"/"review_finding.schema.json",ROOT/"data"/"review_workflow_benchmark.json",ROOT/"data"/"review_workflow_benchmark.schema.json",
+    ROOT/"data"/"benchmark_report.schema.json",ROOT/"data"/"release_gate.json",ROOT/"data"/"release_gate.schema.json",ROOT/"data"/"release_gate_report.schema.json",
+    ROOT/"data"/"release_gate_benchmark.json",ROOT/"data"/"release_gate_benchmark.schema.json",
+    ROOT/"version.ini",ROOT/"versioning.py",ROOT/"desktop_tools"/"benchmark_runner.py",ROOT/"desktop_tools"/"release_gate.py",
     ROOT/"prompts"/"system_prompt.txt",ROOT/"assets"/"app.ico",ROOT/"installer"/"EngineeringNormAgent.spec",
     ROOT/"installer"/"EngineeringNormAgent.iss",
 ]:
@@ -55,3 +75,26 @@ for forbidden in ["Expand-Archive", "EngineeringNormAgent_V1.0_source.zip\" -Des
     if forbidden in workflow:
         print("WORKFLOW CHECK FAIL: forbidden legacy build/release command", forbidden);raise SystemExit(4)
 print("Official source/workflow paths PASS")
+
+from engineering_knowledge.schema_validator import validate_catalogs
+validate_catalogs()
+print("Engineering Knowledge JSON Schema validation PASS")
+
+from engineering_knowledge.json_schema import validate_json_file
+validate_json_file(ROOT/"data"/"topic_router.json",ROOT/"data"/"topic_router.schema.json")
+validate_json_file(ROOT/"data"/"project_evidence_lifecycle_benchmark.json",ROOT/"data"/"project_evidence_lifecycle_benchmark.schema.json")
+validate_json_file(ROOT/"data"/"review_workflow_benchmark.json",ROOT/"data"/"review_workflow_benchmark.schema.json")
+validate_json_file(ROOT/"data"/"release_gate.json",ROOT/"data"/"release_gate.schema.json")
+validate_json_file(ROOT/"data"/"release_gate_benchmark.json",ROOT/"data"/"release_gate_benchmark.schema.json")
+print("Topic Router and review workflow JSON Schema validation PASS")
+
+from desktop_tools.benchmark_runner import load_benchmark_manifest
+from versioning import APP_VERSION
+load_benchmark_manifest()
+if f'OutputBaseFilename=工程规范智能体_V{{#MyAppVersion}}_Setup' not in iss:
+    print("VERSION CHECK FAIL: installer does not derive its filename from version.ini");raise SystemExit(5)
+if 'ReadIni(SourcePath + "\\..\\version.ini"' not in iss or "version.ini" not in spec:
+    print("VERSION CHECK FAIL: build configuration does not consume version.ini");raise SystemExit(5)
+if APP_VERSION not in bat and "%APP_VERSION%" not in bat:
+    print("VERSION CHECK FAIL: local build script does not consume the version variable");raise SystemExit(5)
+print("Version and benchmark governance PASS:",APP_VERSION)

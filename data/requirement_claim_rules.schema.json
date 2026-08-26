@@ -1,0 +1,12 @@
+{
+  "$schema":"https://json-schema.org/draft/2020-12/schema",
+  "$id":"https://engineering-norm-agent.local/schema/requirement-claim-rules-1.2-c2.json",
+  "type":"object","additionalProperties":false,
+  "required":["schema_version","rules_version","sentence_delimiters","claim_rules","operators"],
+  "properties":{
+    "schema_version":{"const":1},"rules_version":{"const":"1.2-c2"},
+    "sentence_delimiters":{"type":"array","minItems":1,"uniqueItems":true,"items":{"type":"string","minLength":1}},
+    "claim_rules":{"type":"array","minItems":1,"items":{"type":"object","additionalProperties":false,"required":["rule_id","claim_type","terms","priority","confidence"],"properties":{"rule_id":{"type":"string","pattern":"^[a-z][a-z0-9_-]*$"},"claim_type":{"type":"string","pattern":"^[a-z][a-z0-9_]*$"},"terms":{"type":"array","minItems":1,"uniqueItems":true,"items":{"type":"string","minLength":1}},"priority":{"type":"integer","minimum":0,"maximum":100},"confidence":{"enum":["low","medium","high"]}}}},
+    "operators":{"type":"array","minItems":1,"items":{"type":"object","additionalProperties":false,"required":["operator","terms"],"properties":{"operator":{"enum":["eq","lt","lte","gt","gte"]},"terms":{"type":"array","minItems":1,"uniqueItems":true,"items":{"type":"string","minLength":1}}}}}
+  }
+}

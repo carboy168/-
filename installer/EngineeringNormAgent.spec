@@ -5,6 +5,7 @@ from PyInstaller.utils.hooks import collect_submodules
 
 ROOT = Path(os.getcwd()).resolve()
 datas = []
+datas.append((str(ROOT / "version.ini"), "."))
 for folder in ["data","config","prompts","assets"]:
     base = ROOT / folder
     if base.exists():

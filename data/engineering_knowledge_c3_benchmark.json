@@ -1,0 +1,20 @@
+{
+  "schema_version":1,
+  "benchmark_version":"1.2-c3",
+  "cases":[
+    {"id":"compatible","norm":"吊杆间距不应大于1200mm。","project":"吊杆间距不应大于1200mm。","expected_status":"compatible"},
+    {"id":"project-stricter","norm":"吊杆间距不应大于1200mm。","project":"吊杆间距不应大于900mm。","expected_status":"project_stricter"},
+    {"id":"norm-stricter","norm":"吊杆间距不应大于900mm。","project":"吊杆间距不应大于1200mm。","expected_status":"norm_stricter"},
+    {"id":"conflict","norm":"吊杆间距不应大于900mm。","project":"吊杆间距不得小于1200mm。","expected_status":"conflict"},
+    {"id":"potential-conflict","norm":"在潮湿环境时，吊杆间距不应大于1200mm。","project":"吊杆间距不应大于900mm。","expected_status":"potential_conflict"},
+    {"id":"not-comparable","norm":"吊杆间距不应大于1200mm。","project":"材料强度不应低于10MPa。","expected_status":"not_comparable"},
+    {"id":"insufficient-evidence","norm":"吊杆间距不应大于1200mm。","project":"吊杆间距不应大于900mm。","project_verified":false,"expected_status":"insufficient_evidence"}
+  ],
+  "safety_cases":[
+    {"id":"unverified-project-blocked","expected_status":"insufficient_evidence"},
+    {"id":"clause-override-blocked","expected_status":"insufficient_evidence"},
+    {"id":"router-candidate-not-evidence","expected_status":"insufficient_evidence"},
+    {"id":"opposing-actions","expected_status":"conflict"},
+    {"id":"repeat-detection-idempotent","expected":"idempotent"}
+  ]
+}

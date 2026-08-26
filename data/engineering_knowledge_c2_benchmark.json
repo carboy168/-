@@ -1,0 +1,26 @@
+{
+  "schema_version": 1,
+  "benchmark_version": "1.2-c2",
+  "cases": [
+    {"id":"prohibition","clause":"电缆不得沿地面明敷。","claim_type":"prohibition_requirement","operator":"","value":"","unit":""},
+    {"id":"numeric-lte","clause":"吊杆间距不应大于1200mm。","claim_type":"numeric_requirement","operator":"lte","value":"1200","unit":"mm"},
+    {"id":"sequence","clause":"防水层施工前，基层应清理干净。","claim_type":"sequence_requirement","operator":"","value":"","unit":""},
+    {"id":"material","clause":"材料应符合设计要求。","claim_type":"material_requirement","operator":"","value":"","unit":""},
+    {"id":"acceptance","clause":"隐蔽工程验收应在封闭前完成。","claim_type":"acceptance_requirement","operator":"","value":"","unit":""},
+    {"id":"responsibility","clause":"本项工作应由施工单位负责。","claim_type":"responsibility_requirement","operator":"","value":"","unit":""},
+    {"id":"mandatory","clause":"管道应采用支架固定。","claim_type":"mandatory_requirement","operator":"","value":"","unit":""},
+    {"id":"method","clause":"管道采用支架固定。","claim_type":"method_requirement","operator":"","value":"","unit":""},
+    {"id":"conditional","clause":"当管道穿过防火墙时，应进行防火封堵。","claim_type":"mandatory_requirement","operator":"","value":"","unit":"","has_condition":true},
+    {"id":"no-requirement","clause":"本章介绍工程概况。","claim_count":0}
+  ],
+  "safety_cases": [
+    {"id":"real-current-clause-supported","expected":"supported"},
+    {"id":"user-claim-remains-unverified","expected":"unverified"},
+    {"id":"missing-db-source-blocked","expected":"blocked"},
+    {"id":"clause-override-superseded","expected":"superseded"},
+    {"id":"project-file-remains-unverified","expected":"unverified"},
+    {"id":"unapproved-method-not-approved","expected":"unverified"},
+    {"id":"empty-retrieval-no-normative-claim","expected_claim_count":0},
+    {"id":"repeat-binding-idempotent","expected":"idempotent"}
+  ]
+}

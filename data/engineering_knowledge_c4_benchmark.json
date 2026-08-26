@@ -1,0 +1,11 @@
+{
+  "schema_version":1,
+  "benchmark_version":"1.2-c4",
+  "cases":[
+    {"id":"qa-summary-shows-evidence-boundary","required_labels":["工程知识摘要","证据状态","要求 Claim","冲突检查","结论边界"]},
+    {"id":"confirmed-project-requirement-enters-comparison","expected_status":"norm_stricter","required_refs":["N1","R1"]},
+    {"id":"unverified-project-chunk-needs-confirmation","expected_status":"potential_conflict","evidence_grade":"D"},
+    {"id":"review-finding-enters-existing-closure","finding_type":"需核对","status":"待确认"},
+    {"id":"inactive-project-requirement-ignored","expected_claim_count":0}
+  ]
+}

@@ -1,5 +1,8 @@
 #define MyAppName "工程规范智能体"
-#define MyAppVersion "1.0.0"
+#define MyAppVersion ReadIni(SourcePath + "\..\version.ini", "version", "app_version", "")
+#if MyAppVersion == ""
+  #error "version.ini is missing app_version"
+#endif
 #define MyAppPublisher "Engineering Norm Agent"
 #define MyAppExeName "EngineeringNormAgent.exe"
 
@@ -13,7 +16,7 @@ DefaultGroupName={#MyAppName}
 DisableProgramGroupPage=yes
 PrivilegesRequired=lowest
 OutputDir=release
-OutputBaseFilename=工程规范智能体_V1.0_Setup
+OutputBaseFilename=工程规范智能体_V{#MyAppVersion}_Setup
 Compression=lzma2
 SolidCompression=yes
 WizardStyle=modern

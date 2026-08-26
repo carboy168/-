@@ -1,0 +1,33 @@
+{
+  "schema_version":1,
+  "catalog_version":"1.2-c1",
+  "object_types":[
+    {"object_type":"electrical_line","canonical_name":"电气线路","aliases":["电气线路","电线","临时线"],"profession":"建筑电气","system":"配电线路","topic_hints":["building_electrical"]},
+    {"object_type":"cable","canonical_name":"电缆","aliases":["电缆线","电缆"],"profession":"建筑电气","system":"电缆线路","topic_hints":["building_electrical"]},
+    {"object_type":"conduit","canonical_name":"电气导管","aliases":["电线管","电气导管","线管"],"profession":"建筑电气","system":"电气配管","topic_hints":["building_electrical"]},
+    {"object_type":"cable_tray","canonical_name":"电缆桥架","aliases":["电缆桥架","桥架"],"profession":"建筑电气","system":"电缆敷设","topic_hints":["building_electrical"]},
+    {"object_type":"distribution_box","canonical_name":"配电箱","aliases":["配电柜","配电箱"],"profession":"建筑电气","system":"低压配电","topic_hints":["building_electrical"]},
+    {"object_type":"water_supply_pipe","canonical_name":"给水管道","aliases":["给水管道","给水管","水管"],"profession":"建筑给排水","system":"给水系统","topic_hints":["building_plumbing"]},
+    {"object_type":"drainage_pipe","canonical_name":"排水管道","aliases":["排水管道","排水管","下水管"],"profession":"建筑给排水","system":"排水系统","topic_hints":["building_plumbing"]},
+    {"object_type":"sprinkler_pipe","canonical_name":"消防喷淋管","aliases":["消防喷淋管","喷淋管道","喷淋管","喷淋"],"profession":"消防","system":"自动喷水灭火系统","topic_hints":["fire_protection"]},
+    {"object_type":"fire_pipe","canonical_name":"消防管道","aliases":["消防管道","消防管"],"profession":"消防","system":"消防给水系统","topic_hints":["fire_protection"]},
+    {"object_type":"duct","canonical_name":"风管","aliases":["通风管道","空调风管","风管"],"profession":"暖通空调","system":"通风空调系统","topic_hints":["hvac"]},
+    {"object_type":"ceiling_concealed_space","canonical_name":"吊顶隐蔽空间","aliases":["吊顶隐蔽空间","吊顶里面","天花里面","吊顶内","天花内"],"profession":"装饰装修","system":"吊顶工程","topic_hints":["ceiling"]},
+    {"object_type":"ceiling_keel","canonical_name":"吊顶龙骨","aliases":["吊顶主龙骨","天花龙骨","主龙骨","副龙骨"],"profession":"装饰装修","system":"吊顶工程","topic_hints":["ceiling"]},
+    {"object_type":"ceiling","canonical_name":"吊顶","aliases":["天花板","吊顶","天花"],"profession":"装饰装修","system":"吊顶工程","topic_hints":["ceiling"]},
+    {"object_type":"hanger","canonical_name":"吊杆/吊架","aliases":["吊顶吊杆","吊杆","吊架"],"profession":"装饰装修","system":"支承系统","topic_hints":["ceiling","support_and_hanger"]},
+    {"object_type":"support","canonical_name":"支架","aliases":["共用支架","管道支架","支吊架","支架"],"profession":"机电综合","system":"支承系统","topic_hints":["support_and_hanger"]},
+    {"object_type":"partition_wall","canonical_name":"隔墙","aliases":["轻钢龙骨隔墙","轻质隔墙","隔墙"],"profession":"装饰装修","system":"隔墙工程","topic_hints":["partition_wall"]},
+    {"object_type":"load_bearing_wall","canonical_name":"承重墙","aliases":["原有承重墙","承重墙"],"profession":"结构","system":"承重结构","topic_hints":["existing_building_alteration","structural_safety"]},
+    {"object_type":"fire_wall","canonical_name":"防火墙","aliases":["防火分隔墙","防火墙"],"profession":"消防","system":"防火分隔","topic_hints":["fire_compartment"]},
+    {"object_type":"wall_finish","canonical_name":"墙面饰面层","aliases":["墙面饰面层","墙面"],"profession":"装饰装修","system":"墙面工程","topic_hints":["decoration_quality"]},
+    {"object_type":"beam","canonical_name":"结构梁","aliases":["承重梁","结构梁","梁"],"profession":"结构","system":"主体结构","topic_hints":["structural_safety"]},
+    {"object_type":"slab","canonical_name":"楼板","aliases":["楼板洞","结构楼板","楼板"],"profession":"结构","system":"主体结构","topic_hints":["structural_safety"]},
+    {"object_type":"floor","canonical_name":"建筑地面","aliases":["楼地面","楼面","地面"],"profession":"建筑地面","system":"地面工程","topic_hints":["decoration_quality"]},
+    {"object_type":"waterproof_layer","canonical_name":"防水层","aliases":["原防水层","防水涂层","防水层"],"profession":"建筑防水","system":"防水系统","topic_hints":["waterproof_leakage"]},
+    {"object_type":"floor_drain","canonical_name":"地漏","aliases":["卫生间地漏","地漏"],"profession":"建筑给排水","system":"排水系统","topic_hints":["building_plumbing"]},
+    {"object_type":"fire_door","canonical_name":"防火门","aliases":["防火门"],"profession":"消防","system":"防火分隔","topic_hints":["fire_compartment"]},
+    {"object_type":"door","canonical_name":"门/门洞","aliases":["门洞","门"],"profession":"建筑","system":"门窗工程","topic_hints":[]},
+    {"object_type":"firestopping","canonical_name":"防火封堵","aliases":["防火封堵","封堵"],"profession":"消防","system":"贯穿孔口防火封堵","topic_hints":["penetration_firestopping"]}
+  ]
+}

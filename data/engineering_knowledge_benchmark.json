@@ -1,0 +1,145 @@
+{
+  "schema_version": 1,
+  "benchmark_version": "1.2-c0",
+  "confidence_order": ["low", "medium", "high"],
+  "cases": [
+    {
+      "id": "temporary-cable-ground",
+      "question": "施工现场电缆可以直接拖地吗？",
+      "required_objects": ["cable"],
+      "forbidden_objects": ["water_supply_pipe"],
+      "required_relations": [],
+      "required_topics": ["temporary_power", "building_electrical"],
+      "minimum_object_confidence": "medium"
+    },
+    {
+      "id": "ceiling-electrical-plumbing",
+      "question": "吊顶里面电线贴着给水管走可以吗？",
+      "required_objects": ["ceiling_concealed_space", "electrical_line", "water_supply_pipe"],
+      "forbidden_objects": ["duct"],
+      "required_relations": [
+        {"subject_type": "electrical_line", "relation_type": "located_in", "object_type": "ceiling_concealed_space"},
+        {"subject_type": "water_supply_pipe", "relation_type": "located_in", "object_type": "ceiling_concealed_space"},
+        {"subject_type": "electrical_line", "relation_type": "adjacent_to", "object_type": "water_supply_pipe"}
+      ],
+      "required_topics": ["building_electrical", "building_plumbing", "ceiling"],
+      "minimum_relation_confidence": "high"
+    },
+    {
+      "id": "shared-support",
+      "question": "电线管和消防喷淋管能不能共用支架？",
+      "required_objects": ["conduit", "sprinkler_pipe", "support"],
+      "forbidden_objects": ["water_supply_pipe"],
+      "required_relations": [
+        {"subject_type": "conduit", "relation_type": "shares_support_with", "object_type": "sprinkler_pipe"}
+      ],
+      "required_topics": ["building_electrical", "fire_protection", "support_and_hanger"],
+      "minimum_relation_confidence": "high"
+    },
+    {
+      "id": "duct-fire-wall",
+      "question": "风管穿过防火墙后怎么处理？",
+      "required_objects": ["duct", "fire_wall"],
+      "forbidden_objects": ["partition_wall"],
+      "required_relations": [
+        {"subject_type": "duct", "relation_type": "penetrates", "object_type": "fire_wall"}
+      ],
+      "required_topics": ["hvac", "fire_compartment", "penetration_firestopping"],
+      "minimum_relation_confidence": "high"
+    },
+    {
+      "id": "tray-under-water-pipe",
+      "question": "桥架从给水管下面交叉过去可以吗？",
+      "required_objects": ["cable_tray", "water_supply_pipe"],
+      "forbidden_objects": ["duct"],
+      "required_relations": [
+        {"subject_type": "cable_tray", "relation_type": "crosses", "object_type": "water_supply_pipe"},
+        {"subject_type": "cable_tray", "relation_type": "located_below", "object_type": "water_supply_pipe"}
+      ],
+      "required_topics": ["building_electrical", "building_plumbing", "mep_coordination"],
+      "minimum_relation_confidence": "high"
+    },
+    {
+      "id": "fire-pipe-ceiling-keel",
+      "question": "消防管压着吊顶主龙骨了怎么办？",
+      "required_objects": ["fire_pipe", "ceiling_keel"],
+      "forbidden_objects": ["sprinkler_pipe"],
+      "required_relations": [
+        {"subject_type": "fire_pipe", "relation_type": "affects", "object_type": "ceiling_keel"}
+      ],
+      "required_topics": ["fire_protection", "ceiling"],
+      "minimum_relation_confidence": "high"
+    },
+    {
+      "id": "floor-drain-waterproof",
+      "question": "卫生间地漏旁边防水层漏水。",
+      "required_objects": ["floor_drain", "waterproof_layer"],
+      "forbidden_objects": ["drainage_pipe"],
+      "required_relations": [
+        {"subject_type": "floor_drain", "relation_type": "adjacent_to", "object_type": "waterproof_layer"}
+      ],
+      "required_topics": ["building_plumbing", "waterproof_leakage"],
+      "minimum_relation_confidence": "high"
+    },
+    {
+      "id": "load-bearing-wall-opening",
+      "question": "承重墙上想开一个门洞可以吗？",
+      "required_objects": ["load_bearing_wall", "door"],
+      "forbidden_objects": ["partition_wall"],
+      "required_relations": [
+        {"subject_type": "load_bearing_wall", "relation_type": "penetrates", "object_type": "door"}
+      ],
+      "required_topics": ["existing_building_alteration", "structural_safety"],
+      "minimum_relation_confidence": "high"
+    },
+    {
+      "id": "cable-slab-penetration",
+      "question": "电缆直接从楼板洞穿下去要怎么封？",
+      "required_objects": ["cable", "slab"],
+      "forbidden_objects": ["floor"],
+      "required_relations": [
+        {"subject_type": "cable", "relation_type": "penetrates", "object_type": "slab"}
+      ],
+      "required_topics": ["building_electrical", "penetration_firestopping"],
+      "minimum_relation_confidence": "high"
+    },
+    {
+      "id": "ceiling-mep-clearance",
+      "question": "吊顶里面有风管、喷淋管和桥架，净高不够怎么办？",
+      "required_objects": ["ceiling_concealed_space", "duct", "sprinkler_pipe", "cable_tray"],
+      "forbidden_objects": ["water_supply_pipe"],
+      "required_relations": [
+        {"subject_type": "duct", "relation_type": "located_in", "object_type": "ceiling_concealed_space"},
+        {"subject_type": "sprinkler_pipe", "relation_type": "located_in", "object_type": "ceiling_concealed_space"},
+        {"subject_type": "cable_tray", "relation_type": "located_in", "object_type": "ceiling_concealed_space"}
+      ],
+      "required_topics": ["ceiling", "hvac", "fire_protection", "building_electrical"],
+      "minimum_relation_confidence": "high"
+    },
+    {
+      "id": "wall-hollowing",
+      "question": "墙面空鼓是不是一定要全部铲掉？",
+      "required_objects": ["wall_finish"],
+      "forbidden_objects": ["load_bearing_wall"],
+      "required_relations": [],
+      "required_topics": ["decoration_quality"],
+      "minimum_object_confidence": "medium"
+    }
+  ],
+  "negative_relation_cases": [
+    {
+      "id": "temporal-cooccurrence-only",
+      "question": "电线已经施工完成，给水管明天才施工。",
+      "required_objects": ["electrical_line", "water_supply_pipe"],
+      "required_relations": [],
+      "forbidden_relation_types": ["adjacent_to", "crosses", "intersects_with", "requires_coordination_with"]
+    },
+    {
+      "id": "inspection-list-only",
+      "question": "检查吊顶、电线和给水管施工质量。",
+      "required_objects": ["ceiling", "electrical_line", "water_supply_pipe"],
+      "required_relations": [],
+      "forbidden_relation_types": ["located_in", "adjacent_to", "crosses", "intersects_with"]
+    }
+  ]
+}

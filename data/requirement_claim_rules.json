@@ -1,0 +1,22 @@
+{
+  "schema_version":1,
+  "rules_version":"1.2-c2",
+  "sentence_delimiters":["。","；",";","\n"],
+  "claim_rules":[
+    {"rule_id":"numeric","claim_type":"numeric_requirement","terms":["mm","cm","m","毫米","厘米","米","%","MPa","kN"],"priority":100,"confidence":"high"},
+    {"rule_id":"prohibition","claim_type":"prohibition_requirement","terms":["严禁","禁止","不得","不应"],"priority":95,"confidence":"high"},
+    {"rule_id":"acceptance","claim_type":"acceptance_requirement","terms":["验收","合格","允许偏差","检验"],"priority":90,"confidence":"high"},
+    {"rule_id":"responsibility","claim_type":"responsibility_requirement","terms":["应由","负责","责任"],"priority":85,"confidence":"high"},
+    {"rule_id":"sequence","claim_type":"sequence_requirement","terms":["施工前","施工后","安装前","安装后","封闭前","验收前","验收后"],"priority":80,"confidence":"high"},
+    {"rule_id":"material","claim_type":"material_requirement","terms":["材料","材质","强度等级","燃烧性能","防火性能"],"priority":75,"confidence":"medium"},
+    {"rule_id":"mandatory","claim_type":"mandatory_requirement","terms":["必须","应当","应"],"priority":70,"confidence":"medium"},
+    {"rule_id":"method","claim_type":"method_requirement","terms":["采用","设置","安装","敷设","施工","固定","连接"],"priority":60,"confidence":"medium"}
+  ],
+  "operators":[
+    {"operator":"lte","terms":["不得大于","不应大于","不超过","≤"]},
+    {"operator":"gte","terms":["不得小于","不应小于","不低于","至少","≥"]},
+    {"operator":"lt","terms":["小于","低于","<"]},
+    {"operator":"gt","terms":["大于","高于",">"]},
+    {"operator":"eq","terms":["等于","为","="]}
+  ]
+}

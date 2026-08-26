@@ -1,0 +1,15 @@
+{
+  "$schema":"https://json-schema.org/draft/2020-12/schema",
+  "$id":"https://engineering-norm-agent.local/schema/project-evidence-lifecycle-1.3-b.json",
+  "type":"object","additionalProperties":false,
+  "required":["evidence_id","lifecycle_status","source_file_name","source_version","source_hash","source_locator","extracted_time","confirmed_by","confirmed_time","superseded_by","related_claim_ids","reevaluation_required","warnings"],
+  "properties":{
+    "evidence_id":{"type":"string","pattern":"^ev-[A-Za-z0-9_-]+$"},
+    "lifecycle_status":{"enum":["extracted","pending_confirmation","verified","rejected","superseded","expired"]},
+    "source_file_name":{"type":"string"},"source_version":{"type":"string"},
+    "source_hash":{"type":"string","pattern":"^[a-fA-F0-9]{64}$"},"source_locator":{"type":"object"},
+    "extracted_time":{"type":"string","minLength":1},"confirmed_by":{"type":"string"},"confirmed_time":{"type":"string"},
+    "superseded_by":{"type":"string"},"related_claim_ids":{"type":"array","items":{"type":"string"}},
+    "reevaluation_required":{"type":"boolean"},"warnings":{"type":"array","items":{"type":"string"}}
+  }
+}
