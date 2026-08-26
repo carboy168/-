@@ -23,9 +23,13 @@ class ContractGovernanceTests(unittest.TestCase):
         iss=(ROOT/"installer"/"EngineeringNormAgent.iss").read_text(encoding="utf-8")
         workflow=(ROOT/".github"/"workflows"/"build-windows-installer.yml").read_text(encoding="utf-8")
         batch=(ROOT/"一键生成Windows安装包.bat").read_text(encoding="utf-8")
+        main_window=(ROOT/"desktop"/"ui"/"main_window.py").read_text(encoding="utf-8")
         self.assertIn("from versioning import APP_VERSION",runtime)
         for content in (spec,iss,workflow,batch):self.assertIn("version.ini",content)
         for content in (runtime,iss,workflow,batch):self.assertNotIn("工程规范智能体_V1.0_Setup",content)
+        self.assertIn('f"{APP_NAME} V{APP_VERSION} Desktop"',main_window)
+        self.assertIn('f"V{APP_VERSION} Desktop · Windows"',main_window)
+        self.assertNotIn('V1.0 Desktop',main_window)
 
     def test_frozen_schema_registry_and_fail_closed_compatibility(self):
         registry=load_contract_registry();self.assertEqual(registry["current_write_version"],"1.2-c3")

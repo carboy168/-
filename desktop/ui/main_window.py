@@ -29,7 +29,7 @@ NAV = [
 class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
-        self.setWindowTitle(f"{APP_NAME} V1.0 Desktop")
+        self.setWindowTitle(f"{APP_NAME} V{APP_VERSION} Desktop")
         self.resize(1480, 900)
         icon=RESOURCE_ROOT/"assets"/"app.ico"
         if icon.exists():self.setWindowIcon(QIcon(str(icon)))
@@ -40,7 +40,7 @@ class MainWindow(QMainWindow):
         sidebar=QFrame(); sidebar.setObjectName("Sidebar"); sidebar.setFixedWidth(230)
         sl=QVBoxLayout(sidebar); sl.setContentsMargins(0,0,0,0)
         brand=QLabel("工程规范智能体"); brand.setObjectName("Brand")
-        sub=QLabel("V1.0 Desktop · Windows"); sub.setObjectName("SubBrand")
+        sub=QLabel(f"V{APP_VERSION} Desktop · Windows"); sub.setObjectName("SubBrand")
         self.nav=QListWidget(); self.nav.setObjectName("NavList")
         for title,key in NAV:
             it=QListWidgetItem(title); it.setData(Qt.ItemDataRole.UserRole,key); self.nav.addItem(it)
