@@ -21,6 +21,8 @@ jobs:
     steps:
       - name: Checkout official repository source
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - name: Load application version
         shell: pwsh
         run: |
@@ -40,7 +42,20 @@ jobs:
           pip install -r requirements-build.txt
       - name: Run V1.3 release gate
         shell: pwsh
-        run: python desktop_tools/release_gate.py --ci --base-ref "${{ github.event.before }}" --json-output .test-tmp/release-gate-report.json
+        run: |
+          $baseRef = "${{ github.event.before }}"
+          if ([string]::IsNullOrWhiteSpace($baseRef) -or $baseRef -eq ("0" * 40)) {
+            $resolvedBase = git rev-parse HEAD^ 2>$null
+            if ($LASTEXITCODE -ne 0 -or -not $resolvedBase) {
+              throw "Unable to resolve a real base commit for Release Gate."
+            }
+            $baseRef = $resolvedBase.Trim()
+          }
+          git cat-file -e "$baseRef^{commit}"
+          if ($LASTEXITCODE -ne 0) {
+            throw "Release Gate base commit is unavailable: $baseRef"
+          }
+          python desktop_tools/release_gate.py --ci --base-ref $baseRef --json-output .test-tmp/release-gate-report.json
       - name: Build application
         shell: pwsh
         run: pyinstaller --noconfirm --clean installer/EngineeringNormAgent.spec

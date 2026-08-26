@@ -12,10 +12,15 @@ from engineering_knowledge.json_schema import validate_instance,validate_json_fi
 ROOT=Path(__file__).resolve().parents[1]
 
 
-def _git_runner(changes="",dirty=""):
+def _git_runner(changes="",dirty="",missing_base=False,whitespace_error=False):
     def run(command,**kwargs):
-        output=dirty if command[:3]==["git","status","--porcelain"] else changes
-        return subprocess.CompletedProcess(command,0,output,"")
+        if command[:3]==["git","status","--porcelain"]:return subprocess.CompletedProcess(command,0,dirty,"")
+        if command[:3]==["git","diff","--name-only"]:
+            return subprocess.CompletedProcess(command,128 if missing_base else 0,"" if missing_base else changes,"fatal: bad object" if missing_base else "")
+        if command[:3]==["git","diff","--check"]:
+            detail="version.ini:3: new blank line at EOF.\n" if whitespace_error else ""
+            return subprocess.CompletedProcess(command,2 if whitespace_error else 0,detail,"")
+        return subprocess.CompletedProcess(command,0,"","")
     return run
 
 
@@ -41,6 +46,24 @@ class ReleaseGateV13DTests(unittest.TestCase):
         checks=static_checks(load_release_policy(),base_ref="baseline",runner=_git_runner("db.py\nmigrations.py\n"))
         gate=next(x for x in checks if x.check_id=="database-schema-boundary")
         self.assertEqual(gate.status,"fail");self.assertIn("db.py",gate.detail)
+
+    def test_available_base_runs_protected_and_whitespace_diff_checks(self):
+        checks=static_checks(load_release_policy(),base_ref="baseline",runner=_git_runner())
+        self.assertEqual(next(x for x in checks if x.check_id=="database-schema-boundary").status,"pass")
+        self.assertEqual(next(x for x in checks if x.check_id=="branch-diff-check").status,"pass")
+
+    def test_missing_real_base_fails_closed(self):
+        with self.assertRaises(RuntimeError):
+            static_checks(load_release_policy(),base_ref="missing",runner=_git_runner(missing_base=True))
+
+    def test_branch_whitespace_error_fails_release_gate(self):
+        checks=static_checks(load_release_policy(),base_ref="baseline",runner=_git_runner(whitespace_error=True))
+        gate=next(x for x in checks if x.check_id=="branch-diff-check")
+        self.assertEqual(gate.status,"fail");self.assertIn("new blank line at EOF",gate.detail)
+
+    def test_clean_branch_diff_passes(self):
+        checks=static_checks(load_release_policy(),base_ref="baseline",runner=_git_runner())
+        self.assertEqual(next(x for x in checks if x.check_id=="branch-diff-check").status,"pass")
 
     def test_dirty_ci_worktree_is_blocked(self):
         checks=static_checks(load_release_policy(),require_clean=True,runner=_git_runner(dirty=" M review_engine.py\n"))
@@ -85,6 +108,15 @@ class ReleaseGateV13DTests(unittest.TestCase):
         workflow=(ROOT/".github"/"workflows"/"build-windows-installer.yml").read_text(encoding="utf-8")
         self.assertLess(workflow.index("desktop_tools/release_gate.py"),workflow.index("pyinstaller --noconfirm"))
         self.assertNotIn("gh release create",workflow);self.assertNotIn("actions/create-release",workflow)
+
+    def test_workflow_fetches_history_and_resolves_a_real_dispatch_base(self):
+        workflow=(ROOT/".github"/"workflows"/"build-windows-installer.yml").read_text(encoding="utf-8")
+        self.assertIn("fetch-depth: 0",workflow)
+        self.assertIn('$baseRef = "${{ github.event.before }}"',workflow)
+        self.assertIn('$resolvedBase = git rev-parse HEAD^ 2>$null',workflow)
+        self.assertIn('$baseRef = $resolvedBase.Trim()',workflow)
+        self.assertIn('git cat-file -e "$baseRef^{commit}"',workflow)
+        self.assertNotIn("continue-on-error",workflow)
 
     def test_command_environment_explicitly_disables_real_api(self):
         captured={}

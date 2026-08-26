@@ -72,6 +72,10 @@ def static_checks(policy:dict,*,base_ref:str="",require_clean:bool=False,runner:
     changed=_protected_changes(base_ref,runner);protected=policy["protected_paths"]
     violations=[path for path in changed if any(path==rule.rstrip("/") or path.startswith(rule) for rule in protected)]
     checks.append(GateCheck("database-schema-boundary","fail" if violations else "pass","受保护路径变更："+("、".join(violations) if violations else "无")))
+    if base_ref:
+        result=runner(["git","diff","--check",f"{base_ref}..HEAD"],cwd=ROOT,text=True,capture_output=True,timeout=30)
+        detail=(result.stdout+result.stderr).strip()
+        checks.append(GateCheck("branch-diff-check","pass" if result.returncode==0 else "fail",detail or f"已检查 {base_ref}..HEAD"))
     if require_clean:
         result=runner(["git","status","--porcelain"],cwd=ROOT,text=True,capture_output=True,timeout=30)
         clean=result.returncode==0 and not result.stdout.strip();checks.append(GateCheck("clean-worktree","pass" if clean else "fail","工作区 clean" if clean else "工作区存在未提交变更"))
