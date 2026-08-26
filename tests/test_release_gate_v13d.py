@@ -73,6 +73,14 @@ class ReleaseGateV13DTests(unittest.TestCase):
             report=run_release_gate(policy=policy)
         self.assertEqual(report.status,"fail");self.assertIn("无效",report.checks[-1]["detail"])
 
+    def test_skipped_benchmark_cannot_satisfy_release_threshold(self):
+        policy=dict(load_release_policy());policy["commands"]=[{"id":"unified-benchmark","args":["{python}","runner.py","--json-output","{benchmark_report}"],"timeout_seconds":1}]
+        def fake(args,timeout):
+            path=Path(args[-1]);report=BenchmarkReport(1,"1.3-d",9,101,100,0,0,1,0.01,"pass");path.write_text(json.dumps(report.to_dict()),encoding="utf-8")
+            return GateCheck("","pass","ok",0.01)
+        with patch("desktop_tools.release_gate.static_checks",return_value=[GateCheck("static","pass","ok")]),patch("desktop_tools.release_gate._run_command",side_effect=fake):report=run_release_gate(policy=policy)
+        self.assertEqual(report.status,"fail");self.assertIn("skipped=1",report.checks[-1]["detail"])
+
     def test_windows_build_is_strictly_after_gate_and_never_releases(self):
         workflow=(ROOT/".github"/"workflows"/"build-windows-installer.yml").read_text(encoding="utf-8")
         self.assertLess(workflow.index("desktop_tools/release_gate.py"),workflow.index("pyinstaller --noconfirm"))

@@ -105,8 +105,9 @@ def run_release_gate(*,policy:dict|None=None,base_ref:str="",require_clean:bool=
             if benchmark_check:
                 try:
                     report=json.loads(benchmark_report.read_text(encoding="utf-8"));schema=json.loads((ROOT/"data"/"benchmark_report.schema.json").read_text(encoding="utf-8"));validate_instance(report,schema)
-                    ready=report["status"]=="pass" and report["test_count"]>=policy["benchmark"]["minimum_test_count"]
-                    checks.append(GateCheck("benchmark-threshold","pass" if ready else "fail",f"passed={report['passed']}，tests={report['test_count']}"))
+                    ready=(report["status"]=="pass" and report["passed"]>=policy["benchmark"]["minimum_test_count"]
+                        and report["failures"]==0 and report["errors"]==0 and report["skipped"]==0)
+                    checks.append(GateCheck("benchmark-threshold","pass" if ready else "fail",f"passed={report['passed']}，tests={report['test_count']}，skipped={report['skipped']}"))
                 except Exception as exc:checks.append(GateCheck("benchmark-threshold","fail",f"Benchmark 报告缺失或无效：{type(exc).__name__}"))
     status="pass" if checks and all(x.status=="pass" for x in checks) else "fail"
     report=ReleaseGateReport(1,policy["gate_version"],APP_VERSION,status,[asdict(x) for x in checks]);validate_instance(report.to_dict(),json.loads(REPORT_SCHEMA.read_text(encoding="utf-8")))
