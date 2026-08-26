@@ -27,8 +27,8 @@ class ReviewPage(QWidget):
         self.scope=QTextEdit(); self.scope.setMaximumHeight(100); self.scope.setPlaceholderText("可留空，按默认清单全面审查。")
         right=QWidget(); rl=QVBoxLayout(right)
         self.summary=QTextBrowser(); self.summary.setMaximumHeight(150); rl.addWidget(self.summary)
-        self.findings=DataTable(["风险","专业","位置","问题","证据","建议","状态"])
-        self.findings.setColumnWidth(0,60); self.findings.setColumnWidth(1,100); self.findings.setColumnWidth(2,120); self.findings.setColumnWidth(3,320)
+        self.findings=DataTable(["来源","风险","专业","位置","问题","证据","建议","状态"])
+        self.findings.setColumnWidth(0,150); self.findings.setColumnWidth(1,60); self.findings.setColumnWidth(2,100); self.findings.setColumnWidth(3,120); self.findings.setColumnWidth(4,320)
         rl.addWidget(self.findings,1)
         split.addWidget(left); split.addWidget(right); split.setSizes([450,950]); lay.addWidget(split,1)
         self.add_external.clicked.connect(self.choose_external); self.run_btn.clicked.connect(self.run)
@@ -65,7 +65,8 @@ class ReviewPage(QWidget):
         rows=[]
         for f in result.get("findings",[]):
             refs=" ".join(f.get("norm_refs",[])+f.get("project_refs",[]))
-            rows.append([f.get("severity"),f.get("category"),f.get("location"),f.get("issue"),refs,f.get("recommendation"),f.get("status")])
+            source="系统确定发现" if f.get("category")=="确定性要求比对" else "AI辅助发现（待人工确认）"
+            rows.append([source,f.get("severity"),f.get("category"),f.get("location"),f.get("issue"),refs,f.get("recommendation"),f.get("status")])
         self.findings.set_rows(rows)
 
     def error(self,e):

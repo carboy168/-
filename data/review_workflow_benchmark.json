@@ -1,0 +1,24 @@
+{
+  "schema_version":1,
+  "benchmark_version":"1.3-c",
+  "cases":[
+    {"id":"duplicate-finding-deduplicates","action":"discover_twice","expected":"one_finding"},
+    {"id":"finding-fingerprint-stable","action":"rebuild_package","expected":"same_fingerprint"},
+    {"id":"confirm-then-assign","action":"confirm_assign","expected":"assigned"},
+    {"id":"assigned-to-rectifying","action":"start_rectification","expected":"rectifying"},
+    {"id":"rectifying-to-pending-review","action":"submit_review","expected":"pending_review"},
+    {"id":"pending-review-to-closed","action":"close","expected":"closed"},
+    {"id":"closed-to-reopened","action":"reopen","expected":"reopened"},
+    {"id":"evidence-change-reevaluates","action":"evidence_changed","expected":"reevaluation_required"},
+    {"id":"norm-change-reevaluates","action":"norm_status_changed","expected":"reevaluation_required"},
+    {"id":"claim-change-reruns-detector","action":"claim_changed","expected":"conflict_detection_rerun"},
+    {"id":"model-finding-needs-confirmation","action":"model_discovery","expected":"pending_confirmation"},
+    {"id":"model-finding-cannot-auto-close","action":"model_direct_close","expected":"rejected_transition"}
+  ],
+  "safety_boundaries":[
+    "runtime_workflow_does_not_change_database_schema",
+    "model_assisted_finding_requires_human_confirmation",
+    "router_candidate_is_not_evidence",
+    "reevaluation_uses_existing_claim_matcher_and_conflict_evaluator"
+  ]
+}

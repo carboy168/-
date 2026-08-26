@@ -73,6 +73,9 @@ class EngineeringReviewC4Tests(unittest.TestCase):
         saved=list_findings(review_id=result["review_id"])
         self.assertTrue(saved);self.assertEqual(saved[0]["finding_type"],"需核对");self.assertEqual(saved[0]["status"],"待确认")
         self.assertIn("规范要求更严格",saved[0]["issue"]);self.assertEqual(result["meta"]["engineering_conflicts"][0]["status"],"norm_stricter")
+        self.assertTrue(result["review_workflow"]);self.assertEqual(result["review_workflow"][0]["discovery_mode"],"deterministic")
+        with db.connect() as con:saved_raw=json.loads(con.execute("SELECT raw_json FROM project_reviews WHERE id=?",(result["review_id"],)).fetchone()["raw_json"])
+        self.assertNotIn("review_workflow",saved_raw)
 
     def test_unverified_project_chunk_only_produces_evidence_gap(self):
         norm=self._norm_row();chunk={"chunk_id":7,"file_id":3,"content":"吊杆间距不得小于1500mm。","title":"未确认图纸","doc_type":"施工图纸"}
