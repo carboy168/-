@@ -24,10 +24,14 @@
 
 ```powershell
 python -m unittest discover -s tests -v
+python desktop_tools/benchmark_runner.py
+python desktop_tools/release_gate.py
 python desktop_tools/preflight.py
 python desktop_tools/backend_smoke_test.py
 ```
 
 回归测试使用 Provider Mock，不调用真实 API。
+
+V1.3 Release Gate 会统一校验冻结契约、Benchmark suite/测试数量阈值、数据库边界、全量回归、Backend smoke、Windows preflight、compileall 与差异格式。正式 Windows CI 只有门禁全部通过后才进入 PyInstaller/Inno Setup 构建；门禁本身不会创建 tag、Release 或发布安装包。
 
 项目数据库、规范全文和项目资料默认保存在 `%LOCALAPPDATA%\EngineeringNormAgent`，软件升级不会覆盖这些用户数据。
