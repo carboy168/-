@@ -4,8 +4,8 @@ import unittest
 
 from desktop.ui.connection_messages import connection_error_text,connection_success_text
 from provider import (
-    ProviderAuthenticationError,ProviderError,ProviderModelError,ProviderNetworkError,
-    ProviderPermissionError,ProviderTimeoutError,
+    ProviderAuthenticationError,ProviderEndpointError,ProviderError,ProviderModelError,ProviderNetworkError,
+    ProviderPermissionError,ProviderRequestError,ProviderTimeoutError,
 )
 
 
@@ -23,6 +23,8 @@ class ConnectionMessageTests(unittest.TestCase):
             (ProviderModelError(secret,status_code=404),"模型不存在 / 404或模型错误"),
             (ProviderNetworkError(secret),"网络连接失败"),
             (ProviderTimeoutError(secret),"请求超时"),
+            (ProviderRequestError(secret,status_code=400),"请求参数或接口能力不兼容 / 400"),
+            (ProviderEndpointError(secret,status_code=404),"接口不存在或不兼容 / 404"),
             (ProviderError(secret,status_code=404),"模型不存在 / 404或模型错误"),
         )
         for exc,expected in cases:

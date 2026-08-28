@@ -1,14 +1,14 @@
 from __future__ import annotations
 import re
 from pathlib import Path
-from pypdf import PdfReader
+from pdf_support import open_pdf_reader
 from db import replace_clauses
 
 CLAUSE_RE = re.compile(r"^\s*((?:\d+\.)+\d+)\s+(.+)$")
 HEADING_RE = re.compile(r"^\s*(\d+)\s+([^\d].{1,80})$")
 
 def extract_pdf(path: str) -> list[tuple[int,str]]:
-    reader = PdfReader(path)
+    reader = open_pdf_reader(path)
     pages = []
     for i, page in enumerate(reader.pages, start=1):
         text = page.extract_text() or ""

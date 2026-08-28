@@ -1,7 +1,7 @@
 from __future__ import annotations
 import re, hashlib
 from pathlib import Path
-from pypdf import PdfReader
+from pdf_support import open_pdf_reader
 from db import connect
 from search_zh import build_index_text
 
@@ -10,7 +10,7 @@ SECTION_RE = re.compile(r"^\s*(\d+\.\d+)\s+(.{1,100})$")
 CLAUSE_RE = re.compile(r"^\s*(\d+(?:\.\d+){2,4})\s*(.*)$")
 
 def extract_pdf(path: str):
-    reader = PdfReader(path)
+    reader = open_pdf_reader(path)
     pages=[]
     for i,p in enumerate(reader.pages, start=1):
         text=p.extract_text() or ""

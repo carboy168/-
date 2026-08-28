@@ -15,7 +15,7 @@ for folder in ["data","config","prompts","assets"]:
 for f in ROOT.glob("*.xlsx"):
     datas.append((str(f), "."))
 
-hiddenimports = collect_submodules("openai") + collect_submodules("PySide6")
+hiddenimports = collect_submodules("openai") + collect_submodules("PySide6") + collect_submodules("cryptography")
 
 a = Analysis(
     [str(ROOT / "desktop_main.py")],

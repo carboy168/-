@@ -70,4 +70,5 @@ class ReviewPage(QWidget):
         self.findings.set_rows(rows)
 
     def error(self,e):
-        self.run_btn.setEnabled(True); QMessageBox.critical(self,"审查失败",e); self.summary.setPlainText("审查失败，请检查API设置、文件大小、网络和日志。")
+        self.run_btn.setEnabled(True); QMessageBox.critical(self,"审查失败",e)
+        self.summary.setPlainText(f"审查失败：{e}\n\n如需上游诊断，请查看已脱敏日志；日志不会记录 API Key 或文件正文。")

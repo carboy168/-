@@ -2,7 +2,7 @@ from __future__ import annotations
 import hashlib, json, mimetypes, re, shutil, zipfile, os
 import xml.etree.ElementTree as ET
 from pathlib import Path
-from pypdf import PdfReader
+from pdf_support import open_pdf_reader
 from db import connect
 from search_zh import build_index_text, build_query
 
@@ -123,7 +123,7 @@ def _chunk_text(text:str, page_no:int|None=None, section:str='', step:int=1200, 
 
 
 def _extract_pdf(path:Path):
-    reader=PdfReader(str(path)); chunks=[]
+    reader=open_pdf_reader(path); chunks=[]
     for i,p in enumerate(reader.pages,start=1):
         chunks.extend(_chunk_text(p.extract_text() or '',page_no=i,section=f'PDF第{i}页'))
     return chunks,len(reader.pages)

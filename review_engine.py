@@ -5,7 +5,8 @@ from config_env import load_dotenv
 from db import search_clauses_v3
 from router import route_question, build_route_query
 from project_mode import build_project_overlay, project_context_text, list_project_requirements, resolve_standard_alias
-from project_kb import search_project_chunks, build_project_evidence, save_review, DIRECT_REVIEW_EXTS
+from project_kb import search_project_chunks, build_project_evidence, save_review, DIRECT_REVIEW_EXTS, extract_file_text
+from provider import ProviderCapabilityError
 from provider_config import resolve_provider
 
 load_dotenv()
@@ -40,6 +41,39 @@ PLAN_CHECKS = [
 
 def _mime(path:Path):return mimetypes.guess_type(path.name)[0] or 'application/octet-stream'
 def _data_url(path:Path):return f"data:{_mime(path)};base64,"+base64.b64encode(path.read_bytes()).decode('ascii')
+
+
+def _supports(provider,capability:str)->bool:
+    checker=getattr(provider,"supports",None)
+    return bool(checker(capability)) if callable(checker) else True
+
+
+def _review_content(provider,prompt:str,paths:list[Path],review_type:str):
+    content=[{'type':'input_text','text':prompt}];modes=[];warnings=[]
+    for p in paths:
+        ext=p.suffix.lower()
+        if ext in ('.png','.jpg','.jpeg','.webp'):
+            if not _supports(provider,"image_input"):
+                raise ProviderCapabilityError("当前兼容接口不支持图片审查，请切换已确认支持图片输入的 Provider。",provider=getattr(provider,"provider_id",""))
+            content.append({'type':'input_image','image_url':_data_url(p),'detail':'high'});modes.append('image')
+            continue
+        if _supports(provider,"direct_file_input"):
+            item={'type':'input_file','filename':p.name,'file_data':_data_url(p)}
+            content.append(item);modes.append('direct_file');continue
+        if ext=='.pdf':
+            raise ProviderCapabilityError("当前兼容接口不支持直接 PDF/文件审查，请切换官方 OpenAI 或使用文本/图片审查模式。",provider=getattr(provider,"provider_id",""))
+        chunks,_=extract_file_text(str(p))
+        extracted='\n\n'.join(str(x.get('content','')) for x in chunks if x.get('content')).strip()
+        if not extracted and ext in ('.txt','.md','.json','.csv','.xml','.html'):
+            extracted=p.read_text(encoding='utf-8',errors='ignore').strip()
+        if not extracted:
+            raise ProviderCapabilityError("当前兼容接口不支持直接文件审查，且该文件未能抽取出可审查文本。",provider=getattr(provider,"provider_id",""))
+        marker=f"【兼容降级：{p.name} 仅按抽取文本审查，不包含原始版式、图片或图表】\n"
+        content.append({'type':'input_text','text':marker+extracted[:160000]});modes.append('extracted_text')
+        warnings.append(f"{p.name} 已使用文本抽取兼容模式，未审查原始版式/图片。")
+    mode='mixed' if len(set(modes))>1 else (modes[0] if modes else 'text')
+    if warnings:logging.warning("Review input downgrade | provider=%s | mode=%s | files=%s",getattr(provider,"provider_id",""),mode,",".join(p.name for p in paths))
+    return content,mode,warnings
 
 
 def _norm_evidence(project:dict, review_type:str, scope:str, max_rows:int=28):
@@ -126,17 +160,10 @@ def run_review(project:dict,file_paths:list[str],review_type:str,scope:str='',ti
     checks=DRAWING_CHECKS if review_type=='施工图审查' else PLAN_CHECKS
     checklist='\n'.join(f'- {cat}：{q}' for cat,q in checks)
     prompt=f'''你是工程图纸与施工方案审查助手。请审查用户提交的文件，但必须严格区分“规范证据、项目文件证据、工程判断”。\n\n当前项目：\n{project_context_text(project)}\n\n审查类型：{review_type}\n审查范围/重点：{scope or '按V1.0默认清单全面审查'}\n\n默认审查清单：\n{checklist}\n\n【唯一允许作为规范依据的本地规范证据】\n{norm_text}\n\n【项目文件检索证据】\n{project_text}\n\n【项目已确认控制条件】\n{req_text}\n\n严格规则：\n1. 可以从提交文件本身发现问题，但不得凭模型记忆编造规范编号或条文号。\n2. norm_refs只能填写上面存在的N编号；没有对应N证据时规范依据必须留空。\n3. project_refs只能填写上面存在的P或R编号。\n4. 图纸PDF请结合页面图像和文字审查；看不清尺寸/图号不得猜。\n5. DOCX/PPTX等非PDF文件的嵌入图片/图表可能未完整呈现，依赖图形的信息标“需核对”。\n6. 区分确定问题、需核对、建议优化、符合项，不要为了数量制造问题。\n7. 高风险优先：结构拆改、消防疏散、防火分隔、脚手架/高处作业、临时用电、防水渗漏、主要机电安全。\n8. 项目文件不得降低强制性要求；疑似冲突时提出确认。\n9. 只返回有效JSON，不要Markdown。\n\nJSON格式：{{"summary":"总评","findings":[{{"severity":"高|中|低|提示","category":"专业","location":"页码/图号/章节","issue":"问题","norm_refs":["N1"],"project_refs":["P1","R1"],"recommendation":"建议","evidence_grade":"A|B|C|D","confidence":"高|中|低","finding_type":"确定问题|需核对|建议优化|符合项","status":"待确认|待整改|提示","notes":"说明"}}]}}'''
-    content=[{'type':'input_text','text':prompt}]
-    for p in paths:
-        ext=p.suffix.lower();url=_data_url(p)
-        if ext in ('.png','.jpg','.jpeg','.webp'):
-            content.append({'type':'input_image','image_url':url,'detail':'high'})
-        else:
-            item={'type':'input_file','filename':p.name,'file_data':url}
-            if ext=='.pdf':item['detail']='high' if review_type=='施工图审查' else 'auto'
-            content.append(item)
+    content,input_mode,input_warnings=_review_content(provider,prompt,paths,review_type)
     text=provider.generate(model=model,input=[{'role':'user','content':content}])
     result=validate_review_result(_extract_json(text),len(norms),len(p_rows),len(reqs))
+    if input_warnings:result['summary']=("输入模式提示："+"；".join(input_warnings)+"\n"+result.get('summary','')).strip()
     model_findings=list(result['findings'])
     conflict_meta=[];conflict_summary="未执行"
     package=None
@@ -148,6 +175,7 @@ def run_review(project:dict,file_paths:list[str],review_type:str,scope:str='',ti
     except Exception as exc:
         logging.exception("Engineering conflict overlay failed");conflict_summary=f"已回退原审查流程（{type(exc).__name__}）"
     result['meta']={'review_type':review_type,'model':model,'norm_evidence_count':len(norms),'project_evidence_count':len(p_rows),'project_requirement_count':len(reqs),'files':[p.name for p in paths],
+                    'input_mode':input_mode,'input_warnings':input_warnings,
                     'engineering_conflict_summary':conflict_summary,'engineering_conflicts':conflict_meta}
     # V1.3-C workflow state is intentionally attached only after the legacy save.
     # It is an explicit runtime compatibility interface and is never persisted by this path.
@@ -171,11 +199,6 @@ def extract_control_candidates(project:dict,file_path:str,doc_type:str,title:str
     if p.stat().st_size>MAX_REQUEST_BYTES:raise ValueError('文件超过V1.0单次48MB安全上限。')
     provider=resolve_provider(purpose="review");model=provider.config.model
     prompt=f'''从该项目文件中提取会影响施工做法、材料选型、验收、责任界面、移交条件、工期或报审的明确控制条件。项目：{project_context_text(project)}。文件类型：{doc_type}，文件名：{title}。只返回JSON：{{"items":[{{"title":"短标题","requirement_text":"明确控制要求","source_ref":"页码/章节/图号，无法识别则待定位","priority":50}}]}}。不要把建议当成文件明确要求。'''
-    content=[{'type':'input_text','text':prompt}];url=_data_url(p);ext=p.suffix.lower()
-    if ext in ('.png','.jpg','.jpeg','.webp'):content.append({'type':'input_image','image_url':url,'detail':'high'})
-    else:
-        item={'type':'input_file','filename':p.name,'file_data':url}
-        if ext=='.pdf':item['detail']='high'
-        content.append(item)
+    content,_,_=_review_content(provider,prompt,[p],'施工图审查')
     text=provider.generate(model=model,input=[{'role':'user','content':content}])
     return _extract_json(text)
