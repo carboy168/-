@@ -10,7 +10,7 @@ files=[
     *sorted((ROOT/"desktop_tools").rglob("*.py")),
     *sorted((ROOT/"routing").rglob("*.py")),
     *sorted((ROOT/"engineering_knowledge").rglob("*.py")),
-    ROOT/"db.py",ROOT/"migrations.py",ROOT/"provider.py",ROOT/"provider_config.py",ROOT/"log_security.py",ROOT/"rag.py",ROOT/"router.py",ROOT/"project_mode.py",ROOT/"project_kb.py",ROOT/"review_engine.py",
+    ROOT/"db.py",ROOT/"migrations.py",ROOT/"provider.py",ROOT/"provider_config.py",ROOT/"log_security.py",ROOT/"rag.py",ROOT/"router.py",ROOT/"project_mode.py",ROOT/"project_kb.py",ROOT/"review_engine.py",ROOT/"pdf_support.py",ROOT/"ingest.py",ROOT/"ingest_v2.py",
 ]
 bad=[]
 for f in files:
@@ -52,6 +52,7 @@ print("桌面版预检通过：",len(files),"个Python文件语法有效，核�
 iss=(ROOT/"installer"/"EngineeringNormAgent.iss").read_text(encoding="utf-8")
 spec=(ROOT/"installer"/"EngineeringNormAgent.spec").read_text(encoding="utf-8")
 bat=(ROOT/"一键生成Windows安装包.bat").read_text(encoding="utf-8")
+requirements=(ROOT/"requirements-build.txt").read_text(encoding="utf-8")
 checks=[
     ("SourceDir={#SourcePath}\\..", iss),
     ('Source: "dist\\EngineeringNormAgent\\*"', iss),
@@ -59,6 +60,8 @@ checks=[
     ("EngineeringNormAgent.exe", iss),
     ("ROOT = Path(os.getcwd()).resolve()", spec),
     ("console=False", spec),
+    ('collect_submodules("cryptography")', spec),
+    ("cryptography>=3.1", requirements),
     ("installer\\EngineeringNormAgent.spec", bat),
 ]
 for needle,hay in checks:

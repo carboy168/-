@@ -3,11 +3,13 @@ from __future__ import annotations
 from provider import (
     ProviderAuthenticationError,
     ProviderConfigurationError,
+    ProviderEndpointError,
     ProviderError,
     ProviderModelError,
     ProviderNetworkError,
     ProviderPermissionError,
     ProviderRateLimitError,
+    ProviderRequestError,
     ProviderServerError,
     ProviderTimeoutError,
 )
@@ -26,8 +28,12 @@ def connection_error_text(exc: ProviderError) -> str:
         return "API Key无效 / 401\n请检查密钥是否正确或已过期。"
     if isinstance(exc, ProviderPermissionError) or status == 403:
         return "权限不足 / 403\n当前账号或 API Key 无权访问该模型。"
+    if isinstance(exc, ProviderEndpointError):
+        return "接口不存在或不兼容 / 404\n请检查 Base URL 以及兼容服务支持的 API 类型。"
     if isinstance(exc, ProviderModelError) or status == 404:
         return "模型不存在 / 404或模型错误\n请检查模型名称及账号权限。"
+    if isinstance(exc, ProviderRequestError) or status == 400:
+        return "请求参数或接口能力不兼容 / 400\n请检查模型能力、Base URL 和输入类型，详细原因见脱敏日志。"
     if isinstance(exc, ProviderNetworkError):
         return "网络连接失败\n请检查网络、DNS 和代理设置。"
     if isinstance(exc, ProviderTimeoutError):
