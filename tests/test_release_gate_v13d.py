@@ -112,6 +112,10 @@ class ReleaseGateV13DTests(unittest.TestCase):
     def test_workflow_fetches_history_and_resolves_a_real_dispatch_base(self):
         workflow=(ROOT/".github"/"workflows"/"build-windows-installer.yml").read_text(encoding="utf-8")
         self.assertIn("fetch-depth: 0",workflow)
+        self.assertIn("pull_request:",workflow);self.assertIn("branches: [main]",workflow)
+        self.assertNotIn("pull_request_target",workflow)
+        self.assertIn('$eventName = "${{ github.event_name }}"',workflow)
+        self.assertIn('$baseRef = "${{ github.event.pull_request.base.sha }}"',workflow)
         self.assertIn('$baseRef = "${{ github.event.before }}"',workflow)
         self.assertIn('$resolvedBase = git rev-parse HEAD^ 2>$null',workflow)
         self.assertIn('$baseRef = $resolvedBase.Trim()',workflow)

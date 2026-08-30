@@ -210,39 +210,46 @@ def ingest_project_file(project_id:int, source_path:str, doc_type:str, title:str
     if ext in UNSUPPORTED_CAD_EXTS:
         raise ValueError('V1.0暂不直接解析DWG/DXF/DGN，请从CAD导出为带文字层的PDF后导入；PDF可进行视觉审查。')
     raw=src.read_bytes(); sha=hashlib.sha256(raw).hexdigest(); size=len(raw)
+    # Validate and extract before copying into the managed project directory.  A
+    # password/format failure must not leave an unreferenced physical file.
+    chunks,page_count=extract_file_text(str(src)) if ext in SUPPORTED_INDEX_EXTS else ([],0)
     proj_dir=PROJECT_DIR/str(project_id)/'files'; proj_dir.mkdir(parents=True,exist_ok=True)
     dest=proj_dir/f'{sha[:10]}_{_safe_name(src.name)}'
-    if not dest.exists(): shutil.copy2(src,dest)
-    chunks,page_count=extract_file_text(str(dest)) if ext in SUPPORTED_INDEX_EXTS else ([],0)
-    index_status='已索引' if chunks else ('仅视觉/AI直读' if ext in VISUAL_REVIEW_EXTS else '未建立本地文本索引')
-    with connect() as con:
-        old=con.execute('SELECT id FROM project_files WHERE project_id=? AND sha256=?',(project_id,sha)).fetchone()
-        if old:
-            file_id=old['id']
-            con.execute('UPDATE project_files SET doc_type=?,title=?,source_ref=?,notes=?,stored_path=?,updated_at=CURRENT_TIMESTAMP WHERE id=?',
-                        (doc_type,title or src.stem,source_ref,notes,str(dest),file_id))
-            ids=[r['id'] for r in con.execute('SELECT id FROM project_file_chunks WHERE file_id=?',(file_id,))]
-            if ids:
-                marks=','.join(['?']*len(ids)); con.execute(f'DELETE FROM project_file_chunks_fts WHERE chunk_id IN ({marks})',ids)
-            con.execute('DELETE FROM project_file_chunks WHERE file_id=?',(file_id,))
-        else:
-            cur=con.execute('''INSERT INTO project_files(project_id,doc_type,title,source_ref,original_name,stored_path,ext,mime_type,sha256,file_size,page_count,chunk_count,index_status,visual_review_supported,notes)
-                               VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)''',
-                (project_id,doc_type,title or src.stem,source_ref,src.name,str(dest),ext,_mime(dest),sha,size,page_count,len(chunks),index_status,1 if ext in VISUAL_REVIEW_EXTS else 0,notes))
-            file_id=cur.lastrowid
-        seen=set(); count=0
-        for c in chunks:
-            h=hashlib.sha256(c['content'].encode('utf-8')).hexdigest()
-            if h in seen: continue
-            seen.add(h)
-            cur=con.execute('INSERT OR IGNORE INTO project_file_chunks(project_id,file_id,page_no,section,content,content_hash) VALUES(?,?,?,?,?,?)',
-                            (project_id,file_id,c.get('page_no'),c.get('section',''),c['content'],h))
-            if cur.rowcount:
-                cid=cur.lastrowid; count+=1
-                con.execute('INSERT INTO project_file_chunks_fts(search_tokens,chunk_id,project_id,file_id) VALUES(?,?,?,?)',
-                            (build_index_text('', '', c.get('section',''), c['content']),str(cid),str(project_id),str(file_id)))
-        con.execute('UPDATE project_files SET page_count=?,chunk_count=?,index_status=?,visual_review_supported=?,updated_at=CURRENT_TIMESTAMP WHERE id=?',
-                    (page_count,count,index_status,1 if ext in VISUAL_REVIEW_EXTS else 0,file_id))
+    created_dest=False
+    try:
+        if not dest.exists(): shutil.copy2(src,dest);created_dest=True
+        index_status='已索引' if chunks else ('仅视觉/AI直读' if ext in VISUAL_REVIEW_EXTS else '未建立本地文本索引')
+        with connect() as con:
+            old=con.execute('SELECT id FROM project_files WHERE project_id=? AND sha256=?',(project_id,sha)).fetchone()
+            if old:
+                file_id=old['id']
+                con.execute('UPDATE project_files SET doc_type=?,title=?,source_ref=?,notes=?,stored_path=?,updated_at=CURRENT_TIMESTAMP WHERE id=?',
+                            (doc_type,title or src.stem,source_ref,notes,str(dest),file_id))
+                ids=[r['id'] for r in con.execute('SELECT id FROM project_file_chunks WHERE file_id=?',(file_id,))]
+                if ids:
+                    marks=','.join(['?']*len(ids)); con.execute(f'DELETE FROM project_file_chunks_fts WHERE chunk_id IN ({marks})',ids)
+                con.execute('DELETE FROM project_file_chunks WHERE file_id=?',(file_id,))
+            else:
+                cur=con.execute('''INSERT INTO project_files(project_id,doc_type,title,source_ref,original_name,stored_path,ext,mime_type,sha256,file_size,page_count,chunk_count,index_status,visual_review_supported,notes)
+                                   VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)''',
+                    (project_id,doc_type,title or src.stem,source_ref,src.name,str(dest),ext,_mime(dest),sha,size,page_count,len(chunks),index_status,1 if ext in VISUAL_REVIEW_EXTS else 0,notes))
+                file_id=cur.lastrowid
+            seen=set(); count=0
+            for c in chunks:
+                h=hashlib.sha256(c['content'].encode('utf-8')).hexdigest()
+                if h in seen: continue
+                seen.add(h)
+                cur=con.execute('INSERT OR IGNORE INTO project_file_chunks(project_id,file_id,page_no,section,content,content_hash) VALUES(?,?,?,?,?,?)',
+                                (project_id,file_id,c.get('page_no'),c.get('section',''),c['content'],h))
+                if cur.rowcount:
+                    cid=cur.lastrowid; count+=1
+                    con.execute('INSERT INTO project_file_chunks_fts(search_tokens,chunk_id,project_id,file_id) VALUES(?,?,?,?)',
+                                (build_index_text('', '', c.get('section',''), c['content']),str(cid),str(project_id),str(file_id)))
+            con.execute('UPDATE project_files SET page_count=?,chunk_count=?,index_status=?,visual_review_supported=?,updated_at=CURRENT_TIMESTAMP WHERE id=?',
+                        (page_count,count,index_status,1 if ext in VISUAL_REVIEW_EXTS else 0,file_id))
+    except Exception:
+        if created_dest:dest.unlink(missing_ok=True)
+        raise
     return get_project_file(file_id)
 
 
@@ -309,17 +316,18 @@ def project_kb_stats(project_id:int):
 
 def save_review(project_id:int, review_type:str, title:str, scope:str, model:str, file_names:list[str], result:dict):
     ensure_project_kb_schema()
+    persisted_result={**result,'findings':[{**f,'status':'待确认'} for f in result.get('findings',[])]}
     with connect() as con:
         cur=con.execute('''INSERT INTO project_reviews(project_id,review_type,title,review_scope,model,file_names,summary,status,raw_json)
                            VALUES(?,?,?,?,?,?,?,?,?)''',
-                        (project_id,review_type,title,scope,model,json.dumps(file_names,ensure_ascii=False),result.get('summary',''),'已完成',json.dumps(result,ensure_ascii=False)))
+                        (project_id,review_type,title,scope,model,json.dumps(file_names,ensure_ascii=False),persisted_result.get('summary',''),'已完成',json.dumps(persisted_result,ensure_ascii=False)))
         rid=cur.lastrowid
-        for f in result.get('findings',[]):
+        for f in persisted_result.get('findings',[]):
             con.execute('''INSERT INTO review_findings(review_id,project_id,severity,category,location,issue,norm_refs,project_refs,recommendation,evidence_grade,confidence,finding_type,status,notes)
                            VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?)''',
                         (rid,project_id,f.get('severity','提示'),f.get('category',''),f.get('location',''),f.get('issue',''),
                          json.dumps(f.get('norm_refs',[]),ensure_ascii=False),json.dumps(f.get('project_refs',[]),ensure_ascii=False),f.get('recommendation',''),
-                         f.get('evidence_grade','D'),f.get('confidence','中'),f.get('finding_type','需核对'),f.get('status','待确认'),f.get('notes','')))
+                         f.get('evidence_grade','D'),f.get('confidence','中'),f.get('finding_type','需核对'),f['status'],f.get('notes','')))
         return rid
 
 

@@ -2,6 +2,10 @@ name: Build Windows Installer (official source)
 
 on:
   workflow_dispatch:
+  pull_request:
+    branches: [main]
+    paths-ignore:
+      - "**/*.md"
   push:
     branches: [main]
     paths-ignore:
@@ -43,7 +47,12 @@ jobs:
       - name: Run V1.3 release gate
         shell: pwsh
         run: |
-          $baseRef = "${{ github.event.before }}"
+          $eventName = "${{ github.event_name }}"
+          if ($eventName -eq "pull_request") {
+            $baseRef = "${{ github.event.pull_request.base.sha }}"
+          } else {
+            $baseRef = "${{ github.event.before }}"
+          }
           if ([string]::IsNullOrWhiteSpace($baseRef) -or $baseRef -eq ("0" * 40)) {
             $resolvedBase = git rev-parse HEAD^ 2>$null
             if ($LASTEXITCODE -ne 0 -or -not $resolvedBase) {
