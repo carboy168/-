@@ -127,6 +127,14 @@ def validate_review_result(result:dict,n_count:int,p_count:int,r_count:int):
     return result
 
 
+def normalize_model_findings_for_confirmation(result:dict)->dict:
+    """Fail closed: model output can describe a finding, but cannot assign workflow authority."""
+    for finding in result.get('findings',[]):
+        finding['status']='待确认'
+        finding['discovery_mode']='model_assisted'
+    return result
+
+
 def _engineering_conflict_overlay(project:dict,review_type:str,scope:str,norms:list[dict],project_rows:list[dict],requirements:list[dict]):
     """Additive C4 path; failure must not break the established review workflow."""
     from engineering_knowledge.conflict_detection import detect_claim_conflicts
@@ -159,10 +167,12 @@ def run_review(project:dict,file_paths:list[str],review_type:str,scope:str='',ti
     req_text='\n'.join(f"【R{i}】{r['doc_type']}｜{r['title']}｜{r['source_ref']}\n{r['requirement_text']}" for i,r in enumerate(reqs,start=1)) or '（当前没有已确认项目控制条件）'
     checks=DRAWING_CHECKS if review_type=='施工图审查' else PLAN_CHECKS
     checklist='\n'.join(f'- {cat}：{q}' for cat,q in checks)
-    prompt=f'''你是工程图纸与施工方案审查助手。请审查用户提交的文件，但必须严格区分“规范证据、项目文件证据、工程判断”。\n\n当前项目：\n{project_context_text(project)}\n\n审查类型：{review_type}\n审查范围/重点：{scope or '按V1.0默认清单全面审查'}\n\n默认审查清单：\n{checklist}\n\n【唯一允许作为规范依据的本地规范证据】\n{norm_text}\n\n【项目文件检索证据】\n{project_text}\n\n【项目已确认控制条件】\n{req_text}\n\n严格规则：\n1. 可以从提交文件本身发现问题，但不得凭模型记忆编造规范编号或条文号。\n2. norm_refs只能填写上面存在的N编号；没有对应N证据时规范依据必须留空。\n3. project_refs只能填写上面存在的P或R编号。\n4. 图纸PDF请结合页面图像和文字审查；看不清尺寸/图号不得猜。\n5. DOCX/PPTX等非PDF文件的嵌入图片/图表可能未完整呈现，依赖图形的信息标“需核对”。\n6. 区分确定问题、需核对、建议优化、符合项，不要为了数量制造问题。\n7. 高风险优先：结构拆改、消防疏散、防火分隔、脚手架/高处作业、临时用电、防水渗漏、主要机电安全。\n8. 项目文件不得降低强制性要求；疑似冲突时提出确认。\n9. 只返回有效JSON，不要Markdown。\n\nJSON格式：{{"summary":"总评","findings":[{{"severity":"高|中|低|提示","category":"专业","location":"页码/图号/章节","issue":"问题","norm_refs":["N1"],"project_refs":["P1","R1"],"recommendation":"建议","evidence_grade":"A|B|C|D","confidence":"高|中|低","finding_type":"确定问题|需核对|建议优化|符合项","status":"待确认|待整改|提示","notes":"说明"}}]}}'''
+    prompt=f'''你是工程图纸与施工方案审查助手。请审查用户提交的文件，但必须严格区分“规范证据、项目文件证据、工程判断”。\n\n当前项目：\n{project_context_text(project)}\n\n审查类型：{review_type}\n审查范围/重点：{scope or '按V1.0默认清单全面审查'}\n\n默认审查清单：\n{checklist}\n\n【唯一允许作为规范依据的本地规范证据】\n{norm_text}\n\n【项目文件检索证据】\n{project_text}\n\n【项目已确认控制条件】\n{req_text}\n\n严格规则：\n1. 可以从提交文件本身发现问题，但不得凭模型记忆编造规范编号或条文号。\n2. norm_refs只能填写上面存在的N编号；没有对应N证据时规范依据必须留空。\n3. project_refs只能填写上面存在的P或R编号。\n4. 图纸PDF请结合页面图像和文字审查；看不清尺寸/图号不得猜。\n5. DOCX/PPTX等非PDF文件的嵌入图片/图表可能未完整呈现，依赖图形的信息标“需核对”。\n6. 区分确定问题、需核对、建议优化、符合项，不要为了数量制造问题。\n7. 高风险优先：结构拆改、消防疏散、防火分隔、脚手架/高处作业、临时用电、防水渗漏、主要机电安全。\n8. 项目文件不得降低强制性要求；疑似冲突时提出确认。\n9. 所有模型发现的初始状态只能填写“待确认”，模型无权直接进入整改或确认状态。\n10. 只返回有效JSON，不要Markdown。\n\nJSON格式：{{"summary":"总评","findings":[{{"severity":"高|中|低|提示","category":"专业","location":"页码/图号/章节","issue":"问题","norm_refs":["N1"],"project_refs":["P1","R1"],"recommendation":"建议","evidence_grade":"A|B|C|D","confidence":"高|中|低","finding_type":"确定问题|需核对|建议优化|符合项","status":"待确认","notes":"说明"}}]}}'''
     content,input_mode,input_warnings=_review_content(provider,prompt,paths,review_type)
     text=provider.generate(model=model,input=[{'role':'user','content':content}])
-    result=validate_review_result(_extract_json(text),len(norms),len(p_rows),len(reqs))
+    result=normalize_model_findings_for_confirmation(
+        validate_review_result(_extract_json(text),len(norms),len(p_rows),len(reqs))
+    )
     if input_warnings:result['summary']=("输入模式提示："+"；".join(input_warnings)+"\n"+result.get('summary','')).strip()
     model_findings=list(result['findings'])
     conflict_meta=[];conflict_summary="未执行"
