@@ -1,0 +1,56 @@
+{
+  "schema_version": 1,
+  "benchmark_version": "1.4-a0",
+  "cases": [
+    {
+      "id": "clean-index",
+      "files": [{"id": 10, "project_id": 1}],
+      "chunks": [{"id": 1, "project_id": 1, "file_id": 10}, {"id": 2, "project_id": 1, "file_id": 10}],
+      "fts_rows": [{"rowid": 101, "chunk_id": "1", "project_id": "1", "file_id": "10"}, {"rowid": 102, "chunk_id": "2", "project_id": "1", "file_id": "10"}],
+      "expected": {"is_clean": true, "orphan_fts_rowids": [], "missing_chunk_ids": [], "duplicate_chunk_ids": [], "malformed_fts_rowids": [], "dangling_fts_rowids": []}
+    },
+    {
+      "id": "orphan-fts-row",
+      "files": [{"id": 10, "project_id": 1}],
+      "chunks": [{"id": 1, "project_id": 1, "file_id": 10}],
+      "fts_rows": [{"rowid": 101, "chunk_id": "1", "project_id": "1", "file_id": "10"}, {"rowid": 161, "chunk_id": "161", "project_id": "1", "file_id": "10"}],
+      "expected": {"is_clean": false, "orphan_fts_rowids": [161], "missing_chunk_ids": [], "duplicate_chunk_ids": [], "malformed_fts_rowids": [], "dangling_fts_rowids": []}
+    },
+    {
+      "id": "missing-fts-row",
+      "files": [{"id": 10, "project_id": 1}],
+      "chunks": [{"id": 1, "project_id": 1, "file_id": 10}, {"id": 2, "project_id": 1, "file_id": 10}],
+      "fts_rows": [{"rowid": 101, "chunk_id": "1", "project_id": "1", "file_id": "10"}],
+      "expected": {"is_clean": false, "orphan_fts_rowids": [], "missing_chunk_ids": [2], "duplicate_chunk_ids": [], "malformed_fts_rowids": [], "dangling_fts_rowids": []}
+    },
+    {
+      "id": "multiple-orphans-161-162",
+      "files": [{"id": 12, "project_id": 1}],
+      "chunks": [{"id": 159, "project_id": 1, "file_id": 12}, {"id": 160, "project_id": 1, "file_id": 12}],
+      "fts_rows": [{"rowid": 159, "chunk_id": "159", "project_id": "1", "file_id": "12"}, {"rowid": 160, "chunk_id": "160", "project_id": "1", "file_id": "12"}, {"rowid": 161, "chunk_id": "161", "project_id": "1", "file_id": "12"}, {"rowid": 162, "chunk_id": "162", "project_id": "1", "file_id": "12"}],
+      "expected": {"is_clean": false, "orphan_fts_rowids": [161, 162], "missing_chunk_ids": [], "duplicate_chunk_ids": [], "malformed_fts_rowids": [], "dangling_fts_rowids": []}
+    },
+    {
+      "id": "duplicate-malformed-dangling",
+      "files": [{"id": 10, "project_id": 1}],
+      "chunks": [{"id": 1, "project_id": 1, "file_id": 10}, {"id": 2, "project_id": 1, "file_id": 10}],
+      "fts_rows": [{"rowid": 101, "chunk_id": "1", "project_id": "1", "file_id": "10"}, {"rowid": 102, "chunk_id": "1", "project_id": "1", "file_id": "10"}, {"rowid": 103, "chunk_id": "bad", "project_id": "1", "file_id": "10"}, {"rowid": 104, "chunk_id": "2", "project_id": "9", "file_id": "10"}],
+      "expected": {"is_clean": false, "orphan_fts_rowids": [], "missing_chunk_ids": [2], "duplicate_chunk_ids": [1], "malformed_fts_rowids": [103], "dangling_fts_rowids": [104]}
+    },
+    {
+      "id": "multiple-projects-clean",
+      "files": [{"id": 10, "project_id": 1}, {"id": 20, "project_id": 2}],
+      "chunks": [{"id": 1, "project_id": 1, "file_id": 10}, {"id": 2, "project_id": 2, "file_id": 20}],
+      "fts_rows": [{"rowid": 101, "chunk_id": "1", "project_id": "1", "file_id": "10"}, {"rowid": 102, "chunk_id": "2", "project_id": "2", "file_id": "20"}],
+      "expected": {"is_clean": true, "orphan_fts_rowids": [], "missing_chunk_ids": [], "duplicate_chunk_ids": [], "malformed_fts_rowids": [], "dangling_fts_rowids": []}
+    }
+  ],
+  "safety_boundaries": [
+    "production_database_audit_only",
+    "no_automatic_rebuild",
+    "cleanup_only_orphan_fts_rows",
+    "cleanup_requires_isolated_test_or_copy",
+    "no_database_schema_change",
+    "no_migration"
+  ]
+}

@@ -9,10 +9,12 @@
     {"id":"db-migration-change-blocked","expected":"fail_closed"},
     {"id":"release-gate-precedes-build","expected":"pass"},
     {"id":"real-api-disabled","expected":"pass"},
-    {"id":"dirty-ci-worktree-blocked","expected":"fail_closed"}
+    {"id":"dirty-ci-worktree-blocked","expected":"fail_closed"},
+    {"id":"project-fts-integrity-fixture-gated","expected":"pass"}
   ],
   "safety_boundaries":[
     "router_output_is_not_evidence","no_real_paid_api","database_schema_and_migrations_are_protected",
-    "windows_build_runs_only_after_release_gate","release_gate_never_creates_tag_or_release"
+    "windows_build_runs_only_after_release_gate","release_gate_never_creates_tag_or_release",
+    "production_project_database_audit_only"
   ]
 }

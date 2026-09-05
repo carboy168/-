@@ -1,0 +1,40 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "cleanup_version", "database_label", "operation", "status", "removed_fts_rowids", "before", "after"],
+  "properties": {
+    "schema_version": {"const": 1},
+    "cleanup_version": {"const": "1.4-a0"},
+    "database_label": {"type": "string", "minLength": 1},
+    "operation": {"const": "targeted_orphan_cleanup"},
+    "status": {"enum": ["clean", "remaining_issues"]},
+    "removed_fts_rowids": {"type": "array", "uniqueItems": true, "items": {"type": "integer", "minimum": 1}},
+    "before": {"$ref": "#/$defs/auditWithHash"},
+    "after": {"$ref": "#/$defs/auditWithHash"}
+  },
+  "$defs": {
+    "auditWithHash": {
+      "type": "object",
+      "required": ["schema_version", "audit_version", "database_label", "operation", "status", "is_clean", "chunk_count", "fts_row_count", "matched_chunk_count", "issue_counts", "orphan_fts_rows", "missing_chunk_ids", "duplicate_chunks", "malformed_fts_rows", "dangling_fts_rows", "database_sha256"],
+      "properties": {
+        "schema_version": {"const": 1},
+        "audit_version": {"const": "1.4-a0"},
+        "database_label": {"type": "string", "minLength": 1},
+        "operation": {"const": "audit"},
+        "status": {"enum": ["clean", "issues_found"]},
+        "is_clean": {"type": "boolean"},
+        "chunk_count": {"type": "integer", "minimum": 0},
+        "fts_row_count": {"type": "integer", "minimum": 0},
+        "matched_chunk_count": {"type": "integer", "minimum": 0},
+        "issue_counts": {"type": "object"},
+        "orphan_fts_rows": {"type": "array"},
+        "missing_chunk_ids": {"type": "array"},
+        "duplicate_chunks": {"type": "array"},
+        "malformed_fts_rows": {"type": "array"},
+        "dangling_fts_rows": {"type": "array"},
+        "database_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"}
+      }
+    }
+  }
+}

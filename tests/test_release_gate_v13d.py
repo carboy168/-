@@ -27,8 +27,14 @@ def _git_runner(changes="",dirty="",missing_base=False,whitespace_error=False):
 class ReleaseGateV13DTests(unittest.TestCase):
     def test_policy_schema_fixture_and_required_suites(self):
         policy=load_release_policy();fixture=validate_json_file(ROOT/"data"/"release_gate_benchmark.json",ROOT/"data"/"release_gate_benchmark.schema.json")
-        self.assertEqual(policy["gate_version"],"1.3-d");self.assertEqual(len(policy["benchmark"]["required_suites"]),9)
+        self.assertEqual(policy["gate_version"],"1.3-d");self.assertEqual(len(policy["benchmark"]["required_suites"]),10)
         self.assertGreaterEqual(len(fixture["cases"]),9);self.assertIn("no_real_paid_api",fixture["safety_boundaries"])
+
+    def test_project_fts_integrity_fixture_is_release_gated(self):
+        policy=load_release_policy();checks=static_checks(policy,runner=_git_runner())
+        gate=next(x for x in checks if x.check_id=="project-fts-integrity-contract")
+        self.assertEqual(gate.status,"pass");self.assertIn("production=audit-only",gate.detail)
+        self.assertIn("project-fts-integrity",[x["id"] for x in policy["commands"]])
 
     def test_benchmark_runner_produces_valid_machine_readable_report(self):
         class Passing(unittest.TestCase):

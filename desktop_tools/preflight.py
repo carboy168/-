@@ -10,7 +10,7 @@ files=[
     *sorted((ROOT/"desktop_tools").rglob("*.py")),
     *sorted((ROOT/"routing").rglob("*.py")),
     *sorted((ROOT/"engineering_knowledge").rglob("*.py")),
-    ROOT/"db.py",ROOT/"migrations.py",ROOT/"provider.py",ROOT/"provider_config.py",ROOT/"log_security.py",ROOT/"rag.py",ROOT/"router.py",ROOT/"project_mode.py",ROOT/"project_kb.py",ROOT/"review_engine.py",ROOT/"pdf_support.py",ROOT/"ingest.py",ROOT/"ingest_v2.py",
+    ROOT/"db.py",ROOT/"migrations.py",ROOT/"provider.py",ROOT/"provider_config.py",ROOT/"log_security.py",ROOT/"rag.py",ROOT/"router.py",ROOT/"project_mode.py",ROOT/"project_kb.py",ROOT/"project_index_integrity.py",ROOT/"review_engine.py",ROOT/"pdf_support.py",ROOT/"ingest.py",ROOT/"ingest_v2.py",
 ]
 bad=[]
 for f in files:
@@ -39,6 +39,8 @@ for required in [
     ROOT/"data"/"review_finding.schema.json",ROOT/"data"/"review_workflow_benchmark.json",ROOT/"data"/"review_workflow_benchmark.schema.json",
     ROOT/"data"/"benchmark_report.schema.json",ROOT/"data"/"release_gate.json",ROOT/"data"/"release_gate.schema.json",ROOT/"data"/"release_gate_report.schema.json",
     ROOT/"data"/"release_gate_benchmark.json",ROOT/"data"/"release_gate_benchmark.schema.json",
+    ROOT/"data"/"project_index_integrity_benchmark.json",ROOT/"data"/"project_index_integrity_benchmark.schema.json",
+    ROOT/"data"/"project_index_audit_report.schema.json",ROOT/"data"/"project_index_cleanup_report.schema.json",
     ROOT/"version.ini",ROOT/"versioning.py",ROOT/"desktop_tools"/"benchmark_runner.py",ROOT/"desktop_tools"/"release_gate.py",
     ROOT/"prompts"/"system_prompt.txt",ROOT/"assets"/"app.ico",ROOT/"installer"/"EngineeringNormAgent.spec",
     ROOT/"installer"/"EngineeringNormAgent.iss",
@@ -89,6 +91,7 @@ validate_json_file(ROOT/"data"/"project_evidence_lifecycle_benchmark.json",ROOT/
 validate_json_file(ROOT/"data"/"review_workflow_benchmark.json",ROOT/"data"/"review_workflow_benchmark.schema.json")
 validate_json_file(ROOT/"data"/"release_gate.json",ROOT/"data"/"release_gate.schema.json")
 validate_json_file(ROOT/"data"/"release_gate_benchmark.json",ROOT/"data"/"release_gate_benchmark.schema.json")
+validate_json_file(ROOT/"data"/"project_index_integrity_benchmark.json",ROOT/"data"/"project_index_integrity_benchmark.schema.json")
 print("Topic Router and review workflow JSON Schema validation PASS")
 
 from desktop_tools.benchmark_runner import load_benchmark_manifest
