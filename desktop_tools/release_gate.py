@@ -18,6 +18,8 @@ from versioning import APP_VERSION
 POLICY=ROOT/"data"/"release_gate.json"
 POLICY_SCHEMA=ROOT/"data"/"release_gate.schema.json"
 REPORT_SCHEMA=ROOT/"data"/"release_gate_report.schema.json"
+PROJECT_INDEX_FIXTURE=ROOT/"data"/"project_index_integrity_benchmark.json"
+PROJECT_INDEX_FIXTURE_SCHEMA=ROOT/"data"/"project_index_integrity_benchmark.schema.json"
 
 
 @dataclass(frozen=True)
@@ -65,6 +67,11 @@ def static_checks(policy:dict,*,base_ref:str="",require_clean:bool=False,runner:
     manifest=load_benchmark_manifest();suite_ids={x["suite_id"] for x in manifest["suites"]};required=set(policy["benchmark"]["required_suites"])
     benchmark_ok=manifest["runner_version"]==policy["benchmark"]["runner_version"] and required.issubset(suite_ids) and build_suite(manifest).countTestCases()>=policy["benchmark"]["minimum_test_count"]
     checks.append(GateCheck("benchmark-contract","pass" if benchmark_ok else "fail",f"runner={manifest['runner_version']}，suite={len(suite_ids)}，tests={build_suite(manifest).countTestCases()}"))
+    index_fixture=validate_json_file(PROJECT_INDEX_FIXTURE,PROJECT_INDEX_FIXTURE_SCHEMA)
+    index_contract=("project-fts-integrity" in required and index_fixture["benchmark_version"]=="1.4-a0"
+                    and "production_database_audit_only" in index_fixture["safety_boundaries"]
+                    and "no_automatic_rebuild" in index_fixture["safety_boundaries"])
+    checks.append(GateCheck("project-fts-integrity-contract","pass" if index_contract else "fail",f"fixture_cases={len(index_fixture['cases'])}，production=audit-only"))
     workflow=(ROOT/".github"/"workflows"/"build-windows-installer.yml").read_text(encoding="utf-8")
     gate_pos=workflow.find("desktop_tools/release_gate.py");build_pos=workflow.find("pyinstaller --noconfirm")
     workflow_ok=gate_pos>=0 and build_pos>gate_pos and all(token not in workflow for token in ("gh release create","gh release delete"))

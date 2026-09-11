@@ -47,9 +47,9 @@ class ContractGovernanceTests(unittest.TestCase):
             path=Path(tmp)/"registry.json";path.write_text(json.dumps(registry),encoding="utf-8")
             with self.assertRaises(ContractCompatibilityError):load_contract_registry(path)
 
-    def test_benchmark_manifest_covers_topic_and_c0_through_c4(self):
+    def test_benchmark_manifest_covers_all_governed_suites(self):
         manifest=load_benchmark_manifest();ids={item["suite_id"] for item in manifest["suites"]}
-        self.assertEqual(ids,{"topic-router","knowledge-c0","knowledge-c1","knowledge-c2","knowledge-c3","knowledge-c4","project-evidence-lifecycle","review-workflow","release-gate"})
+        self.assertEqual(ids,{"topic-router","knowledge-c0","knowledge-c1","knowledge-c2","knowledge-c3","knowledge-c4","project-evidence-lifecycle","review-workflow","release-gate","project-fts-integrity"})
         self.assertGreater(build_suite(manifest).countTestCases(),0)
 
     def test_route_logging_performs_insert_without_runtime_ddl(self):

@@ -10,6 +10,7 @@
     {"suite_id": "knowledge-c4", "fixture": "data/engineering_knowledge_c4_benchmark.json", "test_module": "tests.test_engineering_review_c4"},
     {"suite_id": "project-evidence-lifecycle", "fixture": "data/project_evidence_lifecycle_benchmark.json", "test_module": "tests.test_project_evidence_lifecycle_v13b"},
     {"suite_id": "review-workflow", "fixture": "data/review_workflow_benchmark.json", "test_module": "tests.test_review_workflow_v13c"},
-    {"suite_id": "release-gate", "fixture": "data/release_gate_benchmark.json", "test_module": "tests.test_release_gate_v13d"}
+    {"suite_id": "release-gate", "fixture": "data/release_gate_benchmark.json", "test_module": "tests.test_release_gate_v13d"},
+    {"suite_id": "project-fts-integrity", "fixture": "data/project_index_integrity_benchmark.json", "test_module": "tests.test_project_index_integrity_v14a0"}
   ]
 }
