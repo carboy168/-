@@ -20,6 +20,8 @@ POLICY_SCHEMA=ROOT/"data"/"release_gate.schema.json"
 REPORT_SCHEMA=ROOT/"data"/"release_gate_report.schema.json"
 PROJECT_INDEX_FIXTURE=ROOT/"data"/"project_index_integrity_benchmark.json"
 PROJECT_INDEX_FIXTURE_SCHEMA=ROOT/"data"/"project_index_integrity_benchmark.schema.json"
+PROJECT_BATCH_FIXTURE=ROOT/"data"/"project_batch_import_benchmark.json"
+PROJECT_BATCH_FIXTURE_SCHEMA=ROOT/"data"/"project_batch_import_benchmark.schema.json"
 
 
 @dataclass(frozen=True)
@@ -72,6 +74,12 @@ def static_checks(policy:dict,*,base_ref:str="",require_clean:bool=False,runner:
                     and "production_database_audit_only" in index_fixture["safety_boundaries"]
                     and "no_automatic_rebuild" in index_fixture["safety_boundaries"])
     checks.append(GateCheck("project-fts-integrity-contract","pass" if index_contract else "fail",f"fixture_cases={len(index_fixture['cases'])}，production=audit-only"))
+    batch_fixture=validate_json_file(PROJECT_BATCH_FIXTURE,PROJECT_BATCH_FIXTURE_SCHEMA)
+    batch_contract=("project-batch-import" in required and batch_fixture["benchmark_version"]=="1.4-a1"
+                    and "per_file_atomic_commit" in batch_fixture["safety_boundaries"]
+                    and "failed_file_complete_rollback" in batch_fixture["safety_boundaries"]
+                    and "fts_integrity_after_every_scenario" in batch_fixture["safety_boundaries"])
+    checks.append(GateCheck("project-batch-import-contract","pass" if batch_contract else "fail",f"fixture_cases={len(batch_fixture['cases'])}，per-file=atomic"))
     workflow=(ROOT/".github"/"workflows"/"build-windows-installer.yml").read_text(encoding="utf-8")
     gate_pos=workflow.find("desktop_tools/release_gate.py");build_pos=workflow.find("pyinstaller --noconfirm")
     workflow_ok=gate_pos>=0 and build_pos>gate_pos and all(token not in workflow for token in ("gh release create","gh release delete"))

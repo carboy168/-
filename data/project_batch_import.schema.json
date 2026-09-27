@@ -1,0 +1,49 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version", "batch_version", "project_id", "total_files",
+    "success_count", "failure_count", "status", "partial_success",
+    "files", "ui_refresh_required", "fatal_error"
+  ],
+  "properties": {
+    "schema_version": {"const": 1},
+    "batch_version": {"const": "1.4-a1"},
+    "project_id": {"type": "integer", "minimum": 1},
+    "total_files": {"type": "integer", "minimum": 0},
+    "success_count": {"type": "integer", "minimum": 0},
+    "failure_count": {"type": "integer", "minimum": 0},
+    "status": {"enum": ["empty", "success", "partial_success", "failed", "system_failure"]},
+    "partial_success": {"type": "boolean"},
+    "files": {
+      "type": "array",
+      "items": {"$ref": "#/$defs/file_result"}
+    },
+    "ui_refresh_required": {"type": "boolean"},
+    "fatal_error": {
+      "anyOf": [{"type": "string", "minLength": 1}, {"type": "null"}]
+    }
+  },
+  "$defs": {
+    "file_result": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "input_index", "file_name", "source_path", "status", "outcome",
+        "file_id", "duplicate", "failure_reason", "error_type"
+      ],
+      "properties": {
+        "input_index": {"type": "integer", "minimum": 0},
+        "file_name": {"type": "string", "minLength": 1},
+        "source_path": {"type": "string", "minLength": 1},
+        "status": {"enum": ["success", "failed"]},
+        "outcome": {"enum": ["created", "updated_existing", "failed", "not_processed"]},
+        "file_id": {"anyOf": [{"type": "integer", "minimum": 1}, {"type": "null"}]},
+        "duplicate": {"type": "boolean"},
+        "failure_reason": {"anyOf": [{"type": "string", "minLength": 1}, {"type": "null"}]},
+        "error_type": {"anyOf": [{"type": "string", "minLength": 1}, {"type": "null"}]}
+      }
+    }
+  }
+}
