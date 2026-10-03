@@ -265,7 +265,11 @@ def _delete_project_chunk_fts(con, chunk_ids:list[int]):
 
 
 def ingest_project_file(project_id:int, source_path:str, doc_type:str, title:str='', source_ref:str='', notes:str=''):
-    ensure_project_kb_schema(); src=Path(source_path)
+    try:ensure_project_kb_schema()
+    except Exception as exc:
+        exc.import_stage='database'
+        raise
+    src=Path(source_path)
     if not src.exists(): raise FileNotFoundError(source_path)
     ext=src.suffix.lower()
     if ext in UNSUPPORTED_CAD_EXTS:
@@ -278,20 +282,32 @@ def ingest_project_file(project_id:int, source_path:str, doc_type:str, title:str
     except Exception as exc:
         if _is_system_fatal_import_error(exc):raise
         raise ValueError(f'文件解析失败：{_friendly_import_failure(exc)}') from exc
-    proj_dir=PROJECT_DIR/str(project_id)/'files'; proj_dir.mkdir(parents=True,exist_ok=True)
+    proj_dir=PROJECT_DIR/str(project_id)/'files'
     dest=None; temp_dest=None; created_dest=False; duplicate=False; result=None
+    stage='target_storage'
     try:
+        proj_dir.mkdir(parents=True,exist_ok=True)
+        stage='database'
         with connect() as con:
             con.execute('BEGIN IMMEDIATE')
             old=con.execute('SELECT id,stored_path FROM project_files WHERE project_id=? AND sha256=?',(project_id,sha)).fetchone()
             duplicate=bool(old)
             dest=Path(old['stored_path']) if old and old['stored_path'] else proj_dir/f'{sha[:10]}_{_safe_name(src.name)}'
+            stage='target_storage'
             if not dest.exists():
                 dest.parent.mkdir(parents=True,exist_ok=True)
                 temp_dest=dest.with_name(dest.name+f'.importing-{uuid.uuid4().hex}')
-                shutil.copy2(src,temp_dest)
+                try:shutil.copy2(src,temp_dest)
+                except OSError as exc:
+                    # A filename naming the source identifies a read failure.
+                    # Unattributed copy I/O faults stop conservatively: the
+                    # destination volume may be unavailable.
+                    if exc.filename is not None and exc.filename2 is None and Path(exc.filename)==src:
+                        stage='source'
+                    raise
                 os.replace(temp_dest,dest)
                 created_dest=True
+            stage='database'
             index_status='已索引' if chunks else ('仅视觉/AI直读' if ext in VISUAL_REVIEW_EXTS else '未建立本地文本索引')
             if old:
                 file_id=old['id']
@@ -321,15 +337,28 @@ def ingest_project_file(project_id:int, source_path:str, doc_type:str, title:str
                         (page_count,count,index_status,1 if ext in VISUAL_REVIEW_EXTS else 0,file_id))
             row=con.execute('SELECT * FROM project_files WHERE id=?',(file_id,)).fetchone()
             result=dict(row)
-    except Exception:
-        if temp_dest is not None:temp_dest.unlink(missing_ok=True)
-        if created_dest and dest is not None:dest.unlink(missing_ok=True)
+    except Exception as exc:
+        # Never replace the primary fault with a cleanup fault. Each owned path
+        # gets its own attempt, even if a previous unlink failed.
+        exc.import_stage=stage
+        cleanup_errors=[]
+        for path in (temp_dest, dest if created_dest else None):
+            if path is None:continue
+            try:path.unlink(missing_ok=True)
+            except Exception as cleanup_exc:
+                cleanup_errors.append((str(path),type(cleanup_exc).__name__,str(cleanup_exc)))
+        exc.import_cleanup_errors=cleanup_errors
         raise
     result['import_action']='updated_existing' if duplicate else 'created'
     return result
 
 
 def _friendly_import_failure(exc:Exception) -> str:
+    cleanup_errors=getattr(exc,'import_cleanup_errors',())
+    if cleanup_errors:
+        paths='；'.join(f'{path}（{kind}：{message}）' for path,kind,message in cleanup_errors)
+        return (f'导入失败（{type(exc).__name__}）：{exc}。'
+                f'物理文件清理未完成，不能确认完整回滚；请检查可能残留的路径：{paths}。批次已停止。')
     if isinstance(exc, PdfReadError):return f'PDF 已损坏或格式无法解析：{exc}'
     if isinstance(exc, FileNotFoundError):return '文件不存在或已被移动。'
     if isinstance(exc, PermissionError):return '文件无法读取或写入，请检查文件权限和占用状态。'
@@ -342,14 +371,24 @@ def _friendly_import_failure(exc:Exception) -> str:
 
 
 def _is_system_fatal_import_error(exc:Exception) -> bool:
+    if getattr(exc,'import_cleanup_errors',()):return True
     if isinstance(exc, MemoryError):return True
     if isinstance(exc, OSError) and getattr(exc,'errno',None)==errno.ENOSPC:return True
+    if (isinstance(exc,OSError) and getattr(exc,'import_stage',None) in ('target_storage','database')
+            and exc.errno in (errno.EIO,errno.EROFS)):return True
     if not isinstance(exc, sqlite3.DatabaseError):return False
+    # Extended SQLite codes preserve their primary code in the low byte.
+    code=getattr(exc,'sqlite_errorcode',None)
+    if isinstance(code,int) and (code & 0xff) in (
+        sqlite3.SQLITE_CANTOPEN,sqlite3.SQLITE_CORRUPT,sqlite3.SQLITE_IOERR,
+        sqlite3.SQLITE_BUSY,sqlite3.SQLITE_LOCKED,sqlite3.SQLITE_READONLY,
+        sqlite3.SQLITE_FULL,sqlite3.SQLITE_NOTADB,sqlite3.SQLITE_NOMEM,
+    ):return True
     message=str(exc).lower()
     return any(token in message for token in (
         'unable to open database','database disk image is malformed','disk i/o error',
         'database is locked','readonly database','database or disk is full',
-        'no such table','no such module: fts5',
+        'no such table','no such module: fts5','file is not a database',
     ))
 
 
@@ -416,10 +455,15 @@ def format_batch_import_summary(batch:ProjectBatchImportResult) -> str:
 def present_batch_import_result(batch:ProjectBatchImportResult, *, refresh, set_result_text,
                                 show_information, show_warning) -> str:
     """Apply one final UI refresh and present the complete batch outcome."""
-    if batch.ui_refresh_required:refresh()
+    refresh_error=None
+    if batch.ui_refresh_required:
+        try:refresh()
+        except Exception as exc:refresh_error=exc
     summary=format_batch_import_summary(batch)
+    if refresh_error is not None:
+        summary+=f'\n\n界面刷新失败（{type(refresh_error).__name__}）：{refresh_error}。以上导入结果仍有效，请稍后重新刷新列表。'
     set_result_text(summary)
-    (show_warning if batch.failure_count else show_information)(summary)
+    (show_warning if batch.failure_count or refresh_error is not None else show_information)(summary)
     return summary
 
 

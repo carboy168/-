@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import errno
 import json
 import os
 import sqlite3
@@ -348,6 +349,209 @@ class ProjectBatchImportV14A1Tests(unittest.TestCase):
         self.assertEqual(refresh.call_count, 2)
         self.assertIn('new-success.txt', state['text'])
         self.assertNotIn('old-failure.pdf', state['text'])
+
+    def test_cleanup_failures_preserve_primary_fault_and_attempt_both_paths(self):
+        source = self._text('cleanup-primary.txt')
+        primary = OSError(errno.ENOSPC, 'primary disk full')
+        attempts = []
+
+        def unlink(path, **kwargs):
+            attempts.append(path)
+            raise PermissionError(errno.EACCES, 'cleanup denied', str(path))
+
+        with patch('project_kb._insert_project_chunk_fts', side_effect=primary), patch.object(Path, 'unlink', unlink):
+            with self.assertRaises(OSError) as caught:
+                project_kb.ingest_project_file(self.project_id, str(source), '其他')
+        self.assertIs(caught.exception, primary)
+        self.assertEqual(len(attempts), 2)
+        self.assertIn('.importing-', attempts[0].name)
+        self.assertNotIn('.importing-', attempts[1].name)
+        self.assertTrue(attempts[1].exists())
+        reason = project_kb._friendly_import_failure(primary)
+        self.assertIn('primary disk full', reason)
+        self.assertIn('清理未完成', reason)
+        self.assertNotIn('已完整回滚', reason)
+        for path in attempts:
+            self.assertIn(str(path), reason)
+        self.assertTrue(project_kb._is_system_fatal_import_error(primary))
+        self.assertEqual(self._database_counts()['files'], 0)
+
+    def test_cleanup_failure_stops_batch_and_preserves_preceding_success(self):
+        first, failed, pending = [self._text(name) for name in ('kept.txt', 'residue.txt', 'pending.txt')]
+        insert = project_kb._insert_project_chunk_fts
+        unlink = Path.unlink
+        attempts = []
+        calls = 0
+
+        def fail_insert(con, **kwargs):
+            nonlocal calls
+            calls += 1
+            if calls == 2:
+                raise OSError(errno.ENOSPC, 'primary disk full')
+            return insert(con, **kwargs)
+
+        def fail_unlink(path, **kwargs):
+            if 'residue.txt' in path.name:
+                attempts.append(path)
+                raise PermissionError('cannot clean')
+            return unlink(path, **kwargs)
+
+        with patch('project_kb._insert_project_chunk_fts', side_effect=fail_insert), patch.object(Path, 'unlink', fail_unlink):
+            result = self._run([first, failed, pending])
+        self.assertEqual(result.status, 'system_failure')
+        self.assertEqual([item.outcome for item in result.files], ['created', 'failed', 'not_processed'])
+        self.assertEqual(result.files[1].error_type, 'OSError')
+        self.assertEqual(len(attempts), 2)
+        self.assertIn('primary disk full', result.fatal_error)
+        self.assertIn(str(attempts[1]), result.fatal_error)
+        self.assertEqual(self._database_counts()['files'], 1)
+        self.assertEqual(len(self._stored_files()), 2)
+        kept = project_kb.get_project_file(result.files[0].file_id)
+        self.assertEqual(Path(kept['stored_path']).read_bytes(), first.read_bytes())
+
+    def test_recoverable_primary_with_partial_copy_cleanup_failure_is_fatal(self):
+        source = self._text('partial-residue.txt')
+        pending = self._text('after-residue.txt')
+        residual = []
+
+        def copy(src, dest):
+            Path(dest).write_bytes(b'partial')
+            residual.append(Path(dest))
+            raise RuntimeError('copy interrupted')
+
+        with patch('project_kb.shutil.copy2', side_effect=copy), patch.object(Path, 'unlink', side_effect=PermissionError('denied')):
+            result = self._run([source, pending])
+        self.assertEqual(result.status, 'system_failure')
+        self.assertEqual(result.files[1].outcome, 'not_processed')
+        self.assertEqual(result.files[0].error_type, 'RuntimeError')
+        self.assertEqual(residual[0].read_bytes(), b'partial')
+        self.assertIn(str(residual[0]), result.fatal_error)
+        self.assertEqual(self._database_counts()['files'], 0)
+
+    def test_failed_temp_cleanup_does_not_prevent_destination_cleanup(self):
+        source = self._text('second-cleanup.txt')
+        original = Path.unlink
+        attempts = []
+
+        def unlink(path, **kwargs):
+            attempts.append(path)
+            if '.importing-' in path.name:
+                raise PermissionError('temp cleanup denied')
+            return original(path, **kwargs)
+
+        with patch('project_kb._insert_project_chunk_fts', side_effect=RuntimeError('index failed')), patch.object(Path, 'unlink', unlink):
+            result = self._run([source])
+        self.assertEqual(len(attempts), 2)
+        self.assertFalse(attempts[1].exists())
+        self.assertEqual(self._stored_files(), [])
+        self.assertEqual(result.status, 'system_failure')
+
+    def test_target_storage_errno_failures_stop_remaining_inputs(self):
+        for boundary in ('mkdir', 'copy', 'replace'):
+            for code in (errno.EIO, errno.EROFS):
+                with self.subTest(boundary=boundary, code=code):
+                    token = f'{boundary}-{code}'
+                    first, failed, pending = [self._text(f'{token}-{name}.txt') for name in ('kept', 'failed', 'pending')]
+                    original_ingest = project_kb.ingest_project_file
+                    target = {'mkdir': 'project_kb.Path.mkdir', 'copy': 'project_kb.shutil.copy2', 'replace': 'project_kb.os.replace'}[boundary]
+
+                    def ingest(project_id, source_path, doc_type, **kwargs):
+                        if source_path == str(failed):
+                            with patch(target, side_effect=OSError(code, 'target unavailable')):
+                                return original_ingest(project_id, source_path, doc_type, **kwargs)
+                        return original_ingest(project_id, source_path, doc_type, **kwargs)
+
+                    before = self._database_counts()['files']
+                    with patch('project_kb.ingest_project_file', side_effect=ingest):
+                        result = self._run([first, failed, pending])
+                    self.assertEqual(result.status, 'system_failure')
+                    self.assertEqual([item.outcome for item in result.files], ['created', 'failed', 'not_processed'])
+                    self.assertEqual(self._database_counts()['files'], before + 1)
+                    self.assertEqual(len(self._stored_files()), before + 1)
+
+    def test_copy_error_naming_both_paths_remains_system_fatal(self):
+        source = self._text('dual-path-copy.txt')
+        pending = self._text('dual-path-pending.txt')
+
+        def copy(src, dest):
+            raise OSError(errno.EIO, 'sendfile failed', str(src), None, str(dest))
+
+        with patch('project_kb.shutil.copy2', side_effect=copy):
+            result = self._run([source, pending])
+        self.assertEqual(result.status, 'system_failure')
+        self.assertEqual(result.files[1].outcome, 'not_processed')
+        self.assertEqual(self._stored_files(), [])
+
+    def test_source_read_and_copy_source_errors_remain_recoverable(self):
+        for boundary in ('read', 'copy'):
+            for code in (errno.ENOENT, errno.EACCES, errno.EIO):
+                with self.subTest(boundary=boundary, code=code):
+                    bad = self._text(f'source-{boundary}-{code}.txt')
+                    good = self._text(f'after-source-{boundary}-{code}.txt')
+                    read = Path.read_bytes
+                    copy = project_kb.shutil.copy2
+
+                    def fail_read(path):
+                        if path == bad:raise OSError(code, 'source unavailable')
+                        return read(path)
+
+                    def fail_copy(src, dest):
+                        if src == bad:raise OSError(code, 'source unavailable', str(src))
+                        return copy(src, dest)
+
+                    target = patch.object(Path, 'read_bytes', fail_read) if boundary == 'read' else patch('project_kb.shutil.copy2', side_effect=fail_copy)
+                    with target:
+                        result = self._run([bad, good])
+                    self.assertEqual(result.status, 'partial_success')
+                    self.assertEqual([item.status for item in result.files], ['failed', 'success'])
+                    self.assertIsNone(result.fatal_error)
+
+    def test_sqlite_primary_and_extended_availability_codes_are_fatal(self):
+        codes = (sqlite3.SQLITE_NOTADB, sqlite3.SQLITE_IOERR | (3 << 8), sqlite3.SQLITE_READONLY, sqlite3.SQLITE_FULL)
+        for code in codes:
+            with self.subTest(code=code):
+                first, failed, pending = [self._text(f'sqlite-{code}-{name}.txt') for name in ('kept', 'failed', 'pending')]
+                original = project_kb._insert_project_chunk_fts
+                calls = 0
+
+                def insert(con, **kwargs):
+                    nonlocal calls
+                    calls += 1
+                    if calls == 2:
+                        exc = sqlite3.DatabaseError('localized database failure')
+                        exc.sqlite_errorcode = code
+                        raise exc
+                    return original(con, **kwargs)
+
+                before = self._database_counts()['files']
+                with patch('project_kb._insert_project_chunk_fts', side_effect=insert):
+                    result = self._run([first, failed, pending])
+                self.assertEqual(result.status, 'system_failure')
+                self.assertEqual(result.files[2].outcome, 'not_processed')
+                self.assertEqual(self._database_counts()['files'], before + 1)
+                self.assertEqual(len(self._stored_files()), before + 1)
+        self.assertTrue(project_kb._is_system_fatal_import_error(sqlite3.DatabaseError('file is not a database')))
+        ordinary = sqlite3.IntegrityError('constraint failure')
+        ordinary.sqlite_errorcode = sqlite3.SQLITE_CONSTRAINT
+        self.assertFalse(project_kb._is_system_fatal_import_error(ordinary))
+
+    def test_refresh_failure_still_presents_success_and_failure_outcomes(self):
+        for paths in ([self._text('refresh-success.txt')], [self._text('refresh-partial.txt'), self.root / 'missing-refresh.pdf']):
+            with self.subTest(paths=paths):
+                result = self._run(paths)
+                before = result.to_dict()
+                refresh = Mock(side_effect=RuntimeError('refresh unavailable'))
+                set_text, information, warning = Mock(), Mock(), Mock()
+                summary = project_kb.present_batch_import_result(result, refresh=refresh, set_result_text=set_text,
+                    show_information=information, show_warning=warning)
+                refresh.assert_called_once_with()
+                set_text.assert_called_once_with(summary)
+                warning.assert_called_once_with(summary)
+                information.assert_not_called()
+                self.assertIn(project_kb.format_batch_import_summary(result), summary)
+                self.assertIn('界面刷新失败', summary)
+                self.assertIn('refresh unavailable', summary)
+                self.assertEqual(result.to_dict(), before)
 
 
 if __name__ == "__main__":
