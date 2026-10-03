@@ -41,6 +41,7 @@ for required in [
     ROOT/"data"/"release_gate_benchmark.json",ROOT/"data"/"release_gate_benchmark.schema.json",
     ROOT/"data"/"project_index_integrity_benchmark.json",ROOT/"data"/"project_index_integrity_benchmark.schema.json",
     ROOT/"data"/"project_index_audit_report.schema.json",ROOT/"data"/"project_index_cleanup_report.schema.json",
+    ROOT/"data"/"project_batch_import.schema.json",ROOT/"data"/"project_batch_import_benchmark.json",ROOT/"data"/"project_batch_import_benchmark.schema.json",
     ROOT/"version.ini",ROOT/"versioning.py",ROOT/"desktop_tools"/"benchmark_runner.py",ROOT/"desktop_tools"/"release_gate.py",
     ROOT/"prompts"/"system_prompt.txt",ROOT/"assets"/"app.ico",ROOT/"installer"/"EngineeringNormAgent.spec",
     ROOT/"installer"/"EngineeringNormAgent.iss",
@@ -92,6 +93,7 @@ validate_json_file(ROOT/"data"/"review_workflow_benchmark.json",ROOT/"data"/"rev
 validate_json_file(ROOT/"data"/"release_gate.json",ROOT/"data"/"release_gate.schema.json")
 validate_json_file(ROOT/"data"/"release_gate_benchmark.json",ROOT/"data"/"release_gate_benchmark.schema.json")
 validate_json_file(ROOT/"data"/"project_index_integrity_benchmark.json",ROOT/"data"/"project_index_integrity_benchmark.schema.json")
+validate_json_file(ROOT/"data"/"project_batch_import_benchmark.json",ROOT/"data"/"project_batch_import_benchmark.schema.json")
 print("Topic Router and review workflow JSON Schema validation PASS")
 
 from desktop_tools.benchmark_runner import load_benchmark_manifest

@@ -1,11 +1,10 @@
 from __future__ import annotations
-from pathlib import Path
 from PySide6.QtCore import QThreadPool
 from PySide6.QtWidgets import QComboBox, QFileDialog, QHBoxLayout, QLabel, QLineEdit, QMessageBox, QPushButton, QSplitter, QTextBrowser, QVBoxLayout, QWidget
 from desktop.ui.widgets import DataTable
 from desktop.workers import FunctionWorker
 from project_mode import get_active_project
-from project_kb import DOC_TYPES, ingest_project_file, list_project_files, search_project_chunks, delete_project_file, project_kb_stats
+from project_kb import DOC_TYPES, ingest_project_files_batch, list_project_files, search_project_chunks, delete_project_file, project_kb_stats, present_batch_import_result
 
 class ProjectFilesPage(QWidget):
     def __init__(self,parent=None):
@@ -41,12 +40,21 @@ class ProjectFilesPage(QWidget):
         paths,_=QFileDialog.getOpenFileNames(self,"选择项目文件","","项目文件 (*.pdf *.docx *.pptx *.xlsx *.txt *.md *.csv *.json *.xml *.html *.png *.jpg *.jpeg *.webp);;全部文件 (*.*)")
         if not paths:return
         dtype=self.doc_type.currentText()
-        def task():
-            out=[]
-            for x in paths:out.append(ingest_project_file(p["id"],x,dtype,title=Path(x).stem))
-            return out
-        w=FunctionWorker(task); w.signals.finished.connect(lambda r:(self.refresh(),QMessageBox.information(self,"完成",f"已导入 {len(r)} 个文件。")))
-        w.signals.error.connect(lambda e:QMessageBox.critical(self,"导入失败",e)); self.pool.start(w)
+        self.upload.setEnabled(False)
+        def task():return ingest_project_files_batch(p["id"],paths,dtype)
+        w=FunctionWorker(task); w.signals.finished.connect(self._batch_import_finished)
+        w.signals.error.connect(self._batch_import_failed); self.pool.start(w)
+
+    def _batch_import_finished(self,batch):
+        self.upload.setEnabled(True)
+        present_batch_import_result(
+            batch,refresh=self.refresh,set_result_text=self.result.setPlainText,
+            show_information=lambda text:QMessageBox.information(self,"批次导入结果",text),
+            show_warning=lambda text:QMessageBox.warning(self,"批次导入结果",text))
+
+    def _batch_import_failed(self,message):
+        self.upload.setEnabled(True)
+        QMessageBox.critical(self,"导入失败",message)
 
     def do_search(self):
         p=get_active_project(); q=self.search.text().strip()

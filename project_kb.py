@@ -1,8 +1,10 @@
 from __future__ import annotations
-import hashlib, json, mimetypes, re, shutil, zipfile, os
+import errno, hashlib, json, mimetypes, re, shutil, sqlite3, uuid, zipfile, os
 import xml.etree.ElementTree as ET
+from dataclasses import asdict, dataclass
 from pathlib import Path
 from pdf_support import open_pdf_reader
+from pypdf.errors import PdfReadError
 from db import connect
 from search_zh import build_index_text, build_query
 
@@ -20,6 +22,44 @@ DOC_TYPES = [
     '施工组织设计','施工方案','专项施工方案','技术交底','设计变更/技术核定','材料报审/样板确认',
     '合同技术条款','甲方技术要求','监理/主管部门要求','工程联系单/会议纪要','验收资料','其他'
 ]
+
+BATCH_IMPORT_VERSION = '1.4-a1'
+
+
+@dataclass(frozen=True)
+class ProjectFileImportResult:
+    input_index: int
+    file_name: str
+    source_path: str
+    status: str
+    outcome: str
+    file_id: int | None
+    duplicate: bool
+    failure_reason: str | None
+    error_type: str | None
+
+    def to_dict(self) -> dict:
+        return asdict(self)
+
+
+@dataclass(frozen=True)
+class ProjectBatchImportResult:
+    schema_version: int
+    batch_version: str
+    project_id: int
+    total_files: int
+    success_count: int
+    failure_count: int
+    status: str
+    partial_success: bool
+    files: list[ProjectFileImportResult]
+    ui_refresh_required: bool
+    fatal_error: str | None
+
+    def to_dict(self) -> dict:
+        data = asdict(self)
+        data['files'] = [item.to_dict() for item in self.files]
+        return data
 
 
 def ensure_project_kb_schema():
@@ -203,8 +243,33 @@ def extract_file_text(path:str):
     return [],0
 
 
+def _insert_project_chunk_fts(con, *, search_tokens:str, chunk_id:int, project_id:int, file_id:int):
+    """Single testable boundary for the FTS side of one file transaction."""
+    con.execute('INSERT INTO project_file_chunks_fts(search_tokens,chunk_id,project_id,file_id) VALUES(?,?,?,?)',
+                (search_tokens,str(chunk_id),str(project_id),str(file_id)))
+
+
+def _delete_project_chunk_fts(con, chunk_ids:list[int]):
+    """Delete FTS rows by their real rowid, then fail closed if any mapping remains."""
+    ids=sorted({int(value) for value in chunk_ids})
+    if not ids:return
+    wanted={str(value) for value in ids}
+    rowids=[row[0] for row in con.execute(
+        'SELECT rowid,chunk_id FROM project_file_chunks_fts') if row[1] in wanted]
+    if rowids:
+        row_marks=','.join(['?']*len(rowids))
+        con.execute(f'DELETE FROM project_file_chunks_fts WHERE rowid IN ({row_marks})',rowids)
+    remaining=any(row[0] in wanted for row in con.execute(
+        'SELECT chunk_id FROM project_file_chunks_fts'))
+    if remaining:raise RuntimeError('项目全文索引旧映射删除失败，已回滚该文件。')
+
+
 def ingest_project_file(project_id:int, source_path:str, doc_type:str, title:str='', source_ref:str='', notes:str=''):
-    ensure_project_kb_schema(); src=Path(source_path)
+    try:ensure_project_kb_schema()
+    except Exception as exc:
+        exc.import_stage='database'
+        raise
+    src=Path(source_path)
     if not src.exists(): raise FileNotFoundError(source_path)
     ext=src.suffix.lower()
     if ext in UNSUPPORTED_CAD_EXTS:
@@ -212,22 +277,44 @@ def ingest_project_file(project_id:int, source_path:str, doc_type:str, title:str
     raw=src.read_bytes(); sha=hashlib.sha256(raw).hexdigest(); size=len(raw)
     # Validate and extract before copying into the managed project directory.  A
     # password/format failure must not leave an unreferenced physical file.
-    chunks,page_count=extract_file_text(str(src)) if ext in SUPPORTED_INDEX_EXTS else ([],0)
-    proj_dir=PROJECT_DIR/str(project_id)/'files'; proj_dir.mkdir(parents=True,exist_ok=True)
-    dest=proj_dir/f'{sha[:10]}_{_safe_name(src.name)}'
-    created_dest=False
     try:
-        if not dest.exists(): shutil.copy2(src,dest);created_dest=True
-        index_status='已索引' if chunks else ('仅视觉/AI直读' if ext in VISUAL_REVIEW_EXTS else '未建立本地文本索引')
+        chunks,page_count=extract_file_text(str(src)) if ext in SUPPORTED_INDEX_EXTS else ([],0)
+    except Exception as exc:
+        if _is_system_fatal_import_error(exc):raise
+        raise ValueError(f'文件解析失败：{_friendly_import_failure(exc)}') from exc
+    proj_dir=PROJECT_DIR/str(project_id)/'files'
+    dest=None; temp_dest=None; created_dest=False; duplicate=False; result=None
+    stage='target_storage'
+    try:
+        proj_dir.mkdir(parents=True,exist_ok=True)
+        stage='database'
         with connect() as con:
-            old=con.execute('SELECT id FROM project_files WHERE project_id=? AND sha256=?',(project_id,sha)).fetchone()
+            con.execute('BEGIN IMMEDIATE')
+            old=con.execute('SELECT id,stored_path FROM project_files WHERE project_id=? AND sha256=?',(project_id,sha)).fetchone()
+            duplicate=bool(old)
+            dest=Path(old['stored_path']) if old and old['stored_path'] else proj_dir/f'{sha[:10]}_{_safe_name(src.name)}'
+            stage='target_storage'
+            if not dest.exists():
+                dest.parent.mkdir(parents=True,exist_ok=True)
+                temp_dest=dest.with_name(dest.name+f'.importing-{uuid.uuid4().hex}')
+                try:shutil.copy2(src,temp_dest)
+                except OSError as exc:
+                    # A filename naming the source identifies a read failure.
+                    # Unattributed copy I/O faults stop conservatively: the
+                    # destination volume may be unavailable.
+                    if exc.filename is not None and exc.filename2 is None and Path(exc.filename)==src:
+                        stage='source'
+                    raise
+                os.replace(temp_dest,dest)
+                created_dest=True
+            stage='database'
+            index_status='已索引' if chunks else ('仅视觉/AI直读' if ext in VISUAL_REVIEW_EXTS else '未建立本地文本索引')
             if old:
                 file_id=old['id']
                 con.execute('UPDATE project_files SET doc_type=?,title=?,source_ref=?,notes=?,stored_path=?,updated_at=CURRENT_TIMESTAMP WHERE id=?',
                             (doc_type,title or src.stem,source_ref,notes,str(dest),file_id))
                 ids=[r['id'] for r in con.execute('SELECT id FROM project_file_chunks WHERE file_id=?',(file_id,))]
-                if ids:
-                    marks=','.join(['?']*len(ids)); con.execute(f'DELETE FROM project_file_chunks_fts WHERE chunk_id IN ({marks})',ids)
+                _delete_project_chunk_fts(con,ids)
                 con.execute('DELETE FROM project_file_chunks WHERE file_id=?',(file_id,))
             else:
                 cur=con.execute('''INSERT INTO project_files(project_id,doc_type,title,source_ref,original_name,stored_path,ext,mime_type,sha256,file_size,page_count,chunk_count,index_status,visual_review_supported,notes)
@@ -243,14 +330,141 @@ def ingest_project_file(project_id:int, source_path:str, doc_type:str, title:str
                                 (project_id,file_id,c.get('page_no'),c.get('section',''),c['content'],h))
                 if cur.rowcount:
                     cid=cur.lastrowid; count+=1
-                    con.execute('INSERT INTO project_file_chunks_fts(search_tokens,chunk_id,project_id,file_id) VALUES(?,?,?,?)',
-                                (build_index_text('', '', c.get('section',''), c['content']),str(cid),str(project_id),str(file_id)))
+                    _insert_project_chunk_fts(con,
+                        search_tokens=build_index_text('', '', c.get('section',''), c['content']),
+                        chunk_id=cid,project_id=project_id,file_id=file_id)
             con.execute('UPDATE project_files SET page_count=?,chunk_count=?,index_status=?,visual_review_supported=?,updated_at=CURRENT_TIMESTAMP WHERE id=?',
                         (page_count,count,index_status,1 if ext in VISUAL_REVIEW_EXTS else 0,file_id))
-    except Exception:
-        if created_dest:dest.unlink(missing_ok=True)
+            row=con.execute('SELECT * FROM project_files WHERE id=?',(file_id,)).fetchone()
+            result=dict(row)
+    except Exception as exc:
+        # Never replace the primary fault with a cleanup fault. Each owned path
+        # gets its own attempt, even if a previous unlink failed.
+        exc.import_stage=stage
+        cleanup_errors=[]
+        for path in (temp_dest, dest if created_dest else None):
+            if path is None:continue
+            try:path.unlink(missing_ok=True)
+            except Exception as cleanup_exc:
+                cleanup_errors.append((str(path),type(cleanup_exc).__name__,str(cleanup_exc)))
+        exc.import_cleanup_errors=cleanup_errors
         raise
-    return get_project_file(file_id)
+    result['import_action']='updated_existing' if duplicate else 'created'
+    return result
+
+
+def _friendly_import_failure(exc:Exception) -> str:
+    cleanup_errors=getattr(exc,'import_cleanup_errors',())
+    if cleanup_errors:
+        paths='；'.join(f'{path}（{kind}：{message}）' for path,kind,message in cleanup_errors)
+        return (f'导入失败（{type(exc).__name__}）：{exc}。'
+                f'物理文件清理未完成，不能确认完整回滚；请检查可能残留的路径：{paths}。批次已停止。')
+    if isinstance(exc, PdfReadError):return f'PDF 已损坏或格式无法解析：{exc}'
+    if isinstance(exc, FileNotFoundError):return '文件不存在或已被移动。'
+    if isinstance(exc, PermissionError):return '文件无法读取或写入，请检查文件权限和占用状态。'
+    if isinstance(exc, zipfile.BadZipFile):return '文件已损坏或不是有效的 Office 文档。'
+    if isinstance(exc, ET.ParseError):return '文件内部 XML 已损坏，无法解析。'
+    if isinstance(exc, sqlite3.DatabaseError):return '项目文件或全文索引写入失败，该文件已完整回滚。'
+    message=str(exc).strip()
+    if isinstance(exc, ValueError) and message:return message
+    return f'导入失败（{type(exc).__name__}）：{message or "未知原因"}。该文件已回滚。'
+
+
+def _is_system_fatal_import_error(exc:Exception) -> bool:
+    if getattr(exc,'import_cleanup_errors',()):return True
+    if isinstance(exc, MemoryError):return True
+    if isinstance(exc, OSError) and getattr(exc,'errno',None)==errno.ENOSPC:return True
+    if (isinstance(exc,OSError) and getattr(exc,'import_stage',None) in ('target_storage','database')
+            and exc.errno in (errno.EIO,errno.EROFS)):return True
+    if not isinstance(exc, sqlite3.DatabaseError):return False
+    # Extended SQLite codes preserve their primary code in the low byte.
+    code=getattr(exc,'sqlite_errorcode',None)
+    if isinstance(code,int) and (code & 0xff) in (
+        sqlite3.SQLITE_CANTOPEN,sqlite3.SQLITE_CORRUPT,sqlite3.SQLITE_IOERR,
+        sqlite3.SQLITE_BUSY,sqlite3.SQLITE_LOCKED,sqlite3.SQLITE_READONLY,
+        sqlite3.SQLITE_FULL,sqlite3.SQLITE_NOTADB,sqlite3.SQLITE_NOMEM,
+    ):return True
+    message=str(exc).lower()
+    return any(token in message for token in (
+        'unable to open database','database disk image is malformed','disk i/o error',
+        'database is locked','readonly database','database or disk is full',
+        'no such table','no such module: fts5','file is not a database',
+    ))
+
+
+def ingest_project_files_batch(project_id:int, source_paths:list[str], doc_type:str,
+                               source_ref:str='', notes:str='') -> ProjectBatchImportResult:
+    """Import each source atomically while allowing file-level partial success.
+
+    The function never shares a database transaction between files.  A regular
+    parse/index failure is recorded and processing continues.  A confirmed
+    database/storage availability failure stops the batch and marks remaining
+    inputs as not processed, without rolling back earlier successful files.
+    """
+    paths=[str(path) for path in source_paths]
+    outcomes=[]; fatal_error=None
+    for index,path in enumerate(paths):
+        source=Path(path)
+        try:
+            row=ingest_project_file(project_id,path,doc_type,title=source.stem,
+                                    source_ref=source_ref,notes=notes)
+            action=row.get('import_action','created')
+            outcomes.append(ProjectFileImportResult(
+                index,source.name,path,'success',action,int(row['id']),
+                action=='updated_existing',None,None))
+        except Exception as exc:
+            reason=_friendly_import_failure(exc)
+            fatal=_is_system_fatal_import_error(exc)
+            outcomes.append(ProjectFileImportResult(
+                index,source.name,path,'failed','failed',None,False,reason,type(exc).__name__))
+            if fatal:
+                fatal_error=reason
+                for pending_index,pending_path in enumerate(paths[index+1:],start=index+1):
+                    pending=Path(pending_path)
+                    outcomes.append(ProjectFileImportResult(
+                        pending_index,pending.name,pending_path,'failed','not_processed',None,False,
+                        '批次因系统级错误停止，未处理该文件。','BatchAborted'))
+                break
+    successes=sum(item.status=='success' for item in outcomes)
+    failures=len(outcomes)-successes
+    if not paths:status='empty'
+    elif fatal_error:status='system_failure'
+    elif failures==0:status='success'
+    elif successes:status='partial_success'
+    else:status='failed'
+    return ProjectBatchImportResult(
+        1,BATCH_IMPORT_VERSION,project_id,len(paths),successes,failures,status,
+        successes>0 and failures>0,outcomes,bool(paths),fatal_error)
+
+
+def format_batch_import_summary(batch:ProjectBatchImportResult) -> str:
+    lines=[f'批次导入完成：共 {batch.total_files} 个，成功 {batch.success_count} 个，失败 {batch.failure_count} 个。']
+    successes=[item for item in batch.files if item.status=='success']
+    failures=[item for item in batch.files if item.status!='success']
+    if successes:
+        lines.extend(['','成功文件：'])
+        for item in successes:
+            action='（重复文件，已按现有记录安全更新）' if item.duplicate else ''
+            lines.append(f'✓ {item.file_name} → 记录 ID {item.file_id}{action}')
+    if failures:
+        lines.extend(['','失败文件：'])
+        for item in failures:lines.append(f'✗ {item.file_name}：{item.failure_reason}')
+    return '\n'.join(lines)
+
+
+def present_batch_import_result(batch:ProjectBatchImportResult, *, refresh, set_result_text,
+                                show_information, show_warning) -> str:
+    """Apply one final UI refresh and present the complete batch outcome."""
+    refresh_error=None
+    if batch.ui_refresh_required:
+        try:refresh()
+        except Exception as exc:refresh_error=exc
+    summary=format_batch_import_summary(batch)
+    if refresh_error is not None:
+        summary+=f'\n\n界面刷新失败（{type(refresh_error).__name__}）：{refresh_error}。以上导入结果仍有效，请稍后重新刷新列表。'
+    set_result_text(summary)
+    (show_warning if batch.failure_count or refresh_error is not None else show_information)(summary)
+    return summary
 
 
 def get_project_file(file_id:int):
@@ -271,8 +485,7 @@ def delete_project_file(file_id:int, delete_physical=True):
     if not f:return
     with connect() as con:
         ids=[r['id'] for r in con.execute('SELECT id FROM project_file_chunks WHERE file_id=?',(file_id,))]
-        if ids:
-            marks=','.join(['?']*len(ids)); con.execute(f'DELETE FROM project_file_chunks_fts WHERE chunk_id IN ({marks})',ids)
+        _delete_project_chunk_fts(con,ids)
         con.execute('DELETE FROM project_files WHERE id=?',(file_id,))
     if delete_physical:
         try:Path(f['stored_path']).unlink(missing_ok=True)

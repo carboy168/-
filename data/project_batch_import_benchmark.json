@@ -1,0 +1,30 @@
+{
+  "schema_version": 1,
+  "benchmark_version": "1.4-a1",
+  "safety_boundaries": [
+    "per_file_atomic_commit",
+    "failed_file_complete_rollback",
+    "successful_siblings_are_preserved",
+    "fts_integrity_after_every_scenario",
+    "no_evidence_claim_conflict_or_finding_side_effects",
+    "no_database_schema_change"
+  ],
+  "cases": [
+    {"id": "corrupt-pdf-continues", "expected_status": "partial_success", "success_count": 1, "failure_count": 1, "required_outcomes": ["failed", "created"], "fts_clean": true, "ui_refresh_count": 1},
+    {"id": "partial-fts-rollback", "expected_status": "failed", "success_count": 0, "failure_count": 1, "required_outcomes": ["failed"], "fts_clean": true, "ui_refresh_count": 1},
+    {"id": "partial-copy-rollback", "expected_status": "failed", "success_count": 0, "failure_count": 1, "required_outcomes": ["failed"], "fts_clean": true, "ui_refresh_count": 1},
+    {"id": "ui-replaces-failures", "expected_status": "success", "success_count": 1, "failure_count": 0, "required_outcomes": ["created"], "fts_clean": true, "ui_refresh_count": 1},
+    {"id": "all-success", "expected_status": "success", "success_count": 2, "failure_count": 0, "required_outcomes": ["created"], "fts_clean": true, "ui_refresh_count": 1},
+    {"id": "first-failure-continues", "expected_status": "partial_success", "success_count": 1, "failure_count": 1, "required_outcomes": ["failed", "created"], "fts_clean": true, "ui_refresh_count": 1},
+    {"id": "middle-failure-continues", "expected_status": "partial_success", "success_count": 2, "failure_count": 1, "required_outcomes": ["created", "failed"], "fts_clean": true, "ui_refresh_count": 1},
+    {"id": "multiple-failures", "expected_status": "partial_success", "success_count": 1, "failure_count": 2, "required_outcomes": ["failed", "created"], "fts_clean": true, "ui_refresh_count": 1},
+    {"id": "duplicate-safe-update", "expected_status": "success", "success_count": 2, "failure_count": 0, "required_outcomes": ["created", "updated_existing"], "fts_clean": true, "ui_refresh_count": 1},
+    {"id": "duplicate-reindex-failure-rollback", "expected_status": "failed", "success_count": 0, "failure_count": 1, "required_outcomes": ["failed"], "fts_clean": true, "ui_refresh_count": 1},
+    {"id": "password-pdf-rollback", "expected_status": "failed", "success_count": 0, "failure_count": 1, "required_outcomes": ["failed"], "fts_clean": true, "ui_refresh_count": 1},
+    {"id": "corrupt-office-rollback", "expected_status": "failed", "success_count": 0, "failure_count": 1, "required_outcomes": ["failed"], "fts_clean": true, "ui_refresh_count": 1},
+    {"id": "parser-exception-continues", "expected_status": "partial_success", "success_count": 1, "failure_count": 1, "required_outcomes": ["failed", "created"], "fts_clean": true, "ui_refresh_count": 1},
+    {"id": "fts-write-failure-rollback", "expected_status": "partial_success", "success_count": 1, "failure_count": 1, "required_outcomes": ["failed", "created"], "fts_clean": true, "ui_refresh_count": 1},
+    {"id": "system-failure-stops-remaining", "expected_status": "system_failure", "success_count": 1, "failure_count": 2, "required_outcomes": ["created", "failed", "not_processed"], "fts_clean": true, "ui_refresh_count": 1},
+    {"id": "ui-final-refresh", "expected_status": "partial_success", "success_count": 1, "failure_count": 1, "required_outcomes": ["created", "failed"], "fts_clean": true, "ui_refresh_count": 1}
+  ]
+}

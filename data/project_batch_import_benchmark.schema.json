@@ -1,0 +1,39 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "benchmark_version", "safety_boundaries", "cases"],
+  "properties": {
+    "schema_version": {"const": 1},
+    "benchmark_version": {"const": "1.4-a1"},
+    "safety_boundaries": {
+      "type": "array",
+      "minItems": 6,
+      "uniqueItems": true,
+      "items": {"type": "string", "minLength": 1}
+    },
+    "cases": {
+      "type": "array",
+      "minItems": 10,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "expected_status", "success_count", "failure_count", "required_outcomes", "fts_clean", "ui_refresh_count"],
+        "properties": {
+          "id": {"type": "string", "minLength": 1},
+          "expected_status": {"enum": ["success", "partial_success", "failed", "system_failure"]},
+          "success_count": {"type": "integer", "minimum": 0},
+          "failure_count": {"type": "integer", "minimum": 0},
+          "required_outcomes": {
+            "type": "array",
+            "minItems": 1,
+            "uniqueItems": true,
+            "items": {"enum": ["created", "updated_existing", "failed", "not_processed"]}
+          },
+          "fts_clean": {"const": true},
+          "ui_refresh_count": {"const": 1}
+        }
+      }
+    }
+  }
+}
